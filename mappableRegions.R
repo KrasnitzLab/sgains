@@ -2,7 +2,7 @@ args<-commandArgs(trailingOnly = TRUE)
 library(parallel)
 library(foreach)
 library(doParallel)
-cl<-parallel::makeCluster(getOption("cl.cores",detectCores()))
+cl<-parallel::makeCluster(2)
 registerDoParallel(cl)
 hgall<-c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", 
 	"chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", 
