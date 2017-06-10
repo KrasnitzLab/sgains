@@ -28,3 +28,10 @@ def test_mask_chrY(hg):
     assert rec.id == "chrY"
     assert len(rec) == 59373566
     hg.save_chrom(rec, "chrY.psr.test")
+
+
+def test_psr_chrY(hg):
+    chr_y = hg.load_chrom("chrY.psr", hg.config.genome.dst)
+    chr_ty = hg.load_chrom("chrY.psr.test", hg.config.genome.dst)
+
+    assert chr_y.seq == chr_ty.seq

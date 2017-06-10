@@ -28,18 +28,22 @@ class HumanGenome19(object):
 
         assert os.path.exists(config.genome.dst)
 
-    def load_chrom(self, chrom):
+    def load_chrom(self, chrom, src=None):
+        if src is None:
+            src = self.config.genome.src
         infile = os.path.join(
-            self.config.genome.src,
+            src,
             "{}.fa".format(chrom)
         )
         assert os.path.exists(infile)
         seq_record = SeqIO.read(infile, 'fasta')
         return seq_record
 
-    def save_chrom(self, record, chrom):
+    def save_chrom(self, record, chrom, dst=None):
+        if dst is None:
+            dst = self.config.genome.dst
         outfile = os.path.join(
-            self.config.genome.dst,
+            dst,
             "{}.fa".format(chrom)
         )
         SeqIO.write([record], outfile, 'fasta')
