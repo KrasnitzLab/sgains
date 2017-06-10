@@ -1,2 +1,7 @@
 *.swp
 data/*
+.project
+.pydevproject
+__pycache__
+.cache
+

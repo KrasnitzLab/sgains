@@ -21,14 +21,14 @@ def main():
 		chrY += aline
 
 	newChrY = chrY[0:10000] + "N" * (2649520 - 10000) + chrY[2649520:59034049] + "N" * (59363566 - 59034049) + chrY[59363566:]
-	print len(chrY)
-	print len(newChrY)
+	print(len(chrY))
+	print(len(newChrY))
 
 	chrY = newChrY	
 
 	OUTFILE.write(header_line)
 	OUTFILE.write("\n")
-	lines = len(chrY) / 50
+	lines = int(len(chrY) / 50)
 	remainder = len(chrY) - (lines * 50)
 	for i in range(lines):
 		OUTFILE.write(chrY[(i * 50):((i * 50) + 50)])

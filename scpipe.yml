@@ -1,0 +1,5 @@
+---
+genome:
+  version: hg19
+  src: data/hg19_safe
+  dst: data/hg19
