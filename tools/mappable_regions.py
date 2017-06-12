@@ -14,6 +14,7 @@ from argparse import RawDescriptionHelpFormatter
 import config
 from hg19 import HumanGenome19
 import common_arguments
+import traceback
 
 
 class CLIError(Exception):
@@ -84,13 +85,14 @@ USAGE
             raise CLIError("wrong genome version")
 
         for mapping in generator.mappable_generator(mapped):
-            outfile.write(mapping)
+            outfile.write(str(mapping))
             outfile.write('\n')
 
         return 0
     except KeyboardInterrupt:
         return 0
     except Exception as e:
+        traceback.print_exc()
 
         indent = len(program_name) * " "
         sys.stderr.write(program_name + ": " + repr(e) + "\n")

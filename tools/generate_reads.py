@@ -16,7 +16,6 @@ from argparse import RawDescriptionHelpFormatter
 import config
 from hg19 import HumanGenome19
 import common_arguments
-from Bio import SeqIO
 import traceback
 
 
@@ -95,7 +94,9 @@ USAGE
             outfile = open(outfile, 'w')
 
         for rec in generator.generate_reads([chrom], length):
-            SeqIO.write([rec], outfile, 'fasta')
+            outfile.write(">{}\n".format(rec.id))
+            outfile.write(str(rec.seq))
+            outfile.write("\n")
 
         return 0
     except KeyboardInterrupt:

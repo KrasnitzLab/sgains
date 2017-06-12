@@ -20,6 +20,5 @@ def load_config(filename):
         config.genome.dst = os.path.join(
             dirname,
             config.genome.dst)
-        print(config)
 
         return config
