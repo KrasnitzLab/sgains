@@ -51,11 +51,7 @@ class HumanGenome19(object):
     def mask_pseudoautosomal_chrY(self):
         chr_y = self.load_chrom("chrY")
 
-        print(chr_y.id)
-        print(len(chr_y))
-
         masked = chr_y.seq.tomutable()
-
         masked[10000:2649520] = 'N' * (2649520 - 10000)
         masked[59034049:59363566] = 'N' * (59363566 - 59034049)
 

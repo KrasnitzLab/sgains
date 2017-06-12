@@ -1,19 +1,29 @@
 #!/usr/bin/env python
 # encoding: utf-8
 '''
-mask_chr_y -- masks pseudoautosomal region of Y chromsome
+build_bowtie_index -- builds bowtie index for genome specified
 
 Created on Jun 12, 2017
 
 @author: lubo
 '''
+
 import sys
 import os
+
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
-import config
-from hg19 import HumanGenome19
 import common_arguments
+import glob
+
+__all__ = []
+__version__ = 0.1
+__date__ = '2017-06-12'
+__updated__ = '2017-06-12'
+
+DEBUG = 1
+TESTRUN = 0
+PROFILE = 0
 
 
 class CLIError(Exception):
@@ -54,15 +64,29 @@ USAGE
         args = parser.parse_args(argv[1:])
         config = common_arguments.process_genome_agrments(args)
 
-        generator = None
-        if config.genome.version == 'hg19':
-            generator = HumanGenome19(config)
+        chrom_files = glob.glob("{}/*.fa".format(config.genome.src))
+        command = "cp {} {}".format(
+            " ".join(chrom_files),
+            config.genome.dst
+        )
+        os.system(command)
 
-        if generator is None:
-            raise CLIError("wrong genome version")
+        chrom_y_file = "{}/chrY.fa".format(config.genome.dst)
+        command = "rm -f {}".format(chrom_y_file)
+        os.system(command)
 
-        masked_chrom = generator.mask_pseudoautosomal_chrY()
-        generator.save_chrom(masked_chrom, "chrY.psr")
+        chrom_files = glob.glob(
+            "{}/chr*.fa".format(config.genome.dst)
+        )
+        command = "cat {} > {}/genome.fa".format(
+            " ".join(chrom_files),
+            config.genome.dst
+        )
+        os.system(command)
+
+        os.chdir(config.genome.dst)
+        command = "bowtie2-build -f genome.fa genomeindex"
+        os.system(command)
 
         return 0
     except KeyboardInterrupt:
