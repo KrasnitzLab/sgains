@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
+
 '''
-mappable_regions -- masks pseudoautosomal region of Y chromsome
+generate_mappable_regions -- generates mappable regions for whole genome
 
 Created on Jun 12, 2017
 
 @author: lubo
 '''
+
 import sys
 import os
 from argparse import ArgumentParser
@@ -51,30 +53,26 @@ USAGE
         common_arguments.genome_arguments(parser)
 
         parser.add_argument(
-            "-m", "--mapped",
-            dest="mapped",
-            help="file with mapped reads. stdin if not specified",
-            metavar="path")
+            "-C", "--chrom",
+            dest="chrom",
+            help="chromosome for which to generate mappable regions")
 
         parser.add_argument(
             "-o", "--outfile",
             dest="outfile",
-            help="output file to write mappable regions. "
+            help="output file to write generated reads. "
             "stdout if not specified",
             metavar="path")
+
+        parser.add_argument(
+            "-l", "--length",
+            dest="length",
+            type=int,
+            help="read length to generate")
 
         # process arguments
         args = parser.parse_args(argv[1:])
         config = common_arguments.process_genome_agrments(args)
-        mapped = args.mapped
-        outfile = args.outfile
-
-        if mapped is None:
-            mapped = sys.stdin
-        if outfile is None:
-            outfile = sys.stdout
-        else:
-            outfile = open(outfile, "w")
 
         generator = None
         if config.genome.version == 'hg19':
@@ -83,9 +81,30 @@ USAGE
         if generator is None:
             raise CLIError("wrong genome version")
 
-        for mapping in generator.mappable_generator(mapped):
-            outfile.write(mapping)
-            outfile.write('\n')
+        chrom = args.chrom
+        if chrom is None:
+            chroms = [chrom]
+        else:
+            chroms = generator.CHROMS
+
+        length = args.length
+        assert length is not None
+
+        configfile = config.filename
+
+        os.chdir(config.genome.dst)
+
+        for chrom in chroms:
+            commands = [
+                "generate_reads.py -c {} -C {} -l {}".format(
+                    configfile, chrom, length),
+                "bowtie2 -S -t -v 0 -m 1 -f genomeindex",
+                "mappable_regions.py -c {}".format(
+                    configfile)
+            ]
+            command = " | ".join(commands)
+            print(command)
+            os.system(command)
 
         return 0
     except KeyboardInterrupt:

@@ -12,4 +12,5 @@ def load_config(filename):
 
     with open(filename, 'r') as infile:
         config = Box.from_yaml(infile)
+        config.filename = os.path.abspath(filename)
         return config
