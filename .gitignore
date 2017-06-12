@@ -4,4 +4,4 @@ data/*
 .pydevproject
 __pycache__
 .cache
-
+.settings
