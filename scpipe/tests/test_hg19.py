@@ -35,3 +35,11 @@ def test_psr_chrY(hg):
     chr_ty = hg.load_chrom("chrY.psr.test", hg.config.genome.dst)
 
     assert chr_y.seq == chr_ty.seq
+
+
+def test_generate_reads(hg):
+
+    for num, rec in enumerate(hg.generate_reads(['chr1'], 100)):
+        if num >= 100:
+            break
+        print(rec.id, len(rec))

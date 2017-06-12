@@ -6,6 +6,7 @@ Created on Jun 10, 2017
 import os
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
+import pysam
 
 
 class HumanGenome19(object):
@@ -17,6 +18,9 @@ class HumanGenome19(object):
         "chr13", "chr14", "chr15", "chr16", "chr17", "chr18",
         "chr19", "chr20", "chr21", "chr22", "chrX", "chrY"
     ]
+
+    OUT = 0
+    IN = 1
 
     def __init__(self, config):
         assert config.genome.version == self.VERSION
@@ -57,3 +61,51 @@ class HumanGenome19(object):
 
         rec = SeqRecord(masked, id=chr_y.id, description=chr_y.description)
         return rec
+
+    def generate_reads(self, chroms, read_length, src=None):
+        for chrom in chroms:
+            seq_record = self.load_chrom(chrom, src=src)
+            for i in range(len(seq_record) - read_length + 1):
+                out_record = SeqRecord(
+                    seq_record.seq[i: i + read_length],
+                    id="{}.{}".format(chrom, i)
+                )
+                yield out_record
+
+    def mappable_generator(self, source):
+        infile = pysam.AlignmentFile(source, 'r')  # @UndefinedVariable
+
+        class MappableRegion(object):
+            def __init__(self, mapping):
+                self.chrom = mapping.reference_name
+                self.start = mapping.reference_start + 1
+                self.end = self.start + 1
+
+            def extend(self, mapping):
+                self.end = mapping.reference_start + 2
+
+            def __repr__(self):
+                return "{}\t{}\t{}".format(
+                    self.chrom, self.start, self.end)
+
+        prev = None
+        state = self.OUT
+
+        for mapping in infile.fetch():
+            if state == self.OUT:
+                if mapping.flag == 0:
+                    prev = MappableRegion(mapping)
+                    state = self.IN
+            else:
+                if mapping.flag == 0:
+                    if mapping.reference_name == prev.chrom:
+                        prev.extend(mapping)
+                    else:
+                        yield prev
+                        prev = MappableRegion(mapping)
+                else:
+                    yield prev
+                    state = self.OUT
+
+        if state == self.IN:
+            yield prev
