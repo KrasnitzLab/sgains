@@ -16,6 +16,7 @@ from argparse import RawDescriptionHelpFormatter
 import config
 from hg19 import HumanGenome19
 import common_arguments
+import traceback
 
 
 class CLIError(Exception):
@@ -110,6 +111,7 @@ USAGE
     except KeyboardInterrupt:
         return 0
     except Exception as e:
+        traceback.print_exc()
 
         indent = len(program_name) * " "
         sys.stderr.write(program_name + ": " + repr(e) + "\n")
