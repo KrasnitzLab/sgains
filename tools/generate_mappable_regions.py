@@ -104,7 +104,9 @@ USAGE
                     configfile)
             ]
             command = " | ".join(commands)
-            print(command)
+            sys.stderr.write(command)
+            sys.stderr.write('\n')
+
             os.system(command)
 
         return 0
