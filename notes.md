@@ -54,3 +54,21 @@ sort -k 1,1 -k 2,2n data/readsim/chr01.stdout.txt > mappable.regions.sorted.txt
 ```
 
 
+## Experiment with my tool chain
+
+```
+generate_mappable_regions.py -c scpipe.yml -l 100 -C chr1 > data/chr1.stdout.txt
+```
+
+```
+generate_reads.py -c /mnt1/lubo/Work/single_cell_pipeline/scpipe.yml -C chr1 -l 100 | \
+    bowtie2 -t -x genomeindex -f - | \
+    mappable_regions.py -c /mnt1/lubo/Work/single_cell_pipeline/scpipe.yml
+```
+
+The original tool chain whould be something like this:
+
+```
+generate_reads_jc.py 100 hg19 | bowtie2 -t -x genomeindex -f - | mappable_regions_jc.py > chr1.orig.stdout.txt
+```
+

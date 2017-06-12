@@ -38,7 +38,6 @@ def main():
             x = "".join(chrom)
 
         chrom = None
-
         x = x.upper()
 
         for i in range(len(x) - read_length + 1):

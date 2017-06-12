@@ -95,7 +95,7 @@ USAGE
 
         for rec in generator.generate_reads([chrom], length):
             outfile.write(">{}\n".format(rec.id))
-            outfile.write(str(rec.seq))
+            outfile.write(str(rec.seq).upper())
             outfile.write("\n")
 
         return 0
