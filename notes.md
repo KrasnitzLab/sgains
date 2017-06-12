@@ -4,7 +4,7 @@
 
 ```
 conda config --add channels bioconda
-conda instal bowtie2 samtools bcftools
+conda install bowtie2 samtools bcftools
 conda install wgsim
 
 ```

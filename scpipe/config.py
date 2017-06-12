@@ -13,4 +13,13 @@ def load_config(filename):
     with open(filename, 'r') as infile:
         config = Box.from_yaml(infile)
         config.filename = os.path.abspath(filename)
+        dirname = os.path.dirname(config.filename)
+        config.genome.src = os.path.join(
+            dirname,
+            config.genome.src)
+        config.genome.dst = os.path.join(
+            dirname,
+            config.genome.dst)
+        print(config)
+
         return config

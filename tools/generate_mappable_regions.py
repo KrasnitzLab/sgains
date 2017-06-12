@@ -82,7 +82,7 @@ USAGE
             raise CLIError("wrong genome version")
 
         chrom = args.chrom
-        if chrom is None:
+        if chrom is not None:
             chroms = [chrom]
         else:
             chroms = generator.CHROMS
@@ -98,7 +98,7 @@ USAGE
             commands = [
                 "generate_reads.py -c {} -C {} -l {}".format(
                     configfile, chrom, length),
-                "bowtie2 -S -t -v 0 -m 1 -f genomeindex",
+                "bowtie2 -t -f -x genomeindex -U -",
                 "mappable_regions.py -c {}".format(
                     configfile)
             ]
