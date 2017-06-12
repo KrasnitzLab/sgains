@@ -99,7 +99,7 @@ USAGE
             commands = [
                 "generate_reads.py -c {} -C {} -l {}".format(
                     configfile, chrom, length),
-                "bowtie2 -t -x genomeindex -f -",
+                "bowtie -t -x genomeindex -f -",
                 "mappable_regions.py -c {}".format(
                     configfile)
             ]

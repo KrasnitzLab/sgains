@@ -85,7 +85,7 @@ USAGE
         os.system(command)
 
         os.chdir(config.genome.dst)
-        command = "bowtie2-build -f genome.fa genomeindex"
+        command = "bowtie-build -f genome.fa genomeindex"
         os.system(command)
 
         return 0
