@@ -8,6 +8,7 @@ from Bio import SeqIO  # @UnresolvedImport
 from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 import pysam
 from collections import defaultdict
+from box import Box
 
 
 class HumanGenome19(object):
@@ -118,4 +119,15 @@ class HumanGenome19(object):
             for line in infile.readlines():
                 row = [r.strip() for r in line.strip().split('\t')]
                 result[row[0]] += int(row[2]) - int(row[1])
+        return result
+
+    def chrom_sizes(self):
+        result = Box(default_box=True)
+        abspos = 0
+        for chrom in self.CHROMS:
+            record = self.load_chrom(chrom)
+            size = len(record)
+            result[chrom].size = size
+            result[chrom].abspos = abspos
+            abspos += size
         return result

@@ -29,7 +29,7 @@ def main():
 	abspos = 0
 	for x in list_dir:
 		infilename = x + ".fa"
-		print infilename
+		print(infilename)
 		if INFILE:
 			INFILE.close()
 		INFILE = open(infilename, "r")

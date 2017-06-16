@@ -55,3 +55,13 @@ def test_count_chrom_mappable_regions(hg):
 
     assert result['chr1'] == 217026582
     assert result['chr10'] == 126701210
+
+
+def test_chrom_sizes(hg):
+    result = hg.chrom_sizes()
+
+    assert result.chr1.size == 249250621
+    assert result.chr1.abspos == 0
+
+    assert result.chr10.size == 135534747
+    assert result.chr10.abspos == 1680373143
