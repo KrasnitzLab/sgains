@@ -4,8 +4,8 @@ Created on Jun 10, 2017
 @author: lubo
 '''
 import os
-from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
+from Bio import SeqIO  # @UnresolvedImport
+from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 import pysam
 
 

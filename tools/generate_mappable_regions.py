@@ -91,17 +91,25 @@ USAGE
         length = args.length
         assert length is not None
 
-        configfile = config.filename
+        outfile = None
+        if args.outfile:
+            outfile = os.path.abspath(args.outfile)
 
+        configfile = config.filename
         os.chdir(config.genome.dst)
 
         for chrom in chroms:
+            mappable_regions_command = "mappable_regions.py -c {}".format(
+                configfile)
+            if outfile:
+                mappable_regions_command = "mappable_regions.py -c {} -o {}" \
+                    .format(configfile, outfile)
+
             commands = [
                 "generate_reads.py -c {} -C {} -l {}".format(
                     configfile, chrom, length),
                 "bowtie -S -t -v 0 -m 1 -f genomeindex -",
-                "mappable_regions.py -c {}".format(
-                    configfile)
+                mappable_regions_command
             ]
             command = " | ".join(commands)
             sys.stderr.write(command)

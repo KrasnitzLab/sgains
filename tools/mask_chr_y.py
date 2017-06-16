@@ -62,7 +62,7 @@ USAGE
             raise CLIError("wrong genome version")
 
         masked_chrom = generator.mask_pseudoautosomal_chrY()
-        generator.save_chrom(masked_chrom, "chrY.psr")
+        generator.save_chrom(masked_chrom, "chrY")
 
         return 0
     except KeyboardInterrupt:
