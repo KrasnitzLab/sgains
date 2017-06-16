@@ -7,6 +7,7 @@ import os
 from Bio import SeqIO  # @UnresolvedImport
 from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 import pysam
+from collections import defaultdict
 
 
 class HumanGenome19(object):
@@ -110,3 +111,11 @@ class HumanGenome19(object):
 
         if state == self.IN:
             yield prev
+
+    def count_chrom_mappable_regions(self, filename):
+        result = defaultdict(lambda: 0)
+        with open(filename, 'r') as infile:
+            for line in infile.readlines():
+                row = [r.strip() for r in line.strip().split('\t')]
+                result[row[0]] += int(row[2]) - int(row[1])
+        return result

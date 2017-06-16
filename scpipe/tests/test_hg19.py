@@ -6,6 +6,7 @@ Created on Jun 10, 2017
 from hg19 import HumanGenome19
 from config import load_config
 import pytest
+import os
 
 
 @pytest.fixture(scope='session')
@@ -43,3 +44,14 @@ def test_generate_reads(hg):
         if num >= 100:
             break
         print(rec.id, len(rec))
+
+
+def test_count_chrom_mappable_regions(hg):
+    filename = os.path.join(
+        hg.config.genome.dst,
+        "mappable.regions.sorted.txt"
+    )
+    result = hg.count_chrom_mappable_regions(filename)
+
+    assert result['chr1'] == 217026582
+    assert result['chr10'] == 126701210
