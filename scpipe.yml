@@ -2,6 +2,7 @@ genome:
   version: hg19
   src: data/hg19_safe
   dst: data/hg19
+  index: data/hg19/genomeindex
 
 bins:
   reads_length: 100

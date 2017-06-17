@@ -94,21 +94,25 @@ USAGE
         outfile = None
         if args.outfile:
             outfile = os.path.abspath(args.outfile)
+            with open(outfile, "w") as f:
+                f.write('')
 
         configfile = config.filename
-        os.chdir(config.genome.dst)
+        genomeindex = config.abspath(config.genome.index)
 
         for chrom in chroms:
-            mappable_regions_command = "mappable_regions.py -c {}".format(
-                configfile)
-            if outfile:
+            if not outfile:
+                mappable_regions_command = "mappable_regions.py -c {}".format(
+                    configfile)
+            else:
                 mappable_regions_command = "mappable_regions.py -c {} -o {}" \
                     .format(configfile, outfile)
 
             commands = [
                 "generate_reads.py -c {} -C {} -l {}".format(
                     configfile, chrom, length),
-                "bowtie -S -t -v 0 -m 1 -f genomeindex -",
+                "bowtie -S -t -v 0 -m 1 -f {} -".format(
+                    genomeindex),
                 mappable_regions_command
             ]
             command = " | ".join(commands)
