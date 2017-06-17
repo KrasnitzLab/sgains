@@ -5,3 +5,6 @@ data/*
 __pycache__
 .cache
 .settings
+.DS_Store
+._.DS_Store
+._*

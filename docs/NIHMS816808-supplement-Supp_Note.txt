@@ -1,0 +1,56 @@
+This is a list of file desrciptions in the supplementary material.
+
+bowtie.qsub.py - script to submit mapping jobs using Sun Grid Engine
+chromlist.txt - list of chromosome names
+hg19.50k.k50.bad.bins.txt - list of bins empirically seen to highly variable
+(mostly near centromeres).
+hg19.bin.boundaries.50k.bowtie.k50.sorted.txt - bin boundaries in genome order
+hg19.bin.boundaries.50k.bowtie.k50.txt - bin boundaries in ascii numeric
+chromosome order
+hg19.bin.boundaries.50k.py - script to create bin boundaries
+hg19.bowtie.build.bash - script to build a bowtie index for hg19 genome
+hg19.bowtie.goodzones.k50.py - script to find uniquely mappable regions
+hg19.chrom.mappable.bowtie.k50.py - script to count the number of mappable
+positions in each chromosome
+hg19.chrom.mappable.bowtie.k50.txt - number of mappable positions on each
+chromosome
+hg19.chrom.sizes.py - script to count sizes of each chromosome
+hg19.chrom.sizes.txt - size of each chromosome
+hg19.chrY.psr.py - script to convert pseudoautosomal region on chrY to Ns.
+hg19.generate.reads.k50.py - script to generate ~3 billion reads from hg19
+genome
+hg19.goodzones.bowtie.k50.bed - list of mappable regions
+hg19.varbin.gc.content.50k.bowtie.k50.py - script to calculate GC percent for
+each bin
+hg19.varbin.gc.content.50k.bowtie.k50.txt - gc content information for each
+bin
+SRR054616.bowtie.qsub - Sun Grid Engine script to map reads for sample cell
+SRR054616.cbs.r - R script to process data for cell
+SRR054616.cbs.r.out - R script output file
+SRR054616.copynumber.r - R script to estimate copy number for cell
+SRR054616.copynumber.r.out - R script output file
+SRR054616.hg19.50k.k50.nobad.varbin.data.txt - output data and segmentation
+for cell excluding bad bins
+SRR054616.hg19.50k.k50.nobad.varbin.short.txt - DNAcopy segmentation output
+excluding bad bins
+SRR054616.hg19.50k.k50.varbin.data.copynumber.txt - copy number estimate for
+cell
+SRR054616.hg19.50k.k50.varbin.data.txt - output data and segmentation for cell
+all 50000 bins
+SRR054616.hg19.50k.k50.varbin.short.txt - DNAcopy segmentation output for cell
+all 50000 bins
+SRR054616.varbin.50k.stats.txt - summary statistics for bin counts
+SRR054616.varbin.50k.txt - bincounts for cell
+SRR054616.wg.cn.chr*.png - plot of copy number estimates for all chromosomes
+in .png format
+SRR054616.wg.cn.chr*.ps - plot of copy number estimates for all chromosomes in
+.ps format
+SRR054616.wg.cn.density.png - segment ratio differences density plot in .png
+format
+SRR054616.wg.cn.density.ps - segment ratio differences density  plot in .ps
+format
+SRR054616.wg.nobad.png - whole genome plot without bad bins in .png format
+SRR054616.wg.nobad.ps - whole genome plot without bad bins in .ps format
+SRR054616.wg.png - whole genome plot with all bins in .png format
+SRR054616.wg.ps - whole genome plot with all bins in .ps format
+varbin.50k.sam.py - script to count reads in each bin

@@ -8,32 +8,29 @@ import bisect
 
 def main():
 
-	bincount = int(sys.argv[1])
+	bincount = 50000
+	MAP = open("/filepath/hg19.chrom.mappable.bowtie.k50.txt", "r")
+	GOOD = open("/filepath/hg19.goodzones.bowtie.k50.bed", "r")
+	CHROMLEN = open("/filepath/hg19.chrom.sizes.txt", "r")
+	OUTFILE = open("/filepath/hg19.bin.boundaries.50k.bowtie.k50.txt", "w")
 
-	MAP = open("chrom.mappable.bowtie.txt", "r")
-	GOOD = open("mappable.regions.sorted.txt", "r")
-	CHROMLEN = open("chrom.sizes.txt", "r")
-	OUTFILE = open("bin.boundaries.bowtie.txt", "w")
-
-	OUTFILE.write("chrom\tbin.start.chrompos\tbin.start.abspos\tbin.end.chrompos\tbin.length\tmappable.positions\n")
+	#OUTFILE.write("chrom\tbin.start.chrompos\tbin.start.abspos\tbin.end.chrompos\tbin.length\tmappable.positions\n")
 
 	chromlen = dict()
 	for x in CHROMLEN:
 		arow = x.rstrip().split("\t")
-		thisChrom = arow[0].strip()
+		thisChrom = arow[0]
 		thisChromlen = int(arow[1])
-		thisAbspos = int(arow[2])
+		thisAbspos = long(arow[2])
 		chromlen[thisChrom] = [thisChromlen, thisAbspos]
 
 	chromarray = []
 	chroms = dict()
-	totalLength = 0
-
-	MAP.readline()
+	totalLength = long(0)
 	for x in MAP:
 		arow = x.rstrip().split("\t")
-		thisChrom = arow[0].strip()
-		thisLength = int(arow[1])
+		thisChrom = arow[0]
+		thisLength = long(arow[1])
 		if thisChrom == "chrM":
 			continue
 		totalLength += thisLength
@@ -57,7 +54,7 @@ def main():
 
 	a = []
 	
-	print(chromarray)	
+	print chromarray	
 
 	remain = bincount - bincountUsed
 	for i in range(remain):
@@ -72,34 +69,35 @@ def main():
 
 	
 	chromorder = sorted(chroms2.keys())
-	print(chromorder)
+	print chromorder
 
-	print("Starting to get bin boundaries")
-
+	print 
+	print "Starting to get bin boundaries"
+	print
 	goodEOF = False
 	for chrom in chromorder:
-		print(chrom)
+		print chrom
 		firstBin = True
 		#  position GOOD file
 		x = GOOD.readline()
 		arow = x.rstrip().split("\t")
-		thisChrom = arow[0].strip()
+		thisChrom = arow[0]
 		thisStart = int(arow[1])
 		thisEnd = int(arow[2])
-		print("new chrom", arow)
+		print "new chrom", arow
 		while thisChrom != chrom:
 			x = GOOD.readline()
 			arow = x.rstrip().split("\t")
 			if len(x) == 0:
 				goodEOF = True
 				break
-			thisChrom = arow[0].strip()
+			thisChrom = arow[0]
 			thisStart = int(arow[1])
 			thisEnd = int(arow[2])
-			print("position chrom", arow)
+			print "position chrom", arow
 		if goodEOF:
 			break
-		print("after position")
+		print "after position"
 		currentStart = thisStart 
 		chromBincount = chroms2[chrom][0]
 		chromBinlength = chroms2[chrom][1]
@@ -109,41 +107,41 @@ def main():
 		binStart = 0
 		binEnd = 0
 		currentLength = 0
-		print(chromBincount, chromBinlength)
+		print chromBincount, chromBinlength
 		while thisBincount < chromBincount:
 			thisBincount += 1
-			print("thisBincount", thisBincount)
+			print "thisBincount", thisBincount
 			thisBinlength = int(chromBinlength)
 			currentExcess += chromExcess
-			print("currentExcess", currentExcess)
+			print "currentExcess", currentExcess
 			if currentExcess >= 1.0:
 				currentExcess -= 1.0
 				thisBinlength += 1
-			print("thisBinlength", thisBinlength)
+			print "thisBinlength", thisBinlength
 			binStart = currentStart
 			currentLength = 0
-			if (binStart + thisBinlength) <= thisEnd:
-				print("got bin from current GOOD")
+			if (binStart + thisBinlength) < thisEnd:
+				print "got bin from current GOOD"
 				binEnd = binStart + thisBinlength
 				currentStart = binStart + thisBinlength
 				currentLength = thisBinlength
 			else:
-				print("getting more GOOD")
+				print "getting more GOOD"
 				currentLength += (thisEnd - currentStart)
-				print(thisEnd, currentStart, currentLength, thisBinlength)
+				print thisEnd, currentStart, currentLength, thisBinlength
 				while currentLength < thisBinlength:
 					x = GOOD.readline()
-					print(x)
+					print x
 					if len(x) == 0:
 						goodEOF = True
 						break
 					arow = x.rstrip().split("\t")
-					thisChrom = arow[0].strip()
+					thisChrom = arow[0]
 					thisStart = int(arow[1])
 					thisEnd = int(arow[2])
-					print("adding length", arow)
+					print "adding length", arow
 					if thisChrom != chrom:
-						print("ERROR: Past end of chrom.", thisChrom, chrom)
+						print "ERROR: Past end of chrom.", thisChrom, chrom
 						break
 
 					if (thisEnd - thisStart) < (thisBinlength - currentLength):
@@ -151,7 +149,7 @@ def main():
 					else:
 						currentStart = thisStart + (thisBinlength - currentLength)
 						currentLength = thisBinlength
-					print("currentLength", currentLength)
+					print "currentLength", currentLength
 				binEnd = currentStart
 
 			if firstBin:

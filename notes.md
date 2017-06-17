@@ -72,3 +72,13 @@ The original tool chain whould be something like this:
 generate_reads_jc.py 100 hg19 | bowtie2 -t -x genomeindex -f - | mappable_regions_jc.py > chr1.orig.stdout.txt
 ```
 
+## Time consumed to generate mappable regions
+
+```
+date && generate_mappable_regions.py -l 50 -c scpipe.yml -o data/readsim/all.50.mappable.txt && date
+Fri Jun 16 14:14:26 EEST 2017
+...
+...
+Sat Jun 17 04:20:49 EEST 2017
+```
+
