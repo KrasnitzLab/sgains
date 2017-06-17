@@ -195,6 +195,15 @@ class HumanGenome19(object):
                 result[row[0]] += int(row[2]) - int(row[1])
         return Box(result)
 
+    def mappable_regions(self):
+        filename = self.mappable_regions_filename()
+        assert os.path.exists(filename)
+        result = []
+        with open(filename, 'r') as infile:
+            for line in infile.readlines():
+                row = [r.strip() for r in line.strip().split('\t')]
+                result.append([row[0], int(row[1]), int(row[2])])
+
     def calc_chrom_sizes(self):
         result = Box(default_box=True)
         abspos = 0
@@ -225,9 +234,57 @@ class HumanGenome19(object):
             result = Box.from_yaml(infile)
             return result
 
-    def mappable_positions_total_count(self):
+    def total_mappable_positions_count(self):
         counts = self.chrom_mappable_positions_count()
         total = 0
         for chrom in self.CHROMS:
             total += counts[chrom]
         return total
+
+    def calc_chrom_bins(self):
+        bins_count = self.config.bins.bins_count
+        chrom_mappable_positions_count = self.chrom_mappable_positions_count()
+        total_mappable_positions_count = self.total_mappable_positions_count()
+
+        chrom_bins = Box(default_box=True)
+        bins_count_used = 0
+        for chrom in self.CHROMS:
+            chrom_mappable_positions = chrom_mappable_positions_count[chrom]
+            cbc = float(bins_count) * \
+                float(chrom_mappable_positions) / \
+                float(total_mappable_positions_count)
+            chrom_bins[chrom].bins_count = int(cbc)
+            chrom_bins[chrom].remainder = \
+                cbc - chrom_bins[chrom].bins_count
+            bins_count_used += chrom_bins[chrom].bins_count
+
+        remainder_bins_count = bins_count - bins_count_used
+        chroms_remainders_order = [
+            c for (_, c) in
+            sorted([
+                (-chrom_bins[chrom].remainder, chrom)
+                for chrom in chrom_bins
+            ])
+        ]
+
+        for r in range(remainder_bins_count):
+            chrom = chroms_remainders_order[r]
+            chrom_bins[chrom].bins_count += 1
+
+        for chrom in chroms_remainders_order:
+            chrom_mappable_positions = chrom_mappable_positions_count[chrom]
+            chrom_bins_count = chrom_bins[chrom].bins_count
+
+            bin_size = float(chrom_mappable_positions) / \
+                float(chrom_bins_count)
+            chrom_bins[chrom].bin_size = bin_size
+
+        return chrom_bins
+
+    def calc_bin_boundaries(self):
+        chrom_sizes = self.chrom_sizes()
+        chrom_mappable_positions_count = self.chrom_mappable_positions_count()
+        total_mappable_positions_count = self.total_mappable_positions_count()
+
+        chrom_bins = self.calc_chrom_bins()
+        print(chrom_bins)
