@@ -113,7 +113,15 @@ class HumanGenome19(object):
         if state == self.IN:
             yield prev
 
-    def count_chrom_mappable_positions(self, filename):
+    def count_chrom_mappable_positions(self, filename=None):
+        if not filename:
+            filename = os.path.join(
+                self.config.bins.cache_dir,
+                self.config.bins.mappable_regions
+            )
+        filename = self.config.abspath(filename)
+        assert os.path.exists(filename)
+
         result = defaultdict(lambda: 0)
         with open(filename, 'r') as infile:
             for line in infile.readlines():
@@ -121,7 +129,7 @@ class HumanGenome19(object):
                 result[row[0]] += int(row[2]) - int(row[1])
         return result
 
-    def chrom_sizes(self):
+    def calc_chrom_sizes(self):
         result = Box(default_box=True)
         abspos = 0
         for chrom in self.CHROMS:
@@ -131,3 +139,18 @@ class HumanGenome19(object):
             result[chrom].abspos = abspos
             abspos += size
         return result
+
+    def chrom_sizes(self):
+        filename = os.path.join(
+            self.config.bins.cache_dir,
+            self.config.bins.chrom_sizes
+        )
+        filename = self.config.abspath(filename)
+
+        if not os.path.exists(filename):
+            result = self.calc_chrom_sizes()
+            result.to_yaml(filename)
+
+        with open(filename, 'r') as infile:
+            result = Box.from_yaml(infile)
+            return result

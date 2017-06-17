@@ -4,14 +4,13 @@ Created on Jun 10, 2017
 @author: lubo
 '''
 from hg19 import HumanGenome19
-from config import load_config
 import pytest
-import os
+from config import Config
 
 
 @pytest.fixture(scope='session')
 def hg(request):
-    config = load_config("scpipe.yml")
+    config = Config.load("scpipe.yml")
     return HumanGenome19(config)
 
 
@@ -47,11 +46,7 @@ def test_generate_reads(hg):
 
 
 def test_count_chrom_mappable_positions(hg):
-    filename = os.path.join(
-        hg.config.genome.dst,
-        "mappable.regions.sorted.txt"
-    )
-    result = hg.count_chrom_mappable_positions(filename)
+    result = hg.count_chrom_mappable_positions()
 
     assert result['chr1'] == 217026582
     assert result['chr10'] == 126701210
