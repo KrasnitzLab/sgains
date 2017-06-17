@@ -7,18 +7,30 @@ from box import Box
 import os
 
 
-def load_config(filename):
-    assert os.path.exists(filename)
+class Config(Box):
 
-    with open(filename, 'r') as infile:
-        config = Box.from_yaml(infile)
-        config.filename = os.path.abspath(filename)
-        dirname = os.path.dirname(config.filename)
-        config.genome.src = os.path.join(
-            dirname,
-            config.genome.src)
-        config.genome.dst = os.path.join(
-            dirname,
-            config.genome.dst)
+    def __init__(self, data, **kwargs):
+        super(Config, self).__init__(
+            data,
+            **kwargs)
 
-        return config
+    @staticmethod
+    def load(filename):
+        assert os.path.exists(filename)
+
+        with open(filename, 'r') as infile:
+            config = Box.from_yaml(infile)
+            config.filename = os.path.abspath(filename)
+            config.dirname = os.path.dirname(config.filename)
+
+            return Config(
+                config.to_dict(),
+                default_box=True,
+                camel_case_killer=True
+            )
+
+    def abspath(self, filename):
+        return os.path.join(
+            self.dirname,
+            filename
+        )
