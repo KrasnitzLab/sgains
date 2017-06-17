@@ -10,7 +10,7 @@ from config import Config
 
 @pytest.fixture(scope='session')
 def hg(request):
-    config = Config.load("scpipe.yml")
+    config = Config.load("scpipe10k100.yml")
     return HumanGenome19(config)
 
 
@@ -48,7 +48,7 @@ def test_generate_reads(hg):
 
 
 def test_count_chrom_mappable_positions(hg):
-    result = hg.count_chrom_mappable_positions()
+    result = hg.calc_chrom_mappable_positions_count()
 
     assert result['chr1'] == 217026582
     assert result['chr10'] == 126701210
@@ -87,3 +87,10 @@ def test_generate_mappable_regions(hg):
         if count >= 10:
             break
     generator.close()
+
+
+def test_chrom_mappable_positions_count(hg):
+    result = hg.chrom_mappable_positions_count()
+
+    assert result['chr1'] == 217026582
+    assert result['chr10'] == 126701210

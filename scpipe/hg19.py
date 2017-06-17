@@ -162,13 +162,30 @@ class HumanGenome19(object):
                 bowtie.stdin.close()
                 bowtie.stdout.close()
 
-    def count_chrom_mappable_positions(self, filename=None):
-        if not filename:
-            filename = os.path.join(
-                self.config.bins.cache_dir,
-                self.config.bins.mappable_regions
-            )
+    def mappable_regions_filename(self):
+        filename = os.path.join(
+            self.config.bins.cache_dir,
+            self.config.bins.mappable_regions
+        )
+        return self.config.abspath(filename)
+
+    def mappable_positions_count_filename(self):
+        filename = os.path.join(
+            self.config.bins.cache_dir,
+            self.config.bins.mappable_positions_count
+        )
+        return self.config.abspath(filename)
+
+    def chrom_sizes_filename(self):
+        filename = os.path.join(
+            self.config.bins.cache_dir,
+            self.config.bins.chrom_sizes
+        )
         filename = self.config.abspath(filename)
+        return filename
+
+    def calc_chrom_mappable_positions_count(self):
+        filename = self.mappable_regions_filename()
         assert os.path.exists(filename)
 
         result = defaultdict(lambda: 0)
@@ -176,7 +193,7 @@ class HumanGenome19(object):
             for line in infile.readlines():
                 row = [r.strip() for r in line.strip().split('\t')]
                 result[row[0]] += int(row[2]) - int(row[1])
-        return result
+        return Box(result)
 
     def calc_chrom_sizes(self):
         result = Box(default_box=True)
@@ -190,16 +207,20 @@ class HumanGenome19(object):
         return result
 
     def chrom_sizes(self):
-        filename = os.path.join(
-            self.config.bins.cache_dir,
-            self.config.bins.chrom_sizes
-        )
-        filename = self.config.abspath(filename)
-
+        filename = self.chrom_sizes_filename()
         if not os.path.exists(filename):
             result = self.calc_chrom_sizes()
             result.to_yaml(filename)
 
+        with open(filename, 'r') as infile:
+            result = Box.from_yaml(infile)
+            return result
+
+    def chrom_mappable_positions_count(self):
+        filename = self.mappable_positions_count_filename()
+        if not os.path.exists(filename):
+            result = self.calc_chrom_mappable_positions_count()
+            result.to_yaml(filename)
         with open(filename, 'r') as infile:
             result = Box.from_yaml(infile)
             return result
