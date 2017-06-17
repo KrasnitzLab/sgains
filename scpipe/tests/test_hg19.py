@@ -46,12 +46,12 @@ def test_generate_reads(hg):
         print(rec.id, len(rec))
 
 
-def test_count_chrom_mappable_regions(hg):
+def test_count_chrom_mappable_positions(hg):
     filename = os.path.join(
         hg.config.genome.dst,
         "mappable.regions.sorted.txt"
     )
-    result = hg.count_chrom_mappable_regions(filename)
+    result = hg.count_chrom_mappable_positions(filename)
 
     assert result['chr1'] == 217026582
     assert result['chr10'] == 126701210

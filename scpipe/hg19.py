@@ -113,7 +113,7 @@ class HumanGenome19(object):
         if state == self.IN:
             yield prev
 
-    def count_chrom_mappable_regions(self, filename):
+    def count_chrom_mappable_positions(self, filename):
         result = defaultdict(lambda: 0)
         with open(filename, 'r') as infile:
             for line in infile.readlines():
