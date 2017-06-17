@@ -38,11 +38,13 @@ def test_psr_chrY(hg):
 
 
 def test_generate_reads(hg):
+    generator = hg.generate_reads(['chr1'], 100)
 
-    for num, rec in enumerate(hg.generate_reads(['chr1'], 100)):
-        if num >= 100:
-            break
+    for num, rec in enumerate(generator):
         print(rec.id, len(rec))
+        if num >= 10:
+            break
+    generator.close()
 
 
 def test_count_chrom_mappable_positions(hg):
@@ -60,3 +62,28 @@ def test_chrom_sizes(hg):
 
     assert result.chr10.size == 135534747
     assert result.chr10.abspos == 1680373143
+
+
+def test_generate_mappings(hg):
+
+    count = 0
+    generator = hg.mappings_generator(['chrY'], 100)
+    for mapping in generator:
+        print(mapping)
+        count += 1
+        if count >= 10:
+            break
+    print(count)
+    generator.close()
+
+
+def test_generate_mappable_regions(hg):
+    mappings_generator = hg.mappings_generator(['chrY'], 100)
+    generator = hg.mappable_regions_generator(mappings_generator)
+    count = 0
+    for mappable_region in generator:
+        print(mappable_region)
+        count += 1
+        if count >= 10:
+            break
+    generator.close()

@@ -82,3 +82,8 @@ Fri Jun 16 14:14:26 EEST 2017
 Sat Jun 17 04:20:49 EEST 2017
 ```
 
+## Difference in results when writing reads
+
+When we write reads with *biopython* `SeqIO` module  and when we write reads
+by hand, the results of mappings is different. Not sure how bowtie works.
+

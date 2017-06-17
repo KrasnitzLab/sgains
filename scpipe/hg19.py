@@ -9,6 +9,29 @@ from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 import pysam
 from collections import defaultdict
 from box import Box
+from subprocess import Popen, PIPE
+import shlex
+from multiprocessing import Process
+import io
+
+
+class MappableRegion(object):
+    def __init__(self, mapping):
+        self.chrom = mapping.reference_name
+        self.start = mapping.reference_start + 1
+        self.end = self.start + 1
+
+    def extend(self, mapping):
+        self.end = mapping.reference_start + 2
+
+    def __repr__(self):
+        return "{}\t{}\t{}".format(
+            self.chrom, self.start, self.end)
+
+
+class MappableState(object):
+    OUT = 0
+    IN = 1
 
 
 class HumanGenome19(object):
@@ -20,9 +43,6 @@ class HumanGenome19(object):
         "chr13", "chr14", "chr15", "chr16", "chr17", "chr18",
         "chr19", "chr20", "chr21", "chr22", "chrX", "chrY"
     ]
-
-    OUT = 0
-    IN = 1
 
     def __init__(self, config):
         assert config.genome.version == self.VERSION
@@ -65,53 +85,82 @@ class HumanGenome19(object):
         return rec
 
     def generate_reads(self, chroms, read_length, src=None):
-        for chrom in chroms:
-            seq_record = self.load_chrom(chrom, src=src)
-            for i in range(len(seq_record) - read_length + 1):
-                out_record = SeqRecord(
-                    seq_record.seq[i: i + read_length],
-                    id="{}.{}".format(chrom, i),
-                    description="generated_read"
-                )
-                yield out_record
+        try:
+            for chrom in chroms:
+                seq_record = self.load_chrom(chrom, src=src)
+                for i in range(len(seq_record) - read_length + 1):
+                    out_record = SeqRecord(
+                        seq_record.seq[i: i + read_length],
+                        id="{}.{}".format(chrom, i),
+                        description="generated_read"
+                    )
+                    yield out_record
+        finally:
+            print("closing generate reads...")
 
-    def mappable_generator(self, source):
-        infile = pysam.AlignmentFile(source, 'r')  # @UndefinedVariable
+    def mappable_regions_generator(self, mappings_generator):
+        try:
+            prev = None
+            state = MappableState.OUT
 
-        class MappableRegion(object):
-            def __init__(self, mapping):
-                self.chrom = mapping.reference_name
-                self.start = mapping.reference_start + 1
-                self.end = self.start + 1
-
-            def extend(self, mapping):
-                self.end = mapping.reference_start + 2
-
-            def __repr__(self):
-                return "{}\t{}\t{}".format(
-                    self.chrom, self.start, self.end)
-
-        prev = None
-        state = self.OUT
-
-        for mapping in infile.fetch():
-            if state == self.OUT:
-                if mapping.flag == 0:
-                    prev = MappableRegion(mapping)
-                    state = self.IN
-            else:
-                if mapping.flag == 0:
-                    if mapping.reference_name == prev.chrom:
-                        prev.extend(mapping)
+            for mapping in mappings_generator:
+                if state == MappableState.OUT:
+                    if mapping.flag == 0:
+                        prev = MappableRegion(mapping)
+                        state = MappableState.IN
+                else:
+                    if mapping.flag == 0:
+                        if mapping.reference_name == prev.chrom:
+                            prev.extend(mapping)
+                        else:
+                            yield prev
+                            prev = MappableRegion(mapping)
                     else:
                         yield prev
-                        prev = MappableRegion(mapping)
-                else:
-                    yield prev
-                    state = self.OUT
+                        state = MappableState.OUT
 
-        if state == self.IN:
-            yield prev
+            if state == MappableState.IN:
+                yield prev
+        finally:
+            print("closing mappable_regions_generator...")
+            mappings_generator.close()
+
+    @staticmethod
+    def write_fasta_read(outfile, rec):
+        out_handle = io.StringIO()
+        out_handle.write(">{}\n".format(rec.id))
+        out_handle.write(str(rec.seq).upper())
+        out_handle.write("\n")
+        outfile.write(out_handle.getvalue().encode('utf-8'))
+
+    def mappings_generator(self, chroms, read_length):
+        genomeindex = self.config.abspath(self.config.genome.index)
+        bowtie_command = "bowtie -S -t -v 0 -m 1 -f {} -".format(
+            genomeindex
+        )
+        args = shlex.split(bowtie_command)
+
+        with Popen(args, stdin=PIPE, stdout=PIPE) as bowtie:
+
+            def push_genome_reads():
+                for rec in self.generate_reads(chroms, read_length):
+                    self.write_fasta_read(bowtie.stdin, rec)
+                bowtie.stdin.close()
+
+            genome_reads = Process(target=push_genome_reads)
+            genome_reads.start()
+
+            infile = pysam.AlignmentFile(  # @UndefinedVariable
+                bowtie.stdout, 'r')
+
+            try:
+                for mapping in infile.fetch():
+                    yield mapping
+            finally:
+                print("mappings generator cleanup")
+                genome_reads.terminate()
+                bowtie.stdin.close()
+                bowtie.stdout.close()
 
     def count_chrom_mappable_positions(self, filename=None):
         if not filename:
