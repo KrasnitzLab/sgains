@@ -94,3 +94,9 @@ def test_chrom_mappable_positions_count(hg):
 
     assert result['chr1'] == 217026582
     assert result['chr10'] == 126701210
+
+
+def test_mappable_positions_total_count(hg):
+    total = hg.mappable_positions_total_count()
+
+    assert total == 2761401626

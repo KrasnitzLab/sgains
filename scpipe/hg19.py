@@ -224,3 +224,10 @@ class HumanGenome19(object):
         with open(filename, 'r') as infile:
             result = Box.from_yaml(infile)
             return result
+
+    def mappable_positions_total_count(self):
+        counts = self.chrom_mappable_positions_count()
+        total = 0
+        for chrom in self.CHROMS:
+            total += counts[chrom]
+        return total
