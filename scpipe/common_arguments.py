@@ -4,7 +4,7 @@ Created on Jun 12, 2017
 @author: lubo
 '''
 import os
-from config import load_config
+from config import Config
 from box import Box
 
 
@@ -47,7 +47,7 @@ def process_genome_agrments(args):
 
     if config:
         assert os.path.exists(config)
-        config = load_config(config)
+        config = Config.load(config)
     else:
         config = Box(default_box=True)
 

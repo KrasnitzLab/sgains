@@ -75,52 +75,45 @@ USAGE
         args = parser.parse_args(argv[1:])
         config = common_arguments.process_genome_agrments(args)
 
-        generator = None
+        hg = None
         if config.genome.version == 'hg19':
-            generator = HumanGenome19(config)
+            hg = HumanGenome19(config)
 
-        if generator is None:
+        if hg is None:
             raise CLIError("wrong genome version")
 
         chrom = args.chrom
         if chrom is not None:
             chroms = [chrom]
         else:
-            chroms = generator.CHROMS
+            chroms = hg.CHROMS
 
         length = args.length
         assert length is not None
 
         outfile = None
-        if args.outfile:
+        if args.outfile is None:
+            os.makedirs(
+                config.abspath(config.bins.cache_dir)
+            )
+            filename = os.path.join(
+                config.bins.cache_dir,
+                config.bins.mappable_regions
+            )
+            outfile = open(config.abspath(filename), 'w')
+        elif args.outfile == '-':
+            outfile = sys.stdout
+        else:
             outfile = os.path.abspath(args.outfile)
-            with open(outfile, "w") as f:
-                f.write('')
+            outfile = open(outfile, "w")
 
-        configfile = config.filename
-        genomeindex = config.abspath(config.genome.index)
+        mappings_generator = hg.mappings_generator(chroms, length)
+        generator = hg.mappable_regions_generator(mappings_generator)
+        for mappable_region in generator:
+            outfile.write(str(mappable_region))
+            outfile.write('\n')
 
-        for chrom in chroms:
-            if not outfile:
-                mappable_regions_command = "mappable_regions.py -c {}".format(
-                    configfile)
-            else:
-                mappable_regions_command = "mappable_regions.py -c {} -o {}" \
-                    .format(configfile, outfile)
-
-            commands = [
-                "generate_reads.py -c {} -C {} -l {}".format(
-                    configfile, chrom, length),
-                "bowtie -S -t -v 0 -m 1 -f {} -".format(
-                    genomeindex),
-                mappable_regions_command
-            ]
-            command = " | ".join(commands)
-            sys.stderr.write(command)
-            sys.stderr.write('\n')
-
-            os.system(command)
-
+        outfile.close()
         return 0
     except KeyboardInterrupt:
         return 0
