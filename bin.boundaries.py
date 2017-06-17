@@ -77,7 +77,6 @@ def main():
     print(chromorder)
 
     print("Starting to get bin boundaries")
-    return
 
     goodEOF = False
     for chrom in chromorder:

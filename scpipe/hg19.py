@@ -13,6 +13,7 @@ from subprocess import Popen, PIPE
 import shlex
 from multiprocessing import Process
 import io
+import pandas as pd
 
 
 class MappableRegion(object):
@@ -32,6 +33,52 @@ class MappableRegion(object):
 class MappableState(object):
     OUT = 0
     IN = 1
+
+
+class MappableBin(object):
+
+    def __init__(self, prev=None, chrom=None, bin_size=None, chrom_abspos=0):
+        if prev is None:
+            self.chrom = chrom
+            self.expected_size = bin_size
+            self.chrom_abspos = chrom_abspos
+            self.start_pos = 0
+            self.end_pos = 0
+            self.mappable_possitions = self.end_pos - self.start_pos
+        else:
+            self.chrom = prev.chrom
+            self.chrom_abspos = prev.chrom_abspos
+            self.start_pos = prev.end_pos
+            self.end_pos = prev.end_pos
+            self.mappable_possitions = 0
+            self.expected_size = prev.expected_size
+
+    def check_extend(self, region):
+        assert region['start_pos'] >= self.end_pos
+        assert region['end_pos'] > region['start_pos']
+
+        region_size = region['end_pos'] - region['start_pos']
+        if region_size < self.missing_mappable_positions():
+            self.end_pos = region['end_pos']
+            self.mappable_possitions += region_size
+            return True
+
+    def excess(self):
+        return self.size - self.expected_size
+
+    def missing_mappable_positions(self):
+        return self.expected_size - self.mappable_possitions
+
+    def is_full(self):
+        return self.mappable_possitions >= self.expected_size
+
+    def __repr__(self):
+        return "{}\t{}\t{}\t{}".format(
+            self.chrom,
+            self.start_pos,
+            self.end_pos,
+            self.mappable_possitions
+        )
 
 
 class HumanGenome19(object):
@@ -288,3 +335,45 @@ class HumanGenome19(object):
 
         chrom_bins = self.calc_chrom_bins()
         print(chrom_bins)
+
+        df = pd.read_csv(
+            self.mappable_regions_filename(),
+            header=0,
+            names=['chrom', 'start_pos', 'end_pos'],
+            sep='\t')
+        df.sort_values(by=['chrom', 'start_pos', 'end_pos'])
+
+        current_excess = 0
+
+        for chrom in self.CHROMS:
+            mappable_bins = []
+            chrom_df = df[df.chrom == chrom]
+            bins_count = chrom_bins[chrom].bins_count
+            bin_size = chrom_bins[chrom].bin_size
+            bin_size_excess = bin_size - int(bin_size)
+            current_excess += bin_size_excess
+            if current_excess >= 1.0:
+                bin_size += 1
+                current_excess -= 1.0
+        
+            print(bin_size)
+            print(chrom_df.head())
+
+            mappable_bin = None
+            for index, row in chrom_df.iterrows():
+                if mappable_bin is None:
+                    mappable_bin = MappableBin(
+                        chrom=chrom,
+                        bin_size=bin_size,
+                        chrom_abspos=chrom_sizes[chrom].abspos)
+                if not mappable_bin.check_extend(row):
+                    mappable_bins.append(mappable_bin)
+                    print(mappable_bin)
+                    if len(mappable_bins) >= 10:
+                        break
+                    mappable_bin = MappableBin(mappable_bin)
+                    assert mappable_bin.check_extend(row)
+
+            mappable_bin = None
+
+            break
