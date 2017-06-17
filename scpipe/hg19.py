@@ -14,6 +14,7 @@ import shlex
 from multiprocessing import Process
 import io
 import pandas as pd
+from tkinter.tix import ROW
 
 
 class MappableRegion(object):
@@ -37,7 +38,8 @@ class MappableState(object):
 
 class MappableBin(object):
 
-    def __init__(self, prev=None, chrom=None, bin_size=None, chrom_abspos=0):
+    def __init__(self, prev=None, start_pos=None,
+                 chrom=None, bin_size=None, chrom_abspos=0):
         if prev is None:
             self.chrom = chrom
             self.expected_size = bin_size
@@ -46,11 +48,14 @@ class MappableBin(object):
             self.end_pos = 0
             self.mappable_possitions = self.end_pos - self.start_pos
         else:
+            assert prev is not None
+            assert start_pos is not None
+
             self.chrom = prev.chrom
             self.chrom_abspos = prev.chrom_abspos
-            self.start_pos = prev.end_pos
+            self.start_pos = start_pos
             self.end_pos = prev.end_pos
-            self.mappable_possitions = 0
+            self.mappable_possitions = self.end_pos - self.start_pos
             self.expected_size = prev.expected_size
 
     def check_extend(self, region):
@@ -62,6 +67,22 @@ class MappableBin(object):
             self.end_pos = region['end_pos']
             self.mappable_possitions += region_size
             return True
+
+    def split_extend(self, region):
+        assert region['start_pos'] >= self.end_pos
+        assert region['end_pos'] > region['start_pos']
+
+        region_size = region['end_pos'] - region['start_pos']
+        missing_mappable_positions = self.missing_mappable_positions()
+        assert region_size >= missing_mappable_positions
+
+        self.end_pos += missing_mappable_positions
+        self.mappable_possitions += missing_mappable_positions
+
+        next_bin = MappableBin(prev=self, start_pos=self.end_pos)
+        next_bin.end_pos += region_size - missing_mappable_positions
+
+        return next_bin
 
     def excess(self):
         return self.size - self.expected_size
@@ -349,13 +370,13 @@ class HumanGenome19(object):
             mappable_bins = []
             chrom_df = df[df.chrom == chrom]
             bins_count = chrom_bins[chrom].bins_count
-            bin_size = chrom_bins[chrom].bin_size
-            bin_size_excess = bin_size - int(bin_size)
+            bin_size = int(chrom_bins[chrom].bin_size)
+            bin_size_excess = chrom_bins[chrom].bin_size - bin_size
             current_excess += bin_size_excess
             if current_excess >= 1.0:
                 bin_size += 1
                 current_excess -= 1.0
-        
+
             print(bin_size)
             print(chrom_df.head())
 
@@ -367,12 +388,12 @@ class HumanGenome19(object):
                         bin_size=bin_size,
                         chrom_abspos=chrom_sizes[chrom].abspos)
                 if not mappable_bin.check_extend(row):
+                    next_bin = mappable_bin.split_extend(row)
                     mappable_bins.append(mappable_bin)
                     print(mappable_bin)
                     if len(mappable_bins) >= 10:
                         break
-                    mappable_bin = MappableBin(mappable_bin)
-                    assert mappable_bin.check_extend(row)
+                    mappable_bin = next_bin
 
             mappable_bin = None
 
