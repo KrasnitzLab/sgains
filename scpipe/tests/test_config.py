@@ -25,6 +25,6 @@ def test_bins_config():
     assert conf is not None
 
     assert conf.bins is not None
-    assert conf.bins.reads_length == 50
+    assert conf.bins.reads_length == 100
     assert conf.bins.bins_count == 10000
-    assert conf.bins.cache_dir == "data/10k.50"
+    assert conf.bins.cache_dir == "data/10k100"

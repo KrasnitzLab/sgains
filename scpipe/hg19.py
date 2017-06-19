@@ -14,7 +14,6 @@ import shlex
 from multiprocessing import Process
 import io
 import pandas as pd
-from tkinter.tix import ROW
 
 
 class MappableRegion(object):
@@ -226,9 +225,10 @@ class HumanGenome19(object):
                     yield mapping
             finally:
                 print("mappings generator cleanup")
-                genome_reads.terminate()
                 bowtie.stdin.close()
                 bowtie.stdout.close()
+                bowtie.terminate()
+                genome_reads.terminate()
 
     def mappable_regions_filename(self):
         filename = os.path.join(

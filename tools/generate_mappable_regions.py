@@ -93,9 +93,9 @@ USAGE
 
         outfile = None
         if args.outfile is None:
-            os.makedirs(
-                config.abspath(config.bins.cache_dir)
-            )
+            dirname = config.abspath(config.bins.cache_dir)
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
             filename = os.path.join(
                 config.bins.cache_dir,
                 config.bins.mappable_regions
