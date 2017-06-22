@@ -18,13 +18,20 @@ import sys
 
 
 class MappableRegion(object):
-    def __init__(self, mapping):
-        self.chrom = mapping.reference_name
-        self.start = mapping.reference_start + 1
+    def __init__(self, mapping=None, flag=None, chrom=None, start=None):
+        if mapping is not None:
+            self.flag = mapping.flag
+            self.chrom = mapping.reference_name
+            self.start = mapping.reference_start + 1
+        else:
+            self.flag = flag
+            self.chrom = chrom
+            self.start = start
+
         self.end = self.start + 1
 
-    def extend(self, mapping):
-        self.end = mapping.reference_start + 2
+    def extend(self, start):
+        self.end = start + 1
 
     def __repr__(self):
         return "{}\t{}\t{}".format(
@@ -204,6 +211,13 @@ class HumanGenome19(object):
     @staticmethod
     def write_fasta_read(outfile, rec):
         outfile.write(HumanGenome19.to_fasta_string(rec))
+
+    @staticmethod
+    async def async_write_fasta(outfile, rec):
+        out = HumanGenome19.to_fasta_string(rec)
+        print(out)
+        outfile.write(out)
+        await outfile.drain()
 
     def mappings_generator1(self, reads_generator):
         genomeindex = self.config.abspath(self.config.genome.index)

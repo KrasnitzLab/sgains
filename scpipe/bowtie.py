@@ -5,6 +5,18 @@ Created on Jun 22, 2017
 '''
 import asyncio
 import functools
+import logging
+import sys
+from hg19 import HumanGenome19, MappableRegion, MappableState
+from config import Config
+
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(levelname)7s: %(message)s',
+    stream=sys.stderr,
+)
+LOG = logging.getLogger('')
 
 
 class BowtieProtocol(asyncio.SubprocessProtocol):
@@ -66,17 +78,104 @@ async def run_bowtie(loop):
     return cmd_done.result()
 
 
+async def start_bowtie():
+    create = asyncio.create_subprocess_exec(
+        'bowtie', '-S', '-t', '-v', '0', '-m', '1',
+        '-f', 'data/hg19/genomeindex', '-',
+        stdin=asyncio.subprocess.PIPE,
+        stdout=asyncio.subprocess.PIPE,
+    )
+    print('launching process')
+    proc = await create
+    print('pid {}'.format(proc.pid))
+    return proc
+
+
+def close_bowtie(bowtie):
+    print("close_bowtie called...")
+    bowtie.stdin.close()
+
+
+async def bowtie_write_reads(bowtie, reads_generator):
+    for rec in reads_generator:
+        await HumanGenome19.async_write_fasta(bowtie.stdin, rec)
+
+    print("close_bowtie called...")
+    bowtie.stdin.close()
+    return "OK"
+
+
+def parse_mappable_region(line):
+    row = line.rstrip().split("\t")
+    name = row[0]
+    flag = str(row[1])
+    chrom = row[2]
+    start = int(row[3])
+    end = start + 1
+    return MappableRegion(flag=flag, chrom=chrom, start=start)
+
+
+async def bowtie_mappings_reader(bowtie):
+    prev = None
+    state = MappableState.OUT
+
+    while True:
+        line = await bowtie.stdout.readline()
+        print(line)
+        if not line:
+            print("end of file")
+        if line[0] == '@':
+            # comment
+            continue
+        mapping = parse_mappable_region(line)
+
+        if state == MappableState.OUT:
+            if mapping.flag == 0:
+                prev = mapping
+                state = MappableState.IN
+        else:
+            if mapping.flag == 0:
+                if mapping.reference_name == prev.chrom:
+                    prev.extend(mapping)
+                else:
+                    print(prev)
+                    prev = mapping
+            else:
+                print(prev)
+                state = MappableState.OUT
+
+    if state == MappableState.IN:
+        print(prev)
+
+
+async def bowtie_experiments(loop):
+    config = Config.load("scpipe10k100.yml")
+    hg = HumanGenome19(config)
+    bowtie = await start_bowtie()
+
+    reads_generator = hg.generate_reads(['chrM'], 100)
+
+    reader = asyncio.Task(
+        bowtie_mappings_reader(bowtie))
+
+    writer = asyncio.Task(
+        bowtie_write_reads(bowtie, reads_generator))
+
+    await bowtie.wait()
+
+    await writer
+    await reader
+
+    return bowtie
+
+
 if __name__ == '__main__':
 
     event_loop = asyncio.get_event_loop()
+    # Enable debugging
+    event_loop.set_debug(True)
+
     try:
-        return_code, results = event_loop.run_until_complete(
-            run_bowtie(event_loop)
-        )
+        event_loop.run_until_complete(bowtie_experiments(event_loop))
     finally:
         event_loop.close()
-
-    if return_code:
-        print('error exit {}'.format(return_code))
-    else:
-        print('\nbowtie exited OK:')
