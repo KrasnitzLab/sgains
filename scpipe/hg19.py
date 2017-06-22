@@ -14,6 +14,7 @@ import shlex
 from multiprocessing import Process
 import io
 import pandas as pd
+import sys
 
 
 class MappableRegion(object):
@@ -193,12 +194,41 @@ class HumanGenome19(object):
             mappings_generator.close()
 
     @staticmethod
-    def write_fasta_read(outfile, rec):
+    def to_fasta_string(rec):
         out_handle = io.StringIO()
         out_handle.write(">{}\n".format(rec.id))
         out_handle.write(str(rec.seq).upper())
         out_handle.write("\n")
-        outfile.write(out_handle.getvalue().encode('utf-8'))
+        return out_handle.getvalue().encode('utf-8')
+
+    @staticmethod
+    def write_fasta_read(outfile, rec):
+        outfile.write(HumanGenome19.to_fasta_string(rec))
+
+    def mappings_generator1(self, reads_generator):
+        genomeindex = self.config.abspath(self.config.genome.index)
+        bowtie_command = "bowtie -S -t -v 0 -m 1 -f {} -".format(
+            genomeindex
+        )
+        args = shlex.split(bowtie_command)
+
+        with Popen(args, stdin=PIPE, stdout=PIPE) as bowtie:
+
+            for rec in reads_generator:
+                self.write_fasta_read(bowtie.stdin, rec)
+                sys.stderr.write('+')
+                outs, errs = bowtie.communicate(timeout=1)
+                if outs:
+                    print(outs, errs)
+
+#             infile = pysam.AlignmentFile(  # @UndefinedVariable
+#                 bowtie.stdout, 'r')
+#
+#             try:
+#                 for mapping in infile.fetch():
+#                     yield mapping
+#             finally:
+#                 print("mappings generator cleanup")
 
     def mappings_generator(self, chroms, read_length):
         genomeindex = self.config.abspath(self.config.genome.index)

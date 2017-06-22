@@ -8,10 +8,10 @@ import pytest
 from config import Config
 
 
-@pytest.fixture(scope='session')
-def hg(request):
-    config = Config.load("scpipe10k100.yml")
-    return HumanGenome19(config)
+# @pytest.fixture(scope='session')
+# def hg(request):
+#     config = Config.load("scpipe10k100.yml")
+#     return HumanGenome19(config)
 
 
 def test_hg19_simple(hg):
@@ -97,7 +97,7 @@ def test_chrom_mappable_positions_count(hg):
 
 
 def test_mappable_positions_total_count(hg):
-    total = hg.mappable_positions_total_count()
+    total = hg.total_mappable_positions_count()
 
     assert total == 2761401626
 
