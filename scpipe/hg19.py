@@ -17,6 +17,10 @@ import pandas as pd
 import sys
 
 
+class Mapping(object):
+    pass
+
+
 class MappableRegion(object):
     def __init__(self, mapping=None, flag=None, chrom=None, start=None):
         if mapping is not None:
@@ -215,7 +219,6 @@ class HumanGenome19(object):
     @staticmethod
     async def async_write_fasta(outfile, rec):
         out = HumanGenome19.to_fasta_string(rec)
-        print(out)
         outfile.write(out)
         await outfile.drain()
 

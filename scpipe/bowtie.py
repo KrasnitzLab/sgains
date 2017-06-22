@@ -105,10 +105,10 @@ async def bowtie_write_reads(bowtie, reads_generator):
     return "OK"
 
 
-def parse_mappable_region(line):
+def parse_mapping(line):
     row = line.rstrip().split("\t")
     name = row[0]
-    flag = str(row[1])
+    flag = int(row[1])
     chrom = row[2]
     start = int(row[3])
     end = start + 1
@@ -121,13 +121,13 @@ async def bowtie_mappings_reader(bowtie):
 
     while True:
         line = await bowtie.stdout.readline()
-        print(line)
         if not line:
-            print("end of file")
+            break
+        line = line.decode()
         if line[0] == '@':
             # comment
             continue
-        mapping = parse_mappable_region(line)
+        mapping = parse_mapping(line)
 
         if state == MappableState.OUT:
             if mapping.flag == 0:
@@ -135,8 +135,8 @@ async def bowtie_mappings_reader(bowtie):
                 state = MappableState.IN
         else:
             if mapping.flag == 0:
-                if mapping.reference_name == prev.chrom:
-                    prev.extend(mapping)
+                if mapping.chrom == prev.chrom:
+                    prev.extend(mapping.start)
                 else:
                     print(prev)
                     prev = mapping
@@ -146,6 +146,25 @@ async def bowtie_mappings_reader(bowtie):
 
     if state == MappableState.IN:
         print(prev)
+
+
+async def bowtie_simple_reader(bowtie):
+    print("bowtie_simple_reader started...")
+    while True:
+        line = await bowtie.stdout.readline()
+        if not line:
+            break
+        line = line.decode()
+        if line[0] == '@':
+            print("comment")
+            continue
+        row = line.split('\t')
+        if row[4] == '0':
+            print("ROW:", row)
+
+#         if row[4] == '0':
+#             print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOWWWWWWWWWWWWWWWWW!!")
+    return
 
 
 async def bowtie_experiments(loop):
@@ -173,7 +192,7 @@ if __name__ == '__main__':
 
     event_loop = asyncio.get_event_loop()
     # Enable debugging
-    event_loop.set_debug(True)
+    # event_loop.set_debug(True)
 
     try:
         event_loop.run_until_complete(bowtie_experiments(event_loop))
