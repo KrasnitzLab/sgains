@@ -138,14 +138,14 @@ async def bowtie_mappings_reader(bowtie):
                 if mapping.chrom == prev.chrom:
                     prev.extend(mapping.start)
                 else:
-                    print(prev)
+                    yield prev
                     prev = mapping
             else:
-                print(prev)
+                yield prev
                 state = MappableState.OUT
 
     if state == MappableState.IN:
-        print(prev)
+        yield prev
 
 
 async def bowtie_simple_reader(bowtie):
@@ -174,16 +174,19 @@ async def bowtie_experiments(loop):
 
     reads_generator = hg.generate_reads(['chrM'], 100)
 
-    reader = asyncio.Task(
-        bowtie_mappings_reader(bowtie))
+#     reader = asyncio.Task(
+#         bowtie_mappings_reader(bowtie))
 
     writer = asyncio.Task(
         bowtie_write_reads(bowtie, reads_generator))
 
+    async for mapping in bowtie_mappings_reader(bowtie):
+        print(mapping)
+
     await bowtie.wait()
 
     await writer
-    await reader
+#     await reader
 
     return bowtie
 
