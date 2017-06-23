@@ -62,7 +62,6 @@ class MappableBin(object):
             self.chrom_abspos = prev.chrom_abspos
             self.start_pos = start_pos
             self.end_pos = prev.end_pos
-            self.mappable_positions = self.end_pos - self.start_pos
             self.expected_size = prev.expected_size
 
     def check_extend(self, region):
@@ -84,6 +83,7 @@ class MappableBin(object):
         missing_mappable_positions = self.missing_mappable_positions()
 
         assert region_size >= missing_mappable_positions
+        assert region_size - missing_mappable_positions <= self.expected_size
 
         self.end_pos = region['start_pos'] + missing_mappable_positions
         self.mappable_positions += missing_mappable_positions
@@ -91,9 +91,7 @@ class MappableBin(object):
         next_bin = MappableBin(prev=self, start_pos=self.end_pos)
         next_bin.end_pos = region['end_pos']
         next_bin.mappable_positions = region_size - missing_mappable_positions
-
-#         assert next_bin.mappable_positions == \
-#             region_size - missing_mappable_positions
+        assert next_bin.mappable_positions <= self.expected_size
 
         return next_bin
 

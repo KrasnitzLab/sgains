@@ -15,6 +15,7 @@ from box import Box
 
 import pandas as pd
 from utils import MappableState, Mapping, MappableRegion, MappableBin
+from pandas.tests.groupby.common import df
 
 
 class HumanGenome19(object):
@@ -284,30 +285,34 @@ class HumanGenome19(object):
 
         return chrom_bins
 
-    def calc_bin_boundaries(self):
-        chrom_sizes = self.chrom_sizes()
-        chrom_mappable_positions_count = self.chrom_mappable_positions_count()
-        total_mappable_positions_count = self.total_mappable_positions_count()
-
-        chrom_bins = self.calc_chrom_bins()
-        print(self.mappable_regions_filename())
-
+    def load_mappable_regions(self):
         df = pd.read_csv(
             self.mappable_regions_filename(),
             names=['chrom', 'start_pos', 'end_pos'],
             sep='\t')
-        df.sort_values(by=['chrom', 'start_pos', 'end_pos'])
+        df.sort_values(by=['chrom', 'start_pos', 'end_pos'], inplace=True)
 
-        for chrom in self.CHROMS:
+        return df
+
+    def calc_bin_boundaries(self, chroms, mappable_regions_df=None):
+        chrom_sizes = self.chrom_sizes()
+        chrom_bins = self.calc_chrom_bins()
+
+        if mappable_regions_df is None:
+            mappable_regions_df = self.load_mappable_regions()
+
+        for chrom in chroms:
             current_excess = 0
-            chrom_df = df[df.chrom == chrom]
+            chrom_df = mappable_regions_df[mappable_regions_df.chrom == chrom]
+            chrom_df = chrom_df.sort_values(
+                by=['chrom', 'start_pos', 'end_pos'])
 
             bins_count = chrom_bins[chrom].bins_count
             bin_size = int(chrom_bins[chrom].bin_size)
             bin_size_excess = chrom_bins[chrom].bin_size - bin_size
 
             mappable_bin = None
-            for index, row in chrom_df.iterrows():
+            for _index, row in chrom_df.iterrows():
                 if mappable_bin is None:
                     mappable_bin = MappableBin(
                         chrom=chrom,
@@ -326,5 +331,5 @@ class HumanGenome19(object):
                     mappable_bin.expected_size = bin_size
                     current_excess += bin_size_excess
                     current_excess = mappable_bin.adapt_excess(current_excess)
-            
+
             mappable_bin = None
