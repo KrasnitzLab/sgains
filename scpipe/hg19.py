@@ -3,34 +3,41 @@ Created on Jun 10, 2017
 
 @author: lubo
 '''
+import asyncio
+from collections import defaultdict
+import io
 import os
+import sys
+
 from Bio import SeqIO  # @UnresolvedImport
 from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
-import pysam
-from collections import defaultdict
 from box import Box
-from subprocess import Popen, PIPE
-import shlex
-from multiprocessing import Process
-import io
+
 import pandas as pd
-import sys
 
 
 class Mapping(object):
-    pass
+    def __init__(self, name=None, flag=None, chrom=None, start=None):
+        self.flag = flag
+        self.chrom = chrom
+        self.start = start
+        self.name = name
+
+    @staticmethod
+    def parse_sam(line):
+        row = line.rstrip().split("\t")
+        name = row[0]
+        flag = int(row[1])
+        chrom = row[2]
+        start = int(row[3])
+        return Mapping(name=name, flag=flag, chrom=chrom, start=start)
 
 
 class MappableRegion(object):
-    def __init__(self, mapping=None, flag=None, chrom=None, start=None):
-        if mapping is not None:
-            self.flag = mapping.flag
-            self.chrom = mapping.reference_name
-            self.start = mapping.reference_start + 1
-        else:
-            self.flag = flag
-            self.chrom = chrom
-            self.start = start
+    def __init__(self, mapping=None):
+        self.flag = mapping.flag
+        self.chrom = mapping.chrom
+        self.start = mapping.start
 
         self.end = self.start + 1
 
@@ -175,34 +182,40 @@ class HumanGenome19(object):
                     )
                     yield out_record
         finally:
-            print("closing generate reads...")
+            pass
 
-    def mappable_regions_generator(self, mappings_generator):
-        try:
-            prev = None
-            state = MappableState.OUT
+    async def async_mappable_regions_generator(self, infile):
+        prev = None
+        state = MappableState.OUT
 
-            for mapping in mappings_generator:
-                if state == MappableState.OUT:
-                    if mapping.flag == 0:
-                        prev = MappableRegion(mapping)
-                        state = MappableState.IN
-                else:
-                    if mapping.flag == 0:
-                        if mapping.reference_name == prev.chrom:
-                            prev.extend(mapping)
-                        else:
-                            yield prev
-                            prev = MappableRegion(mapping)
+        while True:
+            line = await infile.readline()
+            if not line:
+                break
+            line = line.decode()
+            if line[0] == '@':
+                # comment
+                continue
+
+            mapping = Mapping.parse_sam(line)
+
+            if state == MappableState.OUT:
+                if mapping.flag == 0:
+                    prev = MappableRegion(mapping)
+                    state = MappableState.IN
+            else:
+                if mapping.flag == 0:
+                    if mapping.chrom == prev.chrom:
+                        prev.extend(mapping.start)
                     else:
                         yield prev
-                        state = MappableState.OUT
+                        prev = MappableRegion(mapping)
+                else:
+                    yield prev
+                    state = MappableState.OUT
 
-            if state == MappableState.IN:
-                yield prev
-        finally:
-            print("closing mappable_regions_generator...")
-            mappings_generator.close()
+        if state == MappableState.IN:
+            yield prev
 
     @staticmethod
     def to_fasta_string(rec):
@@ -222,60 +235,38 @@ class HumanGenome19(object):
         outfile.write(out)
         await outfile.drain()
 
-    def mappings_generator1(self, reads_generator):
+    async def async_start_bowtie(self):
         genomeindex = self.config.abspath(self.config.genome.index)
-        bowtie_command = "bowtie -S -t -v 0 -m 1 -f {} -".format(
-            genomeindex
+        create = asyncio.create_subprocess_exec(
+            'bowtie', '-S', '-t', '-v', '0', '-m', '1',
+            '-f', genomeindex, '-',
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
         )
-        args = shlex.split(bowtie_command)
+        proc = await create
+        return proc
 
-        with Popen(args, stdin=PIPE, stdout=PIPE) as bowtie:
+    async def async_write_reads_generator(self, out, reads_generator):
+        for rec in reads_generator:
+            await self.async_write_fasta(out, rec)
+        out.close()
 
-            for rec in reads_generator:
-                self.write_fasta_read(bowtie.stdin, rec)
-                sys.stderr.write('+')
-                outs, errs = bowtie.communicate(timeout=1)
-                if outs:
-                    print(outs, errs)
+    async def async_generate_mappable_regions(
+            self, chroms, read_length, outfile=None):
 
-#             infile = pysam.AlignmentFile(  # @UndefinedVariable
-#                 bowtie.stdout, 'r')
-#
-#             try:
-#                 for mapping in infile.fetch():
-#                     yield mapping
-#             finally:
-#                 print("mappings generator cleanup")
-
-    def mappings_generator(self, chroms, read_length):
-        genomeindex = self.config.abspath(self.config.genome.index)
-        bowtie_command = "bowtie -S -t -v 0 -m 1 -f {} -".format(
-            genomeindex
+        bowtie = await self.async_start_bowtie()
+        reads_generator = self.generate_reads(chroms, read_length)
+        writer = asyncio.Task(
+            self.async_write_reads_generator(bowtie.stdin, reads_generator)
         )
-        args = shlex.split(bowtie_command)
-
-        with Popen(args, stdin=PIPE, stdout=PIPE) as bowtie:
-
-            def push_genome_reads():
-                for rec in self.generate_reads(chroms, read_length):
-                    self.write_fasta_read(bowtie.stdin, rec)
-                bowtie.stdin.close()
-
-            genome_reads = Process(target=push_genome_reads)
-            genome_reads.start()
-
-            infile = pysam.AlignmentFile(  # @UndefinedVariable
-                bowtie.stdout, 'r')
-
-            try:
-                for mapping in infile.fetch():
-                    yield mapping
-            finally:
-                print("mappings generator cleanup")
-                bowtie.stdin.close()
-                bowtie.stdout.close()
-                bowtie.terminate()
-                genome_reads.terminate()
+        if outfile is None:
+            outfile = sys.stdout
+        async for mapping in self.async_mappable_regions_generator(
+                bowtie.stdout):
+            outfile.write(str(mapping))
+            outfile.write('\n')
+        await bowtie.wait()
+        await writer
 
     def mappable_regions_filename(self):
         filename = os.path.join(

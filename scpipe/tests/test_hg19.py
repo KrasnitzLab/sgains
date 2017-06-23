@@ -64,31 +64,6 @@ def test_chrom_sizes(hg):
     assert result.chr10.abspos == 1680373143
 
 
-def test_generate_mappings(hg):
-
-    count = 0
-    generator = hg.mappings_generator(['chrY'], 100)
-    for mapping in generator:
-        print(mapping)
-        count += 1
-        if count >= 10:
-            break
-    print(count)
-    generator.close()
-
-
-def test_generate_mappable_regions(hg):
-    mappings_generator = hg.mappings_generator(['chrY'], 100)
-    generator = hg.mappable_regions_generator(mappings_generator)
-    count = 0
-    for mappable_region in generator:
-        print(mappable_region)
-        count += 1
-        if count >= 10:
-            break
-    generator.close()
-
-
 def test_chrom_mappable_positions_count(hg):
     result = hg.chrom_mappable_positions_count()
 

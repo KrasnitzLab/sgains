@@ -17,6 +17,16 @@ import config
 from hg19 import HumanGenome19
 import common_arguments
 import traceback
+import asyncio
+import logging
+
+
+logging.basicConfig(
+    level=logging.WARN,
+    format='%(levelname)7s: %(message)s',
+    stream=sys.stderr,
+)
+LOG = logging.getLogger('')
 
 
 class CLIError(Exception):
@@ -107,11 +117,16 @@ USAGE
             outfile = os.path.abspath(args.outfile)
             outfile = open(outfile, "w")
 
-        mappings_generator = hg.mappings_generator(chroms, length)
-        generator = hg.mappable_regions_generator(mappings_generator)
-        for mappable_region in generator:
-            outfile.write(str(mappable_region))
-            outfile.write('\n')
+        event_loop = asyncio.get_event_loop()
+        # Enable debugging
+        # event_loop.set_debug(True)
+
+        try:
+            event_loop.run_until_complete(
+                hg.async_generate_mappable_regions(chroms, length, outfile)
+            )
+        finally:
+            event_loop.close()
 
         outfile.close()
         return 0
