@@ -13,7 +13,7 @@ def main():
     MAP = open("chrom.mappable.bowtie.txt", "r")
     GOOD = open("mappable.regions.sorted.txt", "r")
     CHROMLEN = open("chrom.sizes.txt", "r")
-    OUTFILE = open("bin.boundaries.bowtie.txt", "w")
+    OUTFILE = open("test.bin.boundaries.bowtie.txt", "w")
 
     OUTFILE.write(
         "chrom\tbin.start.chrompos\tbin.start.abspos\tbin.end.chrompos\tbin.length\tmappable.positions\n")
@@ -77,7 +77,6 @@ def main():
     print(chromorder)
 
     print("Starting to get bin boundaries")
-
     goodEOF = False
     for chrom in chromorder:
         print(chrom)
@@ -117,6 +116,7 @@ def main():
             print("thisBincount", thisBincount)
             thisBinlength = int(chromBinlength)
             currentExcess += chromExcess
+            print("chromBinlength", chromBinlength)
             print("currentExcess", currentExcess)
             if currentExcess >= 1.0:
                 currentExcess -= 1.0
@@ -124,6 +124,9 @@ def main():
             print("thisBinlength", thisBinlength)
             binStart = currentStart
             currentLength = 0
+            print("binStart:", binStart, "binEnd: ", binEnd)
+            print("thisStart:", thisStart, "thisEnd:", thisEnd)
+
             if (binStart + thisBinlength) <= thisEnd:
                 print("got bin from current GOOD")
                 binEnd = binStart + thisBinlength
@@ -143,7 +146,7 @@ def main():
                     thisChrom = arow[0].strip()
                     thisStart = int(arow[1])
                     thisEnd = int(arow[2])
-                    print("adding length", arow)
+                    print("adding length", arow, thisEnd - thisStart)
                     if thisChrom != chrom:
                         print("ERROR: Past end of chrom.", thisChrom, chrom)
                         break
@@ -154,7 +157,8 @@ def main():
                         currentStart = thisStart + \
                             (thisBinlength - currentLength)
                         currentLength = thisBinlength
-                    print("currentLength", currentLength)
+                    print("currentLength", currentLength,
+                          "currentStart:", currentStart)
                 binEnd = currentStart
 
             if firstBin:

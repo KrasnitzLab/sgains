@@ -84,5 +84,3 @@ def test_calc_chrom_bins(hg):
     assert chrom_bins['chr8'].bin_size == 276247.9524752475
 
 
-def test_calc_bin_boundaries(hg):
-    hg.calc_bin_boundaries()

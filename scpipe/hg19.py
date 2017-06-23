@@ -14,110 +14,7 @@ from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 from box import Box
 
 import pandas as pd
-
-
-class Mapping(object):
-    def __init__(self, name=None, flag=None, chrom=None, start=None):
-        self.flag = flag
-        self.chrom = chrom
-        self.start = start
-        self.name = name
-
-    @staticmethod
-    def parse_sam(line):
-        row = line.rstrip().split("\t")
-        name = row[0]
-        flag = int(row[1])
-        chrom = row[2]
-        start = int(row[3])
-        return Mapping(name=name, flag=flag, chrom=chrom, start=start)
-
-
-class MappableRegion(object):
-    def __init__(self, mapping=None):
-        self.flag = mapping.flag
-        self.chrom = mapping.chrom
-        self.start = mapping.start
-
-        self.end = self.start + 1
-
-    def extend(self, start):
-        self.end = start + 1
-
-    def __repr__(self):
-        return "{}\t{}\t{}".format(
-            self.chrom, self.start, self.end)
-
-
-class MappableState(object):
-    OUT = 0
-    IN = 1
-
-
-class MappableBin(object):
-
-    def __init__(self, prev=None, start_pos=None,
-                 chrom=None, bin_size=None, chrom_abspos=0):
-        if prev is None:
-            self.chrom = chrom
-            self.expected_size = bin_size
-            self.chrom_abspos = chrom_abspos
-            self.start_pos = 0
-            self.end_pos = 0
-            self.mappable_possitions = self.end_pos - self.start_pos
-        else:
-            assert prev is not None
-            assert start_pos is not None
-
-            self.chrom = prev.chrom
-            self.chrom_abspos = prev.chrom_abspos
-            self.start_pos = start_pos
-            self.end_pos = prev.end_pos
-            self.mappable_possitions = self.end_pos - self.start_pos
-            self.expected_size = prev.expected_size
-
-    def check_extend(self, region):
-        assert region['start_pos'] >= self.end_pos
-        assert region['end_pos'] > region['start_pos']
-
-        region_size = region['end_pos'] - region['start_pos']
-        if region_size < self.missing_mappable_positions():
-            self.end_pos = region['end_pos']
-            self.mappable_possitions += region_size
-            return True
-
-    def split_extend(self, region):
-        assert region['start_pos'] >= self.end_pos
-        assert region['end_pos'] > region['start_pos']
-
-        region_size = region['end_pos'] - region['start_pos']
-        missing_mappable_positions = self.missing_mappable_positions()
-        assert region_size >= missing_mappable_positions
-
-        self.end_pos += missing_mappable_positions
-        self.mappable_possitions += missing_mappable_positions
-
-        next_bin = MappableBin(prev=self, start_pos=self.end_pos)
-        next_bin.end_pos += region_size - missing_mappable_positions
-
-        return next_bin
-
-    def excess(self):
-        return self.size - self.expected_size
-
-    def missing_mappable_positions(self):
-        return self.expected_size - self.mappable_possitions
-
-    def is_full(self):
-        return self.mappable_possitions >= self.expected_size
-
-    def __repr__(self):
-        return "{}\t{}\t{}\t{}".format(
-            self.chrom,
-            self.start_pos,
-            self.end_pos,
-            self.mappable_possitions
-        )
+from utils import MappableState, Mapping, MappableRegion, MappableBin
 
 
 class HumanGenome19(object):
@@ -393,20 +290,22 @@ class HumanGenome19(object):
         total_mappable_positions_count = self.total_mappable_positions_count()
 
         chrom_bins = self.calc_chrom_bins()
-        print(chrom_bins)
+        print(self.mappable_regions_filename())
 
         df = pd.read_csv(
             self.mappable_regions_filename(),
-            header=0,
             names=['chrom', 'start_pos', 'end_pos'],
             sep='\t')
         df.sort_values(by=['chrom', 'start_pos', 'end_pos'])
 
+        print(df.head())
+
         current_excess = 0
 
         for chrom in self.CHROMS:
-            mappable_bins = []
             chrom_df = df[df.chrom == chrom]
+            print(chrom_df.head())
+
             bins_count = chrom_bins[chrom].bins_count
             bin_size = int(chrom_bins[chrom].bin_size)
             bin_size_excess = chrom_bins[chrom].bin_size - bin_size
@@ -414,9 +313,6 @@ class HumanGenome19(object):
             if current_excess >= 1.0:
                 bin_size += 1
                 current_excess -= 1.0
-
-            print(bin_size)
-            print(chrom_df.head())
 
             mappable_bin = None
             for index, row in chrom_df.iterrows():
@@ -427,12 +323,7 @@ class HumanGenome19(object):
                         chrom_abspos=chrom_sizes[chrom].abspos)
                 if not mappable_bin.check_extend(row):
                     next_bin = mappable_bin.split_extend(row)
-                    mappable_bins.append(mappable_bin)
-                    print(mappable_bin)
-                    if len(mappable_bins) >= 10:
-                        break
+                    yield mappable_bin
                     mappable_bin = next_bin
 
             mappable_bin = None
-
-            break
