@@ -56,7 +56,9 @@ python varbin.gc.content.bowtie.py > varbin.gc.content.bowtie.stdout 2> varbin.g
 
 ## prepare SAM files for each cell in one directory
 /filepath/cellSAMdir
-#bowtie -S -t -n 2 -e 70 --chunkmbs 256 -3 18 -5 8 -m 1 --best --strata --solexa-quals $genomebuild <(gunzip -c raw/s_2_1_sequence.txt.gz | head -n 5000000 | python adapter.clip02.py GATCGGAAGAGCGG) | samtools view -Sbu -o paa0001.bam -
+#bowtie -S -t -n 2 -e 70 --chunkmbs 256 -3 18 -5 8 -m 1 --best --strata --solexa-quals $genomebuild \
+    <(gunzip -c raw/s_2_1_sequence.txt.gz | head -n 5000000 | python adapter.clip02.py GATCGGAAGAGCGG) | \
+    samtools view -Sbu -o paa0001.bam -
 Rscript --vanilla $rawextension
 
 
