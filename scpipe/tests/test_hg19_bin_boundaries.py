@@ -21,6 +21,7 @@ def test_calc_bin_boundaries(hg):
         fixture_bin = df.iloc[index, :]
 
         assert mappable_bin.chrom == fixture_bin['chrom']
-        assert mappable_bin.mappable_positions == fixture_bin['mappable.positions']
+        assert mappable_bin.mappable_positions == \
+            fixture_bin['mappable.positions']
         assert mappable_bin.start_pos == fixture_bin['bin.start.chrompos']
         assert mappable_bin.end_pos == fixture_bin['bin.end.chrompos']

@@ -298,21 +298,13 @@ class HumanGenome19(object):
             sep='\t')
         df.sort_values(by=['chrom', 'start_pos', 'end_pos'])
 
-        print(df.head())
-
-        current_excess = 0
-
         for chrom in self.CHROMS:
+            current_excess = 0
             chrom_df = df[df.chrom == chrom]
-            print(chrom_df.head())
 
             bins_count = chrom_bins[chrom].bins_count
             bin_size = int(chrom_bins[chrom].bin_size)
             bin_size_excess = chrom_bins[chrom].bin_size - bin_size
-            current_excess += bin_size_excess
-            if current_excess >= 1.0:
-                bin_size += 1
-                current_excess -= 1.0
 
             mappable_bin = None
             for index, row in chrom_df.iterrows():
@@ -321,9 +313,18 @@ class HumanGenome19(object):
                         chrom=chrom,
                         bin_size=bin_size,
                         chrom_abspos=chrom_sizes[chrom].abspos)
+                    current_excess += bin_size_excess
+                    current_excess = mappable_bin.adapt_excess(current_excess)
                 if not mappable_bin.check_extend(row):
                     next_bin = mappable_bin.split_extend(row)
+                    bins_count -= 1
+                    if bins_count == 0:
+                        # last bin a chromosome
+                        mappable_bin.end_pos = chrom_sizes[chrom].size
                     yield mappable_bin
                     mappable_bin = next_bin
-
+                    mappable_bin.expected_size = bin_size
+                    current_excess += bin_size_excess
+                    current_excess = mappable_bin.adapt_excess(current_excess)
+            
             mappable_bin = None
