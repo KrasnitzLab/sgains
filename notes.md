@@ -9,6 +9,12 @@ conda install wgsim
 
 ```
 
+## Nature protocols paper
+
+```
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5069701/
+```
+
 ## Sam tools tutorial
 
 ```
@@ -86,4 +92,35 @@ Sat Jun 17 04:20:49 EEST 2017
 
 When we write reads with *biopython* `SeqIO` module  and when we write reads
 by hand, the results of mappings is different. Not sure how bowtie works.
+
+
+
+## FASTQ quality scores
+
+```
+https://en.wikipedia.org/wiki/FASTQ_format
+```
+
+
+## Illumina adapter trimming
+
+* Trimmomatic: a flexible trimmer for Illumina sequence data
+```
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4103590/
+```
+
+* Trimmomatic manual:
+```
+http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
+```
+
+* Question: How To Best Deal With Adapter Contamination (Illumina)?
+```
+https://www.biostars.org/p/3461/
+```
+
+* Adapter and quality trimming of illumina data
+```
+http://www.ark-genomics.org/events-online-training-eu-training-course/adapter-and-quality-trimming-illumina-data
+```
 
