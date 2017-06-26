@@ -3,15 +3,6 @@ Created on Jun 10, 2017
 
 @author: lubo
 '''
-from hg19 import HumanGenome19
-import pytest
-from config import Config
-
-
-# @pytest.fixture(scope='session')
-# def hg(request):
-#     config = Config.load("scpipe10k100.yml")
-#     return HumanGenome19(config)
 
 
 def test_hg19_simple(hg):
@@ -82,6 +73,7 @@ def test_calc_chrom_bins(hg):
 
     assert chrom_bins['chr8'].bins_count == 505
     assert chrom_bins['chr8'].bin_size == 276247.9524752475
+
 
 def test_chr_bins(hg):
     chrom_bins = hg.chrom_bins()
