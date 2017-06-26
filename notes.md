@@ -124,3 +124,20 @@ https://www.biostars.org/p/3461/
 http://www.ark-genomics.org/events-online-training-eu-training-course/adapter-and-quality-trimming-illumina-data
 ```
 
+## Generation of mappable regions - 100bp
+
+```
+date && generate_mappable_regions.py -c scpipe10k100.yml -l 100 && date                                                                                     
+Fri Jun 23 14:56:20 EEST 2017
+Time loading forward index: 00:00:01
+Time for 0-mismatch search: 32:57:10
+# reads processed: 3095675036
+# reads with at least one reported alignment: 2761401626 (89.20%)
+# reads that failed to align: 234379429 (7.57%)
+# reads with alignments suppressed due to -m: 99893981 (3.23%)
+Reported 2761401626 alignments to 1 output stream(s)
+Time searching: 32:57:11
+Overall time: 32:57:11
+Sat Jun 24 23:53:31 EEST 2017
+```
+

@@ -14,8 +14,7 @@ from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 from box import Box
 
 import pandas as pd
-from utils import MappableState, Mapping, MappableRegion, MappableBin
-from pandas.tests.groupby.common import df
+from utils import MappableState, Mapping, MappableRegion, MappableBin, BinParams
 
 
 class HumanGenome19(object):
@@ -37,6 +36,9 @@ class HumanGenome19(object):
             os.makedirs(config.genome.dst)
 
         assert os.path.exists(config.genome.dst)
+        self._chrom_sizes = None
+        self._chrom_bins = None
+        self._chrom_mappable_positions_count = None
 
     def load_chrom(self, chrom, src=None):
         if src is None:
@@ -57,6 +59,29 @@ class HumanGenome19(object):
             "{}.fa".format(chrom)
         )
         SeqIO.write([record], outfile, 'fasta')
+
+    def calc_chrom_sizes(self):
+        result = Box(default_box=True)
+        abspos = 0
+        for chrom in self.CHROMS:
+            record = self.load_chrom(chrom)
+            size = len(record)
+            result[chrom].size = size
+            result[chrom].abspos = abspos
+            abspos += size
+        return result
+
+    def chrom_sizes(self):
+        if self._chrom_sizes is None:
+            filename = self.config.chrom_sizes_filename()
+            if not os.path.exists(filename):
+                result = self.calc_chrom_sizes()
+                result.to_yaml(filename)
+
+            with open(filename, 'r') as infile:
+                result = Box.from_yaml(infile)
+                self._chrom_sizes = result
+        return self._chrom_sizes
 
     def mask_pseudoautosomal_chrY(self):
         chr_y = self.load_chrom("chrY")
@@ -166,28 +191,6 @@ class HumanGenome19(object):
         await bowtie.wait()
         await writer
 
-    def mappable_regions_filename(self):
-        filename = os.path.join(
-            self.config.bins.cache_dir,
-            self.config.bins.mappable_regions
-        )
-        return self.config.abspath(filename)
-
-    def mappable_positions_count_filename(self):
-        filename = os.path.join(
-            self.config.bins.cache_dir,
-            self.config.bins.mappable_positions_count
-        )
-        return self.config.abspath(filename)
-
-    def chrom_sizes_filename(self):
-        filename = os.path.join(
-            self.config.bins.cache_dir,
-            self.config.bins.chrom_sizes
-        )
-        filename = self.config.abspath(filename)
-        return filename
-
     def calc_chrom_mappable_positions_count(self):
         filename = self.mappable_regions_filename()
         assert os.path.exists(filename)
@@ -208,35 +211,16 @@ class HumanGenome19(object):
                 row = [r.strip() for r in line.strip().split('\t')]
                 result.append([row[0], int(row[1]), int(row[2])])
 
-    def calc_chrom_sizes(self):
-        result = Box(default_box=True)
-        abspos = 0
-        for chrom in self.CHROMS:
-            record = self.load_chrom(chrom)
-            size = len(record)
-            result[chrom].size = size
-            result[chrom].abspos = abspos
-            abspos += size
-        return result
-
-    def chrom_sizes(self):
-        filename = self.chrom_sizes_filename()
-        if not os.path.exists(filename):
-            result = self.calc_chrom_sizes()
-            result.to_yaml(filename)
-
-        with open(filename, 'r') as infile:
-            result = Box.from_yaml(infile)
-            return result
-
     def chrom_mappable_positions_count(self):
-        filename = self.mappable_positions_count_filename()
-        if not os.path.exists(filename):
-            result = self.calc_chrom_mappable_positions_count()
-            result.to_yaml(filename)
-        with open(filename, 'r') as infile:
-            result = Box.from_yaml(infile)
-            return result
+        if self._chrom_mappable_positions_count is None:
+            filename = self.config.mappable_positions_count_filename()
+            if not os.path.exists(filename):
+                result = self.calc_chrom_mappable_positions_count()
+                result.to_yaml(filename)
+            with open(filename, 'r') as infile:
+                result = Box.from_yaml(infile)
+                self._chrom_mappable_positions_count = result
+        return self._chrom_mappable_positions_count
 
     def total_mappable_positions_count(self):
         counts = self.chrom_mappable_positions_count()
@@ -257,9 +241,11 @@ class HumanGenome19(object):
             cbc = float(bins_count) * \
                 float(chrom_mappable_positions) / \
                 float(total_mappable_positions_count)
+            chrom_bins[chrom].chrom = chrom
             chrom_bins[chrom].bins_count = int(cbc)
             chrom_bins[chrom].remainder = \
                 cbc - chrom_bins[chrom].bins_count
+
             bins_count_used += chrom_bins[chrom].bins_count
 
         remainder_bins_count = bins_count - bins_count_used
@@ -285,9 +271,14 @@ class HumanGenome19(object):
 
         return chrom_bins
 
+    def chrom_bins(self):
+        if self._chrom_bins is None:
+            self._chrom_bins = self.calc_chrom_bins()
+        return self._chrom_bins
+
     def load_mappable_regions(self):
         df = pd.read_csv(
-            self.mappable_regions_filename(),
+            self.config.mappable_regions_filename(),
             names=['chrom', 'start_pos', 'end_pos'],
             sep='\t')
         df.sort_values(by=['chrom', 'start_pos', 'end_pos'], inplace=True)
@@ -302,34 +293,34 @@ class HumanGenome19(object):
             mappable_regions_df = self.load_mappable_regions()
 
         for chrom in chroms:
-            current_excess = 0
             chrom_df = mappable_regions_df[mappable_regions_df.chrom == chrom]
             chrom_df = chrom_df.sort_values(
                 by=['chrom', 'start_pos', 'end_pos'])
 
-            bins_count = chrom_bins[chrom].bins_count
-            bin_size = int(chrom_bins[chrom].bin_size)
-            bin_size_excess = chrom_bins[chrom].bin_size - bin_size
-
+            params = BinParams.build(
+                chrom_size=chrom_sizes[chrom],
+                chrom_bin=chrom_bins[chrom])
             mappable_bin = None
+            current_excess = 0
+            bins_count = params.bins_count
+
             for _index, row in chrom_df.iterrows():
                 if mappable_bin is None:
-                    mappable_bin = MappableBin(
-                        chrom=chrom,
-                        bin_size=bin_size,
-                        chrom_abspos=chrom_sizes[chrom].abspos)
-                    current_excess += bin_size_excess
+                    mappable_bin = MappableBin.from_start(params, start_pos=0)
                     current_excess = mappable_bin.adapt_excess(current_excess)
                 if not mappable_bin.check_extend(row):
                     next_bin = mappable_bin.split_extend(row)
+
                     bins_count -= 1
                     if bins_count == 0:
                         # last bin a chromosome
                         mappable_bin.end_pos = chrom_sizes[chrom].size
                     yield mappable_bin
-                    mappable_bin = next_bin
-                    mappable_bin.expected_size = bin_size
-                    current_excess += bin_size_excess
-                    current_excess = mappable_bin.adapt_excess(current_excess)
+                    if next_bin.is_overfill():
+                        pass
+                    else:
+                        mappable_bin = next_bin
+                        current_excess = \
+                            mappable_bin.adapt_excess(current_excess)
 
             mappable_bin = None

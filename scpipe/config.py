@@ -34,3 +34,25 @@ class Config(Box):
             self.dirname,
             filename
         )
+
+    def mappable_regions_filename(self):
+        filename = os.path.join(
+            self.bins.cache_dir,
+            self.bins.mappable_regions
+        )
+        return self.abspath(filename)
+
+    def mappable_positions_count_filename(self):
+        filename = os.path.join(
+            self.bins.cache_dir,
+            self.bins.mappable_positions_count
+        )
+        return self.abspath(filename)
+
+    def chrom_sizes_filename(self):
+        filename = os.path.join(
+            self.bins.cache_dir,
+            self.bins.chrom_sizes
+        )
+        filename = self.abspath(filename)
+        return filename
