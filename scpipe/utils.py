@@ -109,7 +109,7 @@ class MappableBin(object):
         self.bin_size = 0
 
     def check_extend(self, region):
-        assert region['start_pos'] >= self.end_pos
+        assert region['start_pos'] >= self.end_pos, (self, region)
         assert region['end_pos'] > region['start_pos']
 
         region_size = region['end_pos'] - region['start_pos']
@@ -142,9 +142,10 @@ class MappableBin(object):
 
         mappable_bins = []
         while self.current_size > 0:
-            current_excess += self.params.bin_size_excess
+            # current_excess += self.params.bin_size_excess
             mb = MappableBin.from_prev(self, start_pos=self.start_pos)
             current_excess = mb.adapt_excess(current_excess)
+
             current_size = self.current_size
             if current_size > mb.bin_size:
                 current_size = mb.bin_size

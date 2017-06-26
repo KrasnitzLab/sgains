@@ -51,12 +51,13 @@ def test_calc_bin_boundaries_chr(hg):
             [chrom], mappable_regions_df)):
         fixture_bin = chrom_df.iloc[index, :]
 
-        print(mappable_bin, fixture_bin)
         assert mappable_bin.chrom == fixture_bin['chrom']
-        diff = mappable_bin.current_size - \
-            fixture_bin['mappable.positions']
-        assert diff == 0
+        assert mappable_bin.current_size == \
+            fixture_bin['mappable.positions'], \
+            (index, mappable_bin, fixture_bin)
         assert mappable_bin.start_pos == fixture_bin['bin.start.chrompos']
-        diff = mappable_bin.end_pos - fixture_bin['bin.end.chrompos']
-        assert diff == 0
+        assert mappable_bin.end_pos == \
+            fixture_bin['bin.end.chrompos'], \
+            (index, mappable_bin, fixture_bin)
+
         # assert mappable_bin.end_pos == fixture_bin['bin.end.chrompos']

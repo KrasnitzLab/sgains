@@ -317,7 +317,13 @@ class HumanGenome19(object):
                         mappable_bin.end_pos = chrom_sizes[chrom].size
                     yield mappable_bin
                     if next_bin.is_overfill():
-                        pass
+                        current_excess, mappable_bins = \
+                            next_bin.overfill_split(current_excess)
+                        assert len(mappable_bins) > 1
+                        for mb in mappable_bins[:-1]:
+                            bins_count -= 1
+                            yield mb
+                        mappable_bin = mappable_bins[-1]
                     else:
                         mappable_bin = next_bin
                         current_excess = \
