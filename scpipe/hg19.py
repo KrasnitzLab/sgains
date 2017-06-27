@@ -108,39 +108,6 @@ class HumanGenome19(object):
         finally:
             pass
 
-    async def async_mappable_regions_generator(self, infile):
-        prev = None
-        state = MappableState.OUT
-
-        while True:
-            line = await infile.readline()
-            if not line:
-                break
-            line = line.decode()
-            if line[0] == '@':
-                # comment
-                continue
-
-            mapping = Mapping.parse_sam(line)
-
-            if state == MappableState.OUT:
-                if mapping.flag == 0:
-                    prev = MappableRegion(mapping)
-                    state = MappableState.IN
-            else:
-                if mapping.flag == 0:
-                    if mapping.chrom == prev.chrom:
-                        prev.extend(mapping.start)
-                    else:
-                        yield prev
-                        prev = MappableRegion(mapping)
-                else:
-                    yield prev
-                    state = MappableState.OUT
-
-        if state == MappableState.IN:
-            yield prev
-
     @staticmethod
     def to_fasta_string(rec):
         out_handle = io.StringIO()
@@ -175,6 +142,31 @@ class HumanGenome19(object):
             await self.async_write_fasta(out, rec)
         out.close()
 
+    async def async_mappings_generator(self, reads_generator, bowtie):
+        writer = asyncio.Task(
+            self.async_write_reads_generator(bowtie.stdin, reads_generator)
+        )
+
+        while True:
+            line = await bowtie.stdout.readline()
+            if not line:
+                break
+            yield line.decode()
+
+        await bowtie.wait()
+        await writer
+
+    async def async_generate_mappings(
+            self, chroms, read_length, outfile=None):
+        if outfile is None:
+            outfile = sys.stdout
+
+        bowtie = await self.async_start_bowtie()
+        reads_generator = self.generate_reads(chroms, read_length)
+        async for mappings in self.async_mappings_generator(
+                reads_generator, bowtie):
+            outfile.write(mappings)
+
     async def async_generate_mappable_regions(
             self, chroms, read_length, outfile=None):
 
@@ -191,6 +183,39 @@ class HumanGenome19(object):
             outfile.write('\n')
         await bowtie.wait()
         await writer
+
+    async def async_mappable_regions_generator(self, infile):
+        prev = None
+        state = MappableState.OUT
+
+        while True:
+            line = await infile.readline()
+            if not line:
+                break
+            line = line.decode()
+            if line[0] == '@':
+                # comment
+                continue
+
+            mapping = Mapping.parse_sam(line)
+
+            if state == MappableState.OUT:
+                if mapping.flag == 0:
+                    prev = MappableRegion(mapping)
+                    state = MappableState.IN
+            else:
+                if mapping.flag == 0:
+                    if mapping.chrom == prev.chrom:
+                        prev.extend(mapping.start)
+                    else:
+                        yield prev
+                        prev = MappableRegion(mapping)
+                else:
+                    yield prev
+                    state = MappableState.OUT
+
+        if state == MappableState.IN:
+            yield prev
 
     def calc_chrom_mappable_positions_count(self):
         filename = self.config.mappable_regions_filename()

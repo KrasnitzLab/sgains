@@ -16,7 +16,8 @@ class Config(Box):
 
     @staticmethod
     def load(filename):
-        assert os.path.exists(filename)
+        filename = os.path.abspath(filename)
+        assert os.path.exists(filename), filename
 
         with open(filename, 'r') as infile:
             config = Box.from_yaml(infile)
