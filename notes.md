@@ -124,10 +124,10 @@ https://www.biostars.org/p/3461/
 http://www.ark-genomics.org/events-online-training-eu-training-course/adapter-and-quality-trimming-illumina-data
 ```
 
-## Generation of mappable regions - 100bp
+## Generation of mappable regions - 100bp and 50bp
 
 ```
-date && generate_mappable_regions.py -c scpipe10k100.yml -l 100 && date                                                                                     
+date && generate_mappable_regions.py -c scpipe10k100.yml -l 100 && date
 Fri Jun 23 14:56:20 EEST 2017
 Time loading forward index: 00:00:01
 Time for 0-mismatch search: 32:57:10
@@ -139,5 +139,68 @@ Reported 2761401626 alignments to 1 output stream(s)
 Time searching: 32:57:11
 Overall time: 32:57:11
 Sat Jun 24 23:53:31 EEST 2017
+```
+
+```
+date && generate_mappable_regions.py -c scpipe10k50.yml -l 50 && date                                                                                       
+Mon Jun 26 16:55:47 EEST 2017
+Time loading forward index: 00:00:01
+Time for 0-mismatch search: 32:23:16
+# reads processed: 3095676236
+# reads with at least one reported alignment: 2625057481 (84.80%)
+# reads that failed to align: 234364827 (7.57%)
+# reads with alignments suppressed due to -m: 236253928 (7.63%)
+Reported 2625057481 alignments to 1 output stream(s)
+Time searching: 32:23:17
+Overall time: 32:23:17
+Wed Jun 28 01:19:12 EEST 2017
+```
+
+
+## Timing of mappings generation
+
+```
+date && generate_mappings.py -c scpipe_tests.yml -l 100 -C chr4 | samtools view -o test_mappings_chr4.bam - && date                                         
+Tue Jun 27 11:16:41 EEST 2017
+Time loading forward index: 00:00:28
+Time for 0-mismatch search: 02:33:22
+# reads processed: 191154177
+# reads with at least one reported alignment: 183818120 (96.16%)
+# reads that failed to align: 3493590 (1.83%)
+# reads with alignments suppressed due to -m: 3842467 (2.01%)
+Reported 183818120 alignments to 1 output stream(s)
+Time searching: 02:33:57
+Overall time: 02:33:57
+Tue Jun 27 13:50:44 EEST 2017
+```
+
+```
+date && generate_mappings.py -c scpipe_tests.yml -l 100 -C chrY | samtools view -o test_mappings_chrY.bam - && date                                         
+Tue Jun 27 11:15:19 EEST 2017
+Time loading forward index: 00:00:10
+Time for 0-mismatch search: 00:47:40
+# reads processed: 59373467
+# reads with at least one reported alignment: 17264921 (29.08%)
+# reads that failed to align: 33721683 (56.80%)
+# reads with alignments suppressed due to -m: 8386863 (14.13%)
+Reported 17264921 alignments to 1 output stream(s)
+Time searching: 00:47:50
+Overall time: 00:47:51
+Tue Jun 27 12:03:17 EEST 2017
+```
+
+```
+date && generate_mappings.py -c scpipe_tests.yml -l 100 -C chrX | samtools view -o test_mappings_chrX.bam - && date                                         
+Tue Jun 27 11:14:20 EEST 2017
+Time loading forward index: 00:00:02
+Time for 0-mismatch search: 02:25:42
+# reads processed: 155270461
+# reads with at least one reported alignment: 143846327 (92.64%)
+# reads that failed to align: 4172079 (2.69%)
+# reads with alignments suppressed due to -m: 7252055 (4.67%)
+Reported 143846327 alignments to 1 output stream(s)
+Time searching: 02:25:45
+Overall time: 02:25:45
+Tue Jun 27 13:40:13 EEST 2017
 ```
 

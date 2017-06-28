@@ -84,12 +84,18 @@ class HumanGenome19(object):
                 self._chrom_sizes = result
         return self._chrom_sizes
 
-    def mask_pseudoautosomal_chrY(self):
+    CHRY_PAR1 = [
+        (10000, 2649520),
+        (59034049, 59363566)
+    ]
+
+    def mask_chrY_pars(self):
         chr_y = self.load_chrom("chrY")
 
         masked = chr_y.seq.tomutable()
-        masked[10000:2649520] = 'N' * (2649520 - 10000)
-        masked[59034049:59363566] = 'N' * (59363566 - 59034049)
+        for par in self.CHRY_PAR1:
+            start, end = par
+            masked[start:end] = 'N' * (end - start)
 
         rec = SeqRecord(masked, id=chr_y.id, description=chr_y.description)
         return rec

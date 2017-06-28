@@ -61,7 +61,7 @@ USAGE
         if generator is None:
             raise CLIError("wrong genome version")
 
-        masked_chrom = generator.mask_pseudoautosomal_chrY()
+        masked_chrom = generator.mask_chrY_pars()
         generator.save_chrom(masked_chrom, "chrY")
 
         return 0
