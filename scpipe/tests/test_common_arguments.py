@@ -100,3 +100,27 @@ def test_bins_length(parser):
     argv = ["-c", "scpipe_tests.yml", "-b", "10042"]
     config = parser.parse_arguments(argv)
     assert config.bins.bins_count == 10042
+
+
+def test_output_abs(parser):
+    argv = ["-c", "scpipe_tests.yml", "-o", "/out.txt"]
+    config = parser.parse_arguments(argv)
+    assert config.output == "/out.txt"
+
+
+def test_output_stdout(parser):
+    argv = ["-c", "scpipe_tests.yml", "-o", "-"]
+    config = parser.parse_arguments(argv)
+    assert config.output == "-"
+
+
+def test_output_rel(parser):
+    argv = ["-c", "scpipe_tests.yml", "-o", "out.txt"]
+    config = parser.parse_arguments(argv)
+    assert os.path.basename(config.output) == "out.txt"
+
+
+def test_output_none(parser):
+    argv = ["-c", "scpipe_tests.yml"]
+    config = parser.parse_arguments(argv)
+    assert config.output is None

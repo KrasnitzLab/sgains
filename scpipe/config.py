@@ -63,3 +63,10 @@ class Config(Box):
         )
         filename = self.abspath(filename)
         return filename
+
+    def bin_boundaries_filename(self):
+        filename = os.path.join(
+            self.bins.cache_dir,
+            self.bins.bin_boundaries
+        )
+        return self.abspath(filename)

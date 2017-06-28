@@ -49,6 +49,14 @@ class Parser:
             metavar="path")
 
         parser.add_argument(
+            "-o", "--output",
+            dest="output",
+            help="output file to store results into. "
+            "To use standart output you need to specify '-o -'",
+            metavar="path"
+        )
+
+        parser.add_argument(
             "-C", "--chroms",
             dest="chroms",
             help="list of chromosomes to work with. Default: all chromosomes",
@@ -115,6 +123,20 @@ class Parser:
             assert os.path.exists(args.config)
             loaded = Config.load(args.config)
             config.update(loaded)
+
+        if args.output:
+            if os.path.isabs(args.output):
+                config.output = args.output
+            elif '-' == args.output:
+                config.output = '-'
+            else:
+                output = os.path.join(
+                    config.dirname,
+                    args.output
+                )
+                config.output = os.path.abspath(output)
+        else:
+            config.output = None
 
         if args.genome:
             config.genome.version = args.genome

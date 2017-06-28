@@ -14,9 +14,8 @@ from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 import config
 from hg19 import HumanGenome19
-import common_arguments
 import traceback
-import asyncio
+from common_arguments import Parser
 
 
 class CLIError(Exception):
@@ -48,40 +47,12 @@ USAGE
 ''' % (program_shortdesc, )
 
     try:
-        parser = ArgumentParser(
+        argparser = ArgumentParser(
             description=program_description,
             formatter_class=RawDescriptionHelpFormatter)
-        common_arguments.genome_arguments(parser)
+        parser = Parser.from_argument_parser(argparser)
 
-        parser.add_argument(
-            "-C", "--chrom",
-            dest="chrom",
-            help="chromosome for which to generate mappable regions")
-
-        parser.add_argument(
-            "-o", "--outfile",
-            dest="outfile",
-            help="output file to write generated reads. "
-            "stdout if not specified",
-            metavar="path"
-        )
-
-        parser.add_argument(
-            "-l", "--length",
-            dest="length",
-            type=int,
-            help="read length to generate"
-        )
-
-        parser.add_argument(
-            "-b", "--bins",
-            dest="bins",
-            type=int,
-            help="number of bins"
-        )
-        # process arguments
-        args = parser.parse_args(argv[1:])
-        config = common_arguments.process_genome_agrments(args)
+        config = parser.parse_arguments(argv[1:])
 
         hg = None
         if config.genome.version == 'hg19':
@@ -90,30 +61,13 @@ USAGE
         if hg is None:
             raise CLIError("wrong genome version")
 
-        chrom = args.chrom
-        if chrom is not None:
-            chroms = [chrom]
-        else:
-            chroms = hg.CHROMS
-
-        length = args.length
-        assert length is not None
-
-        
-        outfile = None
-        if args.outfile is None:
-            dirname = config.abspath(config.bins.cache_dir)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
-            filename = os.path.join(
-                config.bins.cache_dir,
-                config.bins.mappable_regions
-            )
+        if config.outfile is None:
+            filename = config.bin_boundaries_filename()
             outfile = open(config.abspath(filename), 'w')
-        elif args.outfile == '-':
+        elif config.outfile == '-':
             outfile = sys.stdout
         else:
-            outfile = os.path.abspath(args.outfile)
+            outfile = config.abspath(config.outfile)
             outfile = open(outfile, "w")
 
 #         event_loop = asyncio.get_event_loop()
