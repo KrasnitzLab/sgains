@@ -59,3 +59,20 @@ def test_parser_chroms(parser):
     config = parser.parse_arguments(argv)
 
     assert set(config.chroms) == {'chrM', 'chrY'}
+
+
+def test_default_reads_filenames(parser):
+    argv = ["-c", "scpipe_tests.yml", "-C", "chrM,chrY"]
+    config = parser.parse_arguments(argv)
+
+    assert config.reads.mappable_regions == "mappable_regions.tsv"
+    assert config.reads.mappable_positions_count == \
+        "mappable_positions_count.yml"
+    assert config.reads.chrom_sizes == "chrom_sizes.yml"
+
+
+def test_default_bins_filenames(parser):
+    argv = ["-c", "scpipe_tests.yml", "-C", "chrM,chrY"]
+    config = parser.parse_arguments(argv)
+
+    assert config.bins.bin_boundaries == "bin_boundaries.tsv"

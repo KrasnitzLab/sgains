@@ -7,9 +7,6 @@ genome:
 reads:
   length: 100
   cache_dir: data/R100
-  mappable_regions: mappable_regions.tsv
-  mappable_positions_count: mappable_positions_count.yml
-  chrom_sizes: chrom_sizes.yml
 
 bins:
   bins_count: 10000

@@ -73,18 +73,41 @@ class Parser:
             help="genome index name",
         )
 
+        parser.add_argument(
+            "-l", "--length",
+            dest="length",
+            help="read lengths to use for region mappings. Default: 100",
+            type=int,
+        )
+
+        parser.add_argument(
+            "--reads-dir",
+            dest="reads_dir",
+            help="directory where mappable regions are stored",
+            metavar="path"
+        )
+
+        parser.add_argument(
+            "-b", "--bins",
+            dest="bins",
+            type=int,
+            help="number of bins to use: Default: 100"
+        )
+
         result = Parser(parser)
         return result
 
     def parse_arguments(self, argv):
         args = self.parser.parse_args(argv)
+
+        config = Box(self.DEFAULT_CONFIG, default_box=True)
+        config.filename = None
+        config.dirname = os.getcwd()
+
         if args.config:
             assert os.path.exists(args.config)
-            config = Config.load(args.config)
-        else:
-            config = Box(self.DEFAULT_CONFIG, default_box=True)
-            config.filename = None
-            config.dirname = os.getcwd()
+            loaded = Config.load(args.config)
+            config.update(loaded)
 
         if args.genome:
             config.genome.version = args.genome

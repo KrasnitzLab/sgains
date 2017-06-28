@@ -27,7 +27,6 @@ class Config(Box):
             return Config(
                 config.to_dict(),
                 default_box=True,
-                camel_case_killer=True
             )
 
     def abspath(self, filename):
