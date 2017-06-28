@@ -162,4 +162,4 @@ class Parser:
             config.bins.cache_dir = args.bins_dir
 
         result = Box(config.to_dict(), frozen_box=True)
-        return result
+        return Config(result)

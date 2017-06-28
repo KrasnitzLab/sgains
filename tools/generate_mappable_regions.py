@@ -63,10 +63,10 @@ USAGE
         if hg is None:
             raise CLIError("wrong genome version")
 
-        if config.outfile is None:
+        if config.output is None:
             filename = config.bin_boundaries_filename()
             outfile = open(config.abspath(filename), 'w')
-        elif config.outfile == '-':
+        elif config.output == '-':
             outfile = sys.stdout
         else:
             outfile = config.abspath(config.outfile)

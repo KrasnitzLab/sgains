@@ -32,33 +32,23 @@ class HumanGenome19(object):
         assert config.genome.version == self.VERSION
         self.config = config
 
-        assert os.path.exists(config.genome.src)
-        if not os.path.exists(config.genome.dst):
-            os.makedirs(config.genome.dst)
+        assert os.path.exists(config.genome.pristine)
+        if not os.path.exists(config.genome.cache_dir):
+            os.makedirs(config.genome.cache_dir)
 
-        assert os.path.exists(config.genome.dst)
+        assert os.path.exists(config.genome.cache_dir)
         self._chrom_sizes = None
         self._chrom_bins = None
         self._chrom_mappable_positions_count = None
 
-    def load_chrom(self, chrom, src=None):
-        if src is None:
-            src = self.config.genome.src
-        infile = os.path.join(
-            src,
-            "{}.fa".format(chrom)
-        )
+    def load_chrom(self, chrom, pristine=False):
+        infile = self.config.chrom_filename(chrom, pristine)
         assert os.path.exists(infile)
         seq_record = SeqIO.read(infile, 'fasta')
         return seq_record
 
-    def save_chrom(self, record, chrom, dst=None):
-        if dst is None:
-            dst = self.config.genome.dst
-        outfile = os.path.join(
-            dst,
-            "{}.fa".format(chrom)
-        )
+    def save_chrom(self, record, chrom):
+        outfile = self.config.chrom_filename(chrom)
         SeqIO.write([record], outfile, 'fasta')
 
     def calc_chrom_sizes(self):
@@ -100,10 +90,10 @@ class HumanGenome19(object):
         rec = SeqRecord(masked, id=chr_y.id, description=chr_y.description)
         return rec
 
-    def generate_reads(self, chroms, read_length, src=None):
+    def generate_reads(self, chroms, read_length):
         try:
             for chrom in chroms:
-                seq_record = self.load_chrom(chrom, src=src)
+                seq_record = self.load_chrom(chrom)
                 for i in range(len(seq_record) - read_length + 1):
                     out_record = SeqRecord(
                         seq_record.seq[i: i + read_length],
@@ -133,7 +123,7 @@ class HumanGenome19(object):
         await outfile.drain()
 
     async def async_start_bowtie(self):
-        genomeindex = self.config.abspath(self.config.genome.index)
+        genomeindex = self.config.genome_index_filename()
         create = asyncio.create_subprocess_exec(
             'bowtie', '-S', '-t', '-v', '0', '-m', '1',
             '-f', genomeindex, '-',

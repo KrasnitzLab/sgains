@@ -70,3 +70,14 @@ class Config(Box):
             self.bins.bin_boundaries
         )
         return self.abspath(filename)
+
+    def chrom_filename(self, chrom, pristine=False):
+        if pristine:
+            cache_dir = self.genome.pristine
+        else:
+            cache_dir = self.genome.cache_dir
+        filename = os.path.join(
+            cache_dir,
+            "{}.fa".format(chrom)
+        )
+        return self.abspath(filename)
