@@ -76,3 +76,27 @@ def test_default_bins_filenames(parser):
     config = parser.parse_arguments(argv)
 
     assert config.bins.bin_boundaries == "bin_boundaries.tsv"
+
+
+def test_reads_cache_dir(parser):
+    argv = ["-c", "scpipe_tests.yml", "--reads-dir", "alaBalaPortocala"]
+    config = parser.parse_arguments(argv)
+    assert config.reads.cache_dir == "alaBalaPortocala"
+
+
+def test_reads_length(parser):
+    argv = ["-c", "scpipe_tests.yml", "-l", "42"]
+    config = parser.parse_arguments(argv)
+    assert config.reads.length == 42
+
+
+def test_bins_cache_dir(parser):
+    argv = ["-c", "scpipe_tests.yml", "--bins-dir", "alaBalaPortocala"]
+    config = parser.parse_arguments(argv)
+    assert config.bins.cache_dir == "alaBalaPortocala"
+
+
+def test_bins_length(parser):
+    argv = ["-c", "scpipe_tests.yml", "-b", "10042"]
+    config = parser.parse_arguments(argv)
+    assert config.bins.bins_count == 10042

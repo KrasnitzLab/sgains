@@ -94,6 +94,13 @@ class Parser:
             help="number of bins to use: Default: 100"
         )
 
+        parser.add_argument(
+            "--bins-dir",
+            dest="bins_dir",
+            help="directory where bin boundaries are stored",
+            metavar="path"
+        )
+
         result = Parser(parser)
         return result
 
@@ -121,6 +128,16 @@ class Parser:
         else:
             chroms = [c.strip() for c in args.chroms.split(',')]
             config.chroms = chroms
+
+        if args.length:
+            config.reads.length = args.length
+        if args.reads_dir:
+            config.reads.cache_dir = args.reads_dir
+
+        if args.bins:
+            config.bins.bins_count = args.bins
+        if args.bins_dir:
+            config.bins.cache_dir = args.bins_dir
 
         result = Box(config.to_dict(), frozen_box=True)
         return result
