@@ -5,10 +5,11 @@ Created on Jun 12, 2017
 '''
 import os
 from config import Config
+from hg19 import HumanGenome19
 from box import Box
 
 
-class Arguments:
+class Parser:
     DEFAULT_CONFIG = {
         "genome": {
             "version": "hg19",
@@ -34,7 +35,7 @@ class Arguments:
         self.parser = parser
 
     @staticmethod
-    def scpipe_arguments(parser):
+    def from_argument_parser(parser):
         parser.add_argument(
             "-v", "--verbose",
             dest="verbose",
@@ -56,7 +57,7 @@ class Arguments:
         parser.add_argument(
             "-g", "--genome",
             dest="genome",
-            help="genome version",
+            help="genome version. Default is 'hg19'",
             metavar="path")
 
         parser.add_argument(
@@ -72,16 +73,18 @@ class Arguments:
             help="genome index name",
         )
 
-        result = Arguments(parser)
+        result = Parser(parser)
         return result
 
-    def process_scpipe_agrments(self, argv):
+    def parse_arguments(self, argv):
         args = self.parser.parse_args(argv)
         if args.config:
             assert os.path.exists(args.config)
             config = Config.load(args.config)
         else:
             config = Box(self.DEFAULT_CONFIG, default_box=True)
+            config.filename = None
+            config.dirname = os.getcwd()
 
         if args.genome:
             config.genome.version = args.genome
@@ -90,4 +93,11 @@ class Arguments:
         if args.genome_index:
             config.genome.index = args.genome_index
 
-        return config
+        if args.chroms is None:
+            config.chroms = HumanGenome19.CHROMS
+        else:
+            chroms = [c.strip() for c in args.chroms.split(',')]
+            config.chroms = chroms
+
+        result = Box(config.to_dict(), frozen_box=True)
+        return result
