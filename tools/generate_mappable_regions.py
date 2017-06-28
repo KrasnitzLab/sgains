@@ -64,7 +64,7 @@ USAGE
             raise CLIError("wrong genome version")
 
         if config.output is None:
-            filename = config.bin_boundaries_filename()
+            filename = config.mappable_regions_filename()
             outfile = open(config.abspath(filename), 'w')
         elif config.output == '-':
             outfile = sys.stdout

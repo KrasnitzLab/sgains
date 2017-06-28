@@ -161,5 +161,13 @@ class Parser:
         if args.bins_dir:
             config.bins.cache_dir = args.bins_dir
 
-        result = Box(config.to_dict(), frozen_box=True)
-        return Config(result)
+        result = Config(Box(config.to_dict(), frozen_box=True))
+        reads_cache = result.abspath(result.reads.cache_dir)
+        if not os.path.exists(reads_cache):
+            os.makedirs(reads_cache)
+
+        bins_cache = result.abspath(result.bins.cache_dir)
+        if not os.path.exists(bins_cache):
+            os.makedirs(bins_cache)
+
+        return result

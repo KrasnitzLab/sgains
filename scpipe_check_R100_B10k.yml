@@ -4,16 +4,14 @@ genome:
   cache_dir: data/hg19
   index: genomeindex
 
-
 reads:
-  length: 50
-  cache_dir: data/R50
+  length: 100
+  cache_dir: data/check_R100
   mappable_regions: mappable_regions.tsv
   mappable_positions_count: mappable_positions_count.tsv
   chrom_sizes: chrom_sizes.yml
 
-
 bins:
   bins_count: 10000
-  cache_dir: data/R100_B10k
+  cache_dir: data/check_R100_B10k
   bin_boundaries: bin_boundaries.tsv
