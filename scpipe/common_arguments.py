@@ -8,54 +8,86 @@ from config import Config
 from box import Box
 
 
-def genome_arguments(parser):
-    parser.add_argument(
-        "-v", "--verbose",
-        dest="verbose",
-        action="count",
-        help="set verbosity level [default: %(default)s]")
+class Arguments:
+    DEFAULT_CONFIG = {
+        "genome": {
+            "version": "hg19",
+            "pristine": "hg19_safe",
+            "cache_dir": "data/safe",
+            "index": "genomeindex",
+        },
+        "reads": {
+            "length": 100,
+            "cache_dir": "data/R100",
+            "mappable_regions": "mappable_regions.tsv",
+            "mappable_positions_count": "mappable_positions_count.yml",
+            "chrom_sizes": "chrom_sizes.yml"
+        },
+        "bins": {
+            "bins_count": 10000,
+            "cache_dir": "data/R100_B10k",
+            "bin_boundaries": "bin_boundaries.tst",
+        }
+    }
 
-    parser.add_argument(
-        "-g", "--genome",
-        dest="genome",
-        help="genome version",
-        metavar="path")
-    parser.add_argument(
-        "-s", "--src",
-        dest="src",
-        help="source directory",
-        metavar="path")
-    parser.add_argument(
-        "-d", "--dst",
-        dest="dst",
-        help="destination output directory",
-        metavar="path")
-    parser.add_argument(
-        "-c", "--config",
-        dest="config",
-        help="configuration file",
-        metavar="path")
+    def __init__(self, parser):
+        self.parser = parser
 
-    return parser
+    @staticmethod
+    def scpipe_arguments(parser):
+        parser.add_argument(
+            "-v", "--verbose",
+            dest="verbose",
+            action="count",
+            help="set verbosity level [default: %(default)s]")
 
+        parser.add_argument(
+            "-c", "--config",
+            dest="config",
+            help="configuration file",
+            metavar="path")
 
-def process_genome_agrments(args):
-    config = args.config
-    genome = args.genome
-    dst = args.dst
-    src = args.src
+        parser.add_argument(
+            "-C", "--chroms",
+            dest="chroms",
+            help="list of chromosomes to work with. Default: all chromosomes",
+        )
 
-    if config:
-        assert os.path.exists(config)
-        config = Config.load(config)
-    else:
-        config = Box(default_box=True)
+        parser.add_argument(
+            "-g", "--genome",
+            dest="genome",
+            help="genome version",
+            metavar="path")
 
-    if genome:
-        config.genome.version = genome
-    if dst:
-        config.genome.dst = dst
-    if src:
-        config.genome.src = src
+        parser.add_argument(
+            "--genome-dir",
+            dest="genome_dir",
+            help="directory where genome and genome index are located",
+            metavar="path"
+        )
 
-    return config
+        parser.add_argument(
+            "--genome-index",
+            dest="genome_index",
+            help="genome index name",
+        )
+
+        result = Arguments(parser)
+        return result
+
+    def process_scpipe_agrments(self, argv):
+        args = self.parser.parse_args(argv)
+        if args.config:
+            assert os.path.exists(args.config)
+            config = Config.load(args.config)
+        else:
+            config = Box(self.DEFAULT_CONFIG, default_box=True)
+
+        if args.genome:
+            config.genome.version = args.genome
+        if args.genome_dir:
+            config.genome.cache_dir = args.genome_dir
+        if args.genome_index:
+            config.genome.index = args.genome_index
+
+        return config

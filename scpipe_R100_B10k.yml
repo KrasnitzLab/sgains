@@ -1,14 +1,14 @@
 genome:
   version: hg19
-  pristine: data/hg19_safe
-  cache_dir: data/hg19
-  index: genomeindex
+  src: data/hg19_safe
+  dst: data/hg19
+  index: data/hg19/genomeindex
 
 reads:
   length: 100
   cache_dir: data/R100
   mappable_regions: mappable_regions.tsv
-  mappable_positions_count: mappable_positions_count.yml
+  mappable_positions_count: mappable_positions_count.tsv
   chrom_sizes: chrom_sizes.yml
 
 bins:

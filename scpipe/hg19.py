@@ -86,7 +86,7 @@ class HumanGenome19(object):
 
     CHRY_PAR1 = [
         (10000, 2649520),
-        (59034049, 59363566)
+        (59034049, 59363566),
     ]
 
     def mask_chrY_pars(self):

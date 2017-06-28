@@ -36,24 +36,31 @@ class Config(Box):
             filename
         )
 
+    def genome_index_filename(self):
+        filename = os.path.join(
+            self.genome.cache_dir,
+            self.genome.index
+        )
+        return self.abspath(filename)
+
     def mappable_regions_filename(self):
         filename = os.path.join(
-            self.bins.cache_dir,
-            self.bins.mappable_regions
+            self.reads.cache_dir,
+            self.reads.mappable_regions
         )
         return self.abspath(filename)
 
     def mappable_positions_count_filename(self):
         filename = os.path.join(
-            self.bins.cache_dir,
-            self.bins.mappable_positions_count
+            self.reads.cache_dir,
+            self.reads.mappable_positions_count
         )
         return self.abspath(filename)
 
     def chrom_sizes_filename(self):
         filename = os.path.join(
-            self.bins.cache_dir,
-            self.bins.chrom_sizes
+            self.reads.cache_dir,
+            self.reads.chrom_sizes
         )
         filename = self.abspath(filename)
         return filename
