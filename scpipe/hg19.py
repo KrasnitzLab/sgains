@@ -15,7 +15,7 @@ from box import Box
 
 import pandas as pd
 from utils import MappableState, Mapping, MappableRegion, \
-    MappableBin, BinParams
+    MappableBin, BinParams, LOG
 
 
 class HumanGenome19(object):
@@ -316,6 +316,18 @@ class HumanGenome19(object):
         df.sort_values(by=['chrom', 'start_pos', 'end_pos'], inplace=True)
 
         return df
+
+    def mappable_regions_check(self, chroms, mappable_regions_df=None):
+        if mappable_regions_df is None:
+            mappable_regions_df = self.load_mappable_regions()
+
+        for chrom in chroms:
+            chrom_df = mappable_regions_df[mappable_regions_df.chrom == chrom]
+            chrom_df = chrom_df.sort_values(
+                by=['chrom', 'start_pos', 'end_pos'])
+            start_pos_count = len(chrom_df.start_pos.unique())
+            if start_pos_count < len(chrom_df):
+                LOG.error("chrom {} has duplicate mappable regions", chrom)
 
     def calc_bin_boundaries(self, chroms, mappable_regions_df=None):
         chrom_sizes = self.chrom_sizes()

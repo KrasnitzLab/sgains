@@ -18,15 +18,6 @@ from hg19 import HumanGenome19
 import common_arguments
 import traceback
 import asyncio
-import logging
-
-
-logging.basicConfig(
-    level=logging.WARN,
-    format='%(levelname)7s: %(message)s',
-    stream=sys.stderr,
-)
-LOG = logging.getLogger('')
 
 
 class CLIError(Exception):

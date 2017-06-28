@@ -3,6 +3,16 @@ Created on Jun 23, 2017
 
 @author: lubo
 '''
+import logging
+import sys
+
+
+logging.basicConfig(
+    level=logging.WARN,
+    format='%(levelname)7s: %(message)s',
+    stream=sys.stderr,
+)
+LOG = logging.getLogger('')
 
 
 class Mapping(object):
