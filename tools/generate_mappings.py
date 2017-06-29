@@ -13,10 +13,10 @@ from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 import config
 from hg19 import HumanGenome19
-import common_arguments
 import traceback
 import asyncio
 import logging
+from common_arguments import Parser
 
 
 logging.basicConfig(
@@ -41,10 +41,6 @@ class CLIError(Exception):
         return self.msg
 
 
-async def generate_mappings(mappings_generator, outfile):
-    pass
-
-
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -60,32 +56,12 @@ USAGE
 ''' % (program_shortdesc, )
 
     try:
-        parser = ArgumentParser(
+        argparser = ArgumentParser(
             description=program_description,
             formatter_class=RawDescriptionHelpFormatter)
-        common_arguments.genome_arguments(parser)
+        parser = Parser.from_argument_parser(argparser)
 
-        parser.add_argument(
-            "-C", "--chrom",
-            dest="chrom",
-            help="chromosome for which to generate mappable regions")
-
-        parser.add_argument(
-            "-o", "--outfile",
-            dest="outfile",
-            help="output file to write generated reads. "
-            "stdout if not specified",
-            metavar="path")
-
-        parser.add_argument(
-            "-l", "--length",
-            dest="length",
-            type=int,
-            help="read length to generate")
-
-        # process arguments
-        args = parser.parse_args(argv[1:])
-        config = common_arguments.process_genome_agrments(args)
+        config = parser.parse_arguments(argv[1:])
 
         hg = None
         if config.genome.version == 'hg19':
@@ -94,20 +70,13 @@ USAGE
         if hg is None:
             raise CLIError("wrong genome version")
 
-        chrom = args.chrom
-        if chrom is not None:
-            chroms = [chrom]
-        else:
-            chroms = hg.CHROMS
-
-        length = args.length
-        assert length is not None
-
-        outfile = None
-        if args.outfile is None:
+        if config.output is None:
+            filename = config.mappable_regions_filename()
+            outfile = open(config.abspath(filename), 'w')
+        elif config.output == '-':
             outfile = sys.stdout
         else:
-            outfile = os.path.abspath(args.outfile)
+            outfile = config.abspath(config.outfile)
             outfile = open(outfile, "w")
 
         event_loop = asyncio.get_event_loop()
@@ -116,7 +85,11 @@ USAGE
 
         try:
             event_loop.run_until_complete(
-                hg.async_generate_mappings(chroms, length, outfile)
+                hg.async_generate_mappings(
+                    config.chroms,
+                    config.reads.length,
+                    outfile
+                )
             )
         finally:
             event_loop.close()

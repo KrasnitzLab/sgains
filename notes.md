@@ -15,6 +15,13 @@ conda install wgsim
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5069701/
 ```
 
+## Other papers
+
+```
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/
+```
+
+
 ## Sam tools tutorial
 
 ```
