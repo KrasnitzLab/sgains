@@ -16,6 +16,7 @@ from box import Box
 import pandas as pd
 from utils import MappableState, Mapping, MappableRegion, \
     MappableBin, BinParams, LOG
+from Bio.SeqUtils import GC
 
 
 class HumanGenome19(object):
@@ -318,6 +319,19 @@ class HumanGenome19(object):
             start_pos_count = len(chrom_df.start_pos.unique())
             if start_pos_count < len(chrom_df):
                 LOG.error("chrom {} has duplicate mappable regions", chrom)
+
+    def bins_gc_content(self, chroms, bins_df):
+
+        print(bins_df.columns)
+        for chrom in chroms:
+            chrom_df = bins_df[bins_df.chrom == chrom]
+
+            chrom_seq = self.load_chrom(chrom)
+            for _index, row in chrom_df.iterrows():
+                start = row['bin.start.chrompos']
+                end = row['bin.end.chrompos']
+                bin_seq = GC(chrom_seq.seq[start:end])
+                print(bin_seq)
 
     def calc_bin_boundaries(self, chroms, mappable_regions_df=None):
         chrom_sizes = self.chrom_sizes()

@@ -10,5 +10,5 @@ from hg19 import HumanGenome19
 
 @pytest.fixture(scope='session')
 def hg():
-    config = Config.load("scpipe10k100.yml")
+    config = Config.load("scpipe_tests.yml")
     return HumanGenome19(config)
