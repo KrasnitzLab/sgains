@@ -74,16 +74,16 @@ class HumanGenome19(object):
                 self._chrom_sizes = result
         return self._chrom_sizes
 
-    CHRY_PAR1 = [
+    CHRY_PARs = [
         (10000, 2649520),
         (59034049, 59363566),
     ]
 
     def mask_chrY_pars(self):
-        chr_y = self.load_chrom("chrY")
+        chr_y = self.load_chrom("chrY", pristine=True)
 
         masked = chr_y.seq.tomutable()
-        for par in self.CHRY_PAR1:
+        for par in self.CHRY_PARs:
             start, end = par
             masked[start:end] = 'N' * (end - start)
 

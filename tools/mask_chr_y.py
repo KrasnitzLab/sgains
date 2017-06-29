@@ -13,7 +13,7 @@ from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 import config
 from hg19 import HumanGenome19
-import common_arguments
+from common_arguments import Parser
 
 
 class CLIError(Exception):
@@ -45,24 +45,22 @@ USAGE
 ''' % (program_shortdesc, )
 
     try:
-        parser = ArgumentParser(
+        argparser = ArgumentParser(
             description=program_description,
             formatter_class=RawDescriptionHelpFormatter)
-        common_arguments.genome_arguments(parser)
+        parser = Parser.from_argument_parser(argparser)
 
-        # process arguments
-        args = parser.parse_args(argv[1:])
-        config = common_arguments.process_genome_agrments(args)
+        config = parser.parse_arguments(argv[1:])
 
-        generator = None
+        hg = None
         if config.genome.version == 'hg19':
-            generator = HumanGenome19(config)
+            hg = HumanGenome19(config)
 
-        if generator is None:
+        if hg is None:
             raise CLIError("wrong genome version")
 
-        masked_chrom = generator.mask_chrY_pars()
-        generator.save_chrom(masked_chrom, "chrY")
+        masked_chrom = hg.mask_chrY_pars()
+        hg.save_chrom(masked_chrom, "chrY")
 
         return 0
     except KeyboardInterrupt:
