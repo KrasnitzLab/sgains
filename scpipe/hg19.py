@@ -123,10 +123,11 @@ class HumanGenome19(object):
         outfile.write(out)
         await outfile.drain()
 
-    async def async_start_bowtie(self):
+    async def async_start_bowtie(self, threads=1):
         genomeindex = self.config.genome_index_filename()
         create = asyncio.create_subprocess_exec(
             'bowtie', '-S', '-t', '-v', '0', '-m', '1',
+            '--threads', str(threads),
             '-f', genomeindex, '-',
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
@@ -165,9 +166,10 @@ class HumanGenome19(object):
             outfile.write(mappings)
 
     async def async_generate_mappable_regions(
-            self, chroms, read_length, outfile=None):
+            self, chroms, read_length,
+            outfile=None, threads=1):
 
-        bowtie = await self.async_start_bowtie()
+        bowtie = await self.async_start_bowtie(threads=threads)
         reads_generator = self.generate_reads(chroms, read_length)
         writer = asyncio.Task(
             self.async_write_reads_generator(bowtie.stdin, reads_generator)
