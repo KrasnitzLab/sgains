@@ -211,3 +211,19 @@ Overall time: 02:25:45
 Tue Jun 27 13:40:13 EEST 2017
 ```
 
+## Timing mapping regions generation with 100bp reads
+
+```
+date && generate_mappable_regions.py -c scpipe_check_R100_B10k.yml -l 100 && date                                                                       
+Wed Jun 28 14:01:41 EEST 2017
+Time loading forward index: 00:00:00
+Time for 0-mismatch search: 31:44:07
+# reads processed: 3095675036
+# reads with at least one reported alignment: 2758913563 (89.12%)
+# reads that failed to align: 237047773 (7.66%)
+# reads with alignments suppressed due to -m: 99713700 (3.22%)
+Reported 2758913563 alignments to 1 output stream(s)
+Time searching: 31:44:07
+Overall time: 31:44:07
+Thu Jun 29 21:45:52 EEST 2017
+```

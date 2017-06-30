@@ -7,8 +7,9 @@ genome:
 reads:
   length: 100
   cache_dir: data/R100
-
+  bowtie: ""
+  
 bins:
   bins_count: 10000
   cache_dir: data/R100_B10k
-  bin_boundaries: bin_boundaries.tsv
+
