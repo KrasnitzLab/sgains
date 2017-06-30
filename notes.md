@@ -4,8 +4,10 @@
 
 ```
 conda config --add channels bioconda
-conda install bowtie2 samtools bcftools
+conda install samtools bcftools
 conda install wgsim
+conda install trimmomatic
+conda install biopython pysam
 
 ```
 
