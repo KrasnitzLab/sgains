@@ -16,7 +16,6 @@ from box import Box
 import pandas as pd
 from utils import MappableState, Mapping, MappableRegion, \
     MappableBin, BinParams, LOG
-from Bio.SeqUtils import GC
 
 
 class HumanGenome19(object):
@@ -44,8 +43,9 @@ class HumanGenome19(object):
 
     def load_chrom(self, chrom, pristine=False):
         infile = self.config.chrom_filename(chrom, pristine)
-        assert os.path.exists(infile)
+        assert os.path.exists(infile), infile
         seq_record = SeqIO.read(infile, 'fasta')
+        seq_record.seq = seq_record.seq.upper()
         return seq_record
 
     def save_chrom(self, record, chrom):
@@ -322,16 +322,28 @@ class HumanGenome19(object):
 
     def bins_gc_content(self, chroms, bins_df):
 
-        print(bins_df.columns)
+        result = []
         for chrom in chroms:
             chrom_df = bins_df[bins_df.chrom == chrom]
+            gc_df = chrom_df.copy()
+            gc_df.reset_index(inplace=True)
 
+            gc_series = pd.Series(index=gc_df.index)
             chrom_seq = self.load_chrom(chrom)
-            for _index, row in chrom_df.iterrows():
+
+            for index, row in gc_df.iterrows():
                 start = row['bin.start.chrompos']
                 end = row['bin.end.chrompos']
-                bin_seq = GC(chrom_seq.seq[start:end])
-                print(bin_seq)
+                seq = chrom_seq.seq[start:end]
+                counts = [seq.count(x) for x in ['G', 'C', 'A', 'T']]
+                gc = float(sum(counts[0:2])) / sum(counts)
+                gc_series.iloc[index] = gc
+            gc_df['gc.content'] = gc_series
+            result.append(gc_df)
+        assert len(result) > 0
+        if len(result) == 1:
+            return result[0]
+        return pd.concat(result)
 
     def calc_bin_boundaries(self, chroms, mappable_regions_df=None):
         chrom_sizes = self.chrom_sizes()

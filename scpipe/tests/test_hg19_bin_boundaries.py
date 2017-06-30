@@ -3,26 +3,18 @@ Created on Jun 23, 2017
 
 @author: lubo
 '''
-import pandas as pd
-import os
-from hg19 import HumanGenome19
 import pytest
+
+from hg19 import HumanGenome19
 
 
 @pytest.mark.parametrize("chromozome", HumanGenome19.CHROMS)
-def test_calc_bin_boundaries(hg, chromozome):
-    bins_boundaries_fixture = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        "data/bin.boundaries.bowtie.txt"
-    )
-
-    df = pd.read_csv(bins_boundaries_fixture, sep='\t')
-    assert df is not None
+def test_calc_bin_boundaries(hg, bin_boundaries, chromozome):
 
     mappable_regions_df = hg.load_mappable_regions()
 
     for chrom in [chromozome]:
-        chrom_df = df[df.chrom == chrom]
+        chrom_df = bin_boundaries[bin_boundaries.chrom == chrom]
         for index, mappable_bin in enumerate(hg.calc_bin_boundaries(
                 [chrom], mappable_regions_df)):
             fixture_bin = chrom_df.iloc[index, :]
