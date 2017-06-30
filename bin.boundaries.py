@@ -13,7 +13,7 @@ def main():
     MAP = open("chrom.mappable.bowtie.txt", "r")
     GOOD = open("mappable.regions.sorted.txt", "r")
     CHROMLEN = open("chrom.sizes.txt", "r")
-    OUTFILE = open("test.bin.boundaries.bowtie.txt", "w")
+    OUTFILE = open("bin.boundaries.bowtie.txt", "w")
 
     OUTFILE.write(
         "chrom\tbin.start.chrompos\tbin.start.abspos\tbin.end.chrompos\tbin.length\tmappable.positions\n")
