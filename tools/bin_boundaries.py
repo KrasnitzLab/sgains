@@ -32,6 +32,10 @@ class CLIError(Exception):
         return self.msg
 
 
+def bin_boundaries(hg, config):
+    pass
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv

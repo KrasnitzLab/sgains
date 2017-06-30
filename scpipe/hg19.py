@@ -324,7 +324,7 @@ class HumanGenome19(object):
 
         result = []
         for chrom in chroms:
-            chrom_df = bins_df[bins_df.chrom == chrom]
+            chrom_df = bins_df[bins_df['bin.chrom'] == chrom]
             gc_df = chrom_df.copy()
             gc_df.reset_index(inplace=True)
 
@@ -345,7 +345,7 @@ class HumanGenome19(object):
             return result[0]
         return pd.concat(result)
 
-    def calc_bin_boundaries(self, chroms, mappable_regions_df=None):
+    def bin_boundaries_generator(self, chroms, mappable_regions_df=None):
         chrom_sizes = self.chrom_sizes()
         chrom_bins = self.calc_chrom_bins()
 
@@ -390,3 +390,28 @@ class HumanGenome19(object):
                             mappable_bin.adapt_excess(current_excess)
 
             mappable_bin = None
+
+    def bin_boundaries(self, chroms, regions_df=None):
+        bin_rows = []
+        for mbin in self.bin_boundaries_generator(chroms, regions_df):
+            bin_rows.append(
+                (
+                    mbin.chrom,
+                    mbin.start_pos,
+                    mbin.start_abspos,
+                    mbin.end_pos,
+                    mbin.end_pos - mbin.start_pos,
+                    mbin.bin_size
+                )
+            )
+
+        df = pd.DataFrame.from_records(
+            bin_rows,
+            columns=[
+                'bin.chrom',
+                'bin.start.chrompos',
+                'bin.start.abspos',
+                'bin.end.chrompos',    'bin.length',
+                'mappable.positions'
+            ])
+        return df

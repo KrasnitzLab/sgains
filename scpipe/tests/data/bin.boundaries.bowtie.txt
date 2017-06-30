@@ -1,4 +1,4 @@
-chrom	bin.start.chrompos	bin.start.abspos	bin.end.chrompos	bin.length	mappable.positions
+bin.chrom	bin.start.chrompos	bin.start.abspos	bin.end.chrompos	bin.length	mappable.positions
 chr1	0	0	932606	932606	275764
 chr1	932606	932606	1213365	280759	275764
 chr1	1213365	1213365	1503720	290355	275765
