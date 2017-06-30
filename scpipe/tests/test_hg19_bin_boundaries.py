@@ -15,7 +15,6 @@ def test_calc_bin_boundaries(hg, chromozome):
         os.path.abspath(os.path.dirname(__file__)),
         "data/bin.boundaries.bowtie.txt"
     )
-    print(bins_boundaries_fixture)
 
     df = pd.read_csv(bins_boundaries_fixture, sep='\t')
     assert df is not None
