@@ -11,8 +11,8 @@ class Config(Box):
     DEFAULT_CONFIG = {
         "genome": {
             "version": "hg19",
-            "pristine": "hg19_safe",
-            "cache_dir": "data/safe",
+            "pristine": "data/hg19_safe",
+            "cache_dir": "data/hg19",
             "index": "genomeindex",
         },
         "reads": {

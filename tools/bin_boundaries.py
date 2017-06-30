@@ -32,8 +32,13 @@ class CLIError(Exception):
         return self.msg
 
 
-def bin_boundaries(hg, config):
-    pass
+def bin_boundaries(hg, config, outfile):
+    regions_df = hg.load_mappable_regions()
+    df = hg.bin_boundaries(
+        config.chroms,
+        regions_df
+    )
+    df.to_csv(outfile, sep='\t', index=False)
 
 
 def main(argv=None):
@@ -65,27 +70,17 @@ USAGE
         if hg is None:
             raise CLIError("wrong genome version")
 
-        if config.outfile is None:
+        if config.output is None:
             filename = config.bin_boundaries_filename()
             outfile = open(config.abspath(filename), 'w')
-        elif config.outfile == '-':
+        elif config.output == '-':
             outfile = sys.stdout
         else:
-            outfile = config.abspath(config.outfile)
+            outfile = config.abspath(config.output)
             outfile = open(outfile, "w")
 
-#         event_loop = asyncio.get_event_loop()
-#         # Enable debugging
-#         # event_loop.set_debug(True)
-#
-#         try:
-#             event_loop.run_until_complete(
-#                 hg.async_generate_mappable_regions(chroms, length, outfile)
-#             )
-#         finally:
-#             event_loop.close()
-#
-#         outfile.close()
+        bin_boundaries(hg, config, outfile)
+
         return 0
     except KeyboardInterrupt:
         return 0
