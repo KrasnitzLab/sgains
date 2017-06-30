@@ -58,14 +58,14 @@ def test_chrom_mappable_positions_count(hg):
 def test_mappable_positions_total_count(hg):
     total = hg.total_mappable_positions_count()
 
-    assert total == 2761401626
+    assert total == 2758913563
 
 
 def test_calc_chrom_bins(hg):
     chrom_bins = hg.calc_chrom_bins()
 
-    assert chrom_bins['chr8'].bins_count == 505
-    assert chrom_bins['chr8'].bin_size == 276247.9524752475
+    assert chrom_bins['chr8'].bins_count == 506
+    assert chrom_bins['chr8'].bin_size == 275702.00790513837
 
 
 def test_chr_bins(hg):
