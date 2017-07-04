@@ -9,6 +9,8 @@ conda install wgsim
 conda install trimmomatic
 conda install biopython pysam
 
+conda install fastqc
+
 ```
 
 ## Nature protocols paper
@@ -213,3 +215,49 @@ Overall time: 02:25:45
 Tue Jun 27 13:40:13 EEST 2017
 ```
 
+## Jude's Reads alignment
+
+```
+bash commands.sh 
+Time loading forward index: 00:00:09
+Time loading mirror index: 00:00:09
+Seeded quality full-index search: 00:36:16
+# reads processed: 5663662
+# reads with at least one reported alignment: 1347631 (23.79%)
+# reads that failed to align: 3910997 (69.05%)
+# reads with alignments suppressed due to -m: 405034 (7.15%)
+Reported 1347631 alignments to 1 output stream(s)
+Time searching: 00:36:34
+Overall time: 00:36:34
+Time loading forward index: 00:00:09
+Time loading mirror index: 00:00:08
+Seeded quality full-index search: 00:19:20
+# reads processed: 3805696
+# reads with at least one reported alignment: 1385167 (36.40%)
+# reads that failed to align: 1947063 (51.16%)
+# reads with alignments suppressed due to -m: 473466 (12.44%)
+Reported 1385167 alignments to 1 output stream(s)
+Time searching: 00:19:37
+Overall time: 00:19:37
+Time loading forward index: 00:00:04
+Time loading mirror index: 00:00:08
+Seeded quality full-index search: 00:15:32
+# reads processed: 3103879
+# reads with at least one reported alignment: 1028255 (33.13%)
+# reads that failed to align: 1749477 (56.36%)
+# reads with alignments suppressed due to -m: 326147 (10.51%)
+Reported 1028255 alignments to 1 output stream(s)
+Time searching: 00:15:44
+Overall time: 00:15:44
+Time loading forward index: 00:00:04
+Time loading mirror index: 00:00:06
+Warning: Exhausted best-first chunk memory for read TUPAC:142:FC64VJLAAXX:2:108:13313:13867 1:N:0: (patid 2935437); skipping read
+Seeded quality full-index search: 00:16:52
+# reads processed: 3298881
+# reads with at least one reported alignment: 1051553 (31.88%)
+# reads that failed to align: 1848631 (56.04%)
+# reads with alignments suppressed due to -m: 398697 (12.09%)
+Reported 1051553 alignments to 1 output stream(s)
+Time searching: 00:17:02
+Overall time: 00:17:02
+```
