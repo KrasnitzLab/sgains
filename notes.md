@@ -5,16 +5,11 @@
 ```
 conda config --add channels bioconda
 conda install samtools bcftools
-conda install wgsim
-conda install trimmomatic
-conda install biopython pysam
-
-conda install fastqc
+conda install wgsim trimmomatic biopython pysam fastqc
 
 
 conda config --add channels r
-conda install r-essentials
-conda install rstudio
+conda install r-essentials rstudio
 
 ```
 
