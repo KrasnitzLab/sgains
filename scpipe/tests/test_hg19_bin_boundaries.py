@@ -39,6 +39,7 @@ def test_bin_boundaries(hg, bin_boundaries, chromosome):
     bins_df = hg.bin_boundaries([chromosome], regions_df)
 
     df = bins_df[bins_df['bin.chrom'] == chromosome]
+    df = df.reset_index()
 
     assert np.all(df.columns == fixture_df.columns)
     assert np.all(df['bin.start.chrompos'] == fixture_df['bin.start.chrompos'])

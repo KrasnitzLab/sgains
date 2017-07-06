@@ -31,6 +31,18 @@ https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/
 ```
 http://biobits.org/samtools_primer.html
 ```
+Interesting to check this:
+```
+https://wikis.utexas.edu/display/bioiteam/Bioinformatics+Courses+and+Content
+https://wikis.utexas.edu/display/bioiteam/Genome+Variant+Analysis+Course+2017
+https://wikis.utexas.edu/display/bioiteam/Introduction+to+RNA+Seq+Course+2017
+```
+
+More tutorials:
+```
+https://github.com/davetang/learning_bam_file
+
+```
 
 
 ## Build the HG19 bowtie index
@@ -260,4 +272,102 @@ Seeded quality full-index search: 00:16:52
 Reported 1051553 alignments to 1 output stream(s)
 Time searching: 00:17:02
 Overall time: 00:17:02
+```
+
+Using the other adapter:
+
+```
+bash commands2.sh 
+Time loading forward index: 00:00:02
+Time loading mirror index: 00:00:09
+Warning: Exhausted best-first chunk memory for read TUPAC:114:FC64FLDAAXX:3:64:9169:11935 1:N:0: (patid 2427728); skipping read
+Seeded quality full-index search: 00:25:38
+# reads processed: 4480186
+# reads with at least one reported alignment: 1278512 (28.54%)
+# reads that failed to align: 2804646 (62.60%)
+# reads with alignments suppressed due to -m: 397028 (8.86%)
+Reported 1278512 alignments to 1 output stream(s)
+Time searching: 00:25:49
+Overall time: 00:25:49
+Time loading forward index: 00:00:05
+Time loading mirror index: 00:00:07
+Seeded quality full-index search: 00:23:09
+# reads processed: 4697846
+# reads with at least one reported alignment: 1785591 (38.01%)
+# reads that failed to align: 2406588 (51.23%)
+# reads with alignments suppressed due to -m: 505667 (10.76%)
+Reported 1785591 alignments to 1 output stream(s)
+Time searching: 00:23:21
+Overall time: 00:23:21
+Time loading forward index: 00:00:04
+Time loading mirror index: 00:00:08
+Seeded quality full-index search: 00:15:34
+# reads processed: 3193189
+# reads with at least one reported alignment: 1253946 (39.27%)
+# reads that failed to align: 1548138 (48.48%)
+# reads with alignments suppressed due to -m: 391105 (12.25%)
+Reported 1253946 alignments to 1 output stream(s)
+Time searching: 00:15:46
+Overall time: 00:15:46
+Time loading forward index: 00:00:03
+Time loading mirror index: 00:00:07
+Seeded quality full-index search: 00:14:15
+# reads processed: 2787738
+# reads with at least one reported alignment: 1024765 (36.76%)
+# reads that failed to align: 1434114 (51.44%)
+# reads with alignments suppressed due to -m: 328859 (11.80%)
+Reported 1024765 alignments to 1 output stream(s)
+Time searching: 00:14:25
+Overall time: 00:14:25
+Time loading forward index: 00:00:03
+Time loading mirror index: 00:00:05
+Seeded quality full-index search: 00:20:21
+# reads processed: 3441379
+# reads with at least one reported alignment: 832358 (24.19%)
+# reads that failed to align: 2302985 (66.92%)
+# reads with alignments suppressed due to -m: 306036 (8.89%)
+Reported 832358 alignments to 1 output stream(s)
+Time searching: 00:20:29
+Overall time: 00:20:29
+Time loading forward index: 00:00:01
+Time loading mirror index: 00:00:06
+Seeded quality full-index search: 00:36:01
+# reads processed: 5673613
+# reads with at least one reported alignment: 1350221 (23.80%)
+# reads that failed to align: 3914178 (68.99%)
+# reads with alignments suppressed due to -m: 409214 (7.21%)
+Reported 1350221 alignments to 1 output stream(s)
+Time searching: 00:36:08
+Overall time: 00:36:08
+Time loading forward index: 00:00:06
+Time loading mirror index: 00:00:06
+Seeded quality full-index search: 00:19:06
+# reads processed: 3818801
+# reads with at least one reported alignment: 1389024 (36.37%)
+# reads that failed to align: 1952788 (51.14%)
+# reads with alignments suppressed due to -m: 476989 (12.49%)
+Reported 1389024 alignments to 1 output stream(s)
+Time searching: 00:19:18
+Overall time: 00:19:18
+Time loading forward index: 00:00:03
+Time loading mirror index: 00:00:07
+Seeded quality full-index search: 00:15:27
+# reads processed: 3123316
+# reads with at least one reported alignment: 1035829 (33.16%)
+# reads that failed to align: 1755310 (56.20%)
+# reads with alignments suppressed due to -m: 332177 (10.64%)
+Reported 1035829 alignments to 1 output stream(s)
+Time searching: 00:15:37
+Overall time: 00:15:37
+Time loading forward index: 00:00:04
+Time loading mirror index: 00:00:04
+Warning: Exhausted best-first chunk memory for read TUPAC:142:FC64VJLAAXX:2:108:13313:13867 1:N:0: (patid 2941767); skipping read
+Seeded quality full-index search: 00:16:44
+# reads processed: 3306021
+# reads with at least one reported alignment: 1053262 (31.86%)
+# reads that failed to align: 1852040 (56.02%)
+# reads with alignments suppressed due to -m: 400719 (12.12%)
+Reported 1053262 alignments to 1 output stream(s)
+Time searching: 00:16:52
+Overall time: 00:16:52
 ```
