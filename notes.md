@@ -11,6 +11,11 @@ conda install biopython pysam
 
 conda install fastqc
 
+
+conda config --add channels r
+conda install r-essentials
+conda install rstudio
+
 ```
 
 ## Nature protocols paper
