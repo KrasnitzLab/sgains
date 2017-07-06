@@ -26,6 +26,9 @@ class Config(Box):
             "bins_count": 10000,
             "cache_dir": "data/R100_B10k",
             "bin_boundaries": "bin_boundaries.tst",
+        },
+        "cells": {
+            "cache_dir": ""
         }
     }
 

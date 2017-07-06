@@ -16,6 +16,7 @@ from box import Box
 import pandas as pd
 from utils import MappableState, Mapping, MappableRegion, \
     MappableBin, BinParams, LOG
+import pysam
 
 
 class HumanGenome19(object):
@@ -393,7 +394,15 @@ class HumanGenome19(object):
 
             mappable_bin = None
 
-    def bin_boundaries(self, chroms, regions_df=None):
+    def bin_boundaries(self, chroms=None, regions_df=None):
+        bin_boundaries_filename = self.config.bin_boundaries_filename()
+
+        if os.path.exists(bin_boundaries_filename):
+            df = pd.read_csv(bin_boundaries_filename, sep='\t')
+            return df.sort_values(by=['bin.start.abspos'])
+
+        if chroms is None:
+            chroms = self.CHROMS
         bin_rows = []
         for mbin in self.bin_boundaries_generator(chroms, regions_df):
             bin_rows.append(
@@ -416,4 +425,54 @@ class HumanGenome19(object):
                 'bin.end.chrompos',    'bin.length',
                 'mappable.positions'
             ])
-        return df
+        return df.sort_values(by=['bin.start.abspos'])
+
+    def bin_count(self, filename):
+        assert self.config.cells.cache_dir is not None
+
+        dirname = self.config.abspath(self.config.cells.cache_dir)
+        assert os.path.exists(dirname)
+        assert os.path.isdir(dirname)
+
+        filename = os.path.join(dirname, filename)
+        assert os.path.exists(filename)
+
+        infile = pysam.AlignmentFile(filename, 'r')  # @UndefinedVariable
+        bins_df = self.bin_boundaries()
+        chrom_sizes = self.chrom_sizes()
+        chroms = set(self.CHROMS)
+
+        count = 0
+        dups = 0
+        total_reads = 0
+
+        prev_pos = 0
+        bin_counts = defaultdict(int)
+
+        for seg in infile:
+            total_reads += 1
+            if seg.is_unmapped:
+                continue
+            print(seg.reference_id, seg.reference_name,
+                  seg.reference_start, seg.get_tags())
+            chrom = seg.reference_name
+            if chrom not in chroms:
+                continue
+
+            abspos = chrom_sizes[chrom].abspos + seg.reference_start
+            if prev_pos == abspos:
+                dups += 1
+                continue
+            count += 1
+            index = bins_df['bin.start.abspos'].searchsorted(abspos)
+            assert len(index) == 1
+
+            index = index[0]
+            bin_counts[index] += 1
+            prev_pos = abspos
+
+            if count >= 100:
+                break
+        number_of_reads_per_bin = float(count) / len(bins_df)
+        for index, row in bins_df.iterrows():
+            pass

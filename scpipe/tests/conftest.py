@@ -36,3 +36,13 @@ def gc_bin_boundaries():
     )
     df = pd.read_csv(gc_bins_boundaries_fixture, sep='\t')
     return df
+
+
+@pytest.fixture(scope='session')
+def varbin_counts():
+    fixture_filename = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        "data/varbin.txt"
+    )
+    df = pd.read_csv(fixture_filename, sep='\t')
+    return df
