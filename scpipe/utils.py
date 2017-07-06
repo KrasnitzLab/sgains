@@ -112,6 +112,10 @@ class MappableBin(object):
     def chrom_abspos(self):
         return self.params.chrom_size.abspos
 
+    @property
+    def start_abspos(self):
+        return self.start_pos + self.chrom_abspos
+
     def __init__(self):
         self.start_pos = 0
         self.end_pos = 0

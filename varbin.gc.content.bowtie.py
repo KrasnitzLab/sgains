@@ -33,7 +33,9 @@ def main():
         else:
             if INFILE:
                 INFILE.close()
-            INFILE = open(thisChrom + ".fa", "r")
+            INFILE = open("../hg19/" + thisChrom + ".fa", "r")
+            print(INFILE)
+
             if thisChrom == "chrY":
                 pass
                 # INFILE.close()

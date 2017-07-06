@@ -8,6 +8,29 @@ import os
 
 
 class Config(Box):
+    DEFAULT_CONFIG = {
+        "genome": {
+            "version": "hg19",
+            "pristine": "data/hg19_safe",
+            "cache_dir": "data/hg19",
+            "index": "genomeindex",
+        },
+        "reads": {
+            "length": 100,
+            "cache_dir": "data/R100",
+            "mappable_regions": "mappable_regions.tsv",
+            "mappable_positions_count": "mappable_positions_count.yml",
+            "chrom_sizes": "chrom_sizes.yml"
+        },
+        "bins": {
+            "bins_count": 10000,
+            "cache_dir": "data/R100_B10k",
+            "bin_boundaries": "bin_boundaries.tst",
+        },
+        "cells": {
+            "cache_dir": ""
+        }
+    }
 
     def __init__(self, data, **kwargs):
         super(Config, self).__init__(
@@ -15,7 +38,19 @@ class Config(Box):
             **kwargs)
 
     @staticmethod
+    def default():
+        config = Box(Config.DEFAULT_CONFIG, default_box=True)
+        config.filename = None
+        config.dirname = os.getcwd()
+        return Config(
+            config.to_dict(),
+            default_box=True,
+        )
+
+    @staticmethod
     def load(filename):
+        default = Config.default()
+
         filename = os.path.abspath(filename)
         assert os.path.exists(filename), filename
 
@@ -24,8 +59,9 @@ class Config(Box):
             config.filename = os.path.abspath(filename)
             config.dirname = os.path.dirname(config.filename)
 
+            default.update(config.to_dict())
             return Config(
-                config.to_dict(),
+                default.to_dict(),
                 default_box=True,
             )
 

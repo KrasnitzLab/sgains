@@ -10,26 +10,6 @@ from box import Box
 
 
 class Parser:
-    DEFAULT_CONFIG = {
-        "genome": {
-            "version": "hg19",
-            "pristine": "hg19_safe",
-            "cache_dir": "data/safe",
-            "index": "genomeindex",
-        },
-        "reads": {
-            "length": 100,
-            "cache_dir": "data/R100",
-            "mappable_regions": "mappable_regions.tsv",
-            "mappable_positions_count": "mappable_positions_count.yml",
-            "chrom_sizes": "chrom_sizes.yml"
-        },
-        "bins": {
-            "bins_count": 10000,
-            "cache_dir": "data/R100_B10k",
-            "bin_boundaries": "bin_boundaries.tst",
-        }
-    }
 
     def __init__(self, parser):
         self.parser = parser
@@ -40,13 +20,22 @@ class Parser:
             "-v", "--verbose",
             dest="verbose",
             action="count",
-            help="set verbosity level [default: %(default)s]")
+            help="set verbosity level [default: %(default)s]"
+        )
 
         parser.add_argument(
             "-c", "--config",
             dest="config",
             help="configuration file",
-            metavar="path")
+            metavar="path"
+        )
+
+        parser.add_argument(
+            "-p", "--threads",
+            dest="threads",
+            help="number of threads to use for bowtie",
+            type=int
+        )
 
         parser.add_argument(
             "-o", "--output",
@@ -66,7 +55,8 @@ class Parser:
             "-g", "--genome",
             dest="genome",
             help="genome version. Default is 'hg19'",
-            metavar="path")
+            metavar="path"
+        )
 
         parser.add_argument(
             "--genome-dir",
@@ -115,14 +105,11 @@ class Parser:
     def parse_arguments(self, argv):
         args = self.parser.parse_args(argv)
 
-        config = Box(self.DEFAULT_CONFIG, default_box=True)
-        config.filename = None
-        config.dirname = os.getcwd()
-
         if args.config:
             assert os.path.exists(args.config)
-            loaded = Config.load(args.config)
-            config.update(loaded)
+            config = Config.load(args.config)
+        else:
+            config = Config.default()
 
         if args.output:
             if os.path.isabs(args.output):
@@ -160,6 +147,11 @@ class Parser:
             config.bins.bins_count = args.bins
         if args.bins_dir:
             config.bins.cache_dir = args.bins_dir
+
+        if args.threads:
+            config.threads = args.threads
+        else:
+            config.threads = 1
 
         result = Config(Box(config.to_dict(), frozen_box=True))
         reads_cache = result.abspath(result.reads.cache_dir)

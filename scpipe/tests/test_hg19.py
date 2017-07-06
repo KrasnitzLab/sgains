@@ -15,17 +15,10 @@ def test_hg19_simple(hg):
 
 
 def test_mask_chrY(hg):
-    rec = hg.mask_pseudoautosomal_chrY()
+    rec = hg.mask_chrY_pars()
     assert rec.id == "chrY"
     assert len(rec) == 59373566
     hg.save_chrom(rec, "chrY.psr.test")
-
-
-def test_psr_chrY(hg):
-    chr_y = hg.load_chrom("chrY.psr", hg.config.genome.dst)
-    chr_ty = hg.load_chrom("chrY.psr.test", hg.config.genome.dst)
-
-    assert chr_y.seq == chr_ty.seq
 
 
 def test_generate_reads(hg):
@@ -65,14 +58,14 @@ def test_chrom_mappable_positions_count(hg):
 def test_mappable_positions_total_count(hg):
     total = hg.total_mappable_positions_count()
 
-    assert total == 2761401626
+    assert total == 2758913563
 
 
 def test_calc_chrom_bins(hg):
     chrom_bins = hg.calc_chrom_bins()
 
-    assert chrom_bins['chr8'].bins_count == 505
-    assert chrom_bins['chr8'].bin_size == 276247.9524752475
+    assert chrom_bins['chr8'].bins_count == 506
+    assert chrom_bins['chr8'].bin_size == 275702.00790513837
 
 
 def test_chr_bins(hg):

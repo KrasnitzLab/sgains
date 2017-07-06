@@ -81,7 +81,8 @@ USAGE
                 hg.async_generate_mappable_regions(
                     config.chroms,
                     config.reads.length,
-                    outfile
+                    outfile=outfile,
+                    threads=config.threads
                 )
             )
         finally:

@@ -16,7 +16,7 @@ from box import Box
 import pandas as pd
 from utils import MappableState, Mapping, MappableRegion, \
     MappableBin, BinParams, LOG
-from Bio.SeqUtils import GC
+import pysam
 
 
 class HumanGenome19(object):
@@ -44,8 +44,9 @@ class HumanGenome19(object):
 
     def load_chrom(self, chrom, pristine=False):
         infile = self.config.chrom_filename(chrom, pristine)
-        assert os.path.exists(infile)
+        assert os.path.exists(infile), infile
         seq_record = SeqIO.read(infile, 'fasta')
+        seq_record.seq = seq_record.seq.upper()
         return seq_record
 
     def save_chrom(self, record, chrom):
@@ -123,10 +124,11 @@ class HumanGenome19(object):
         outfile.write(out)
         await outfile.drain()
 
-    async def async_start_bowtie(self):
+    async def async_start_bowtie(self, threads=1):
         genomeindex = self.config.genome_index_filename()
         create = asyncio.create_subprocess_exec(
             'bowtie', '-S', '-t', '-v', '0', '-m', '1',
+            '--threads', str(threads),
             '-f', genomeindex, '-',
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
@@ -165,9 +167,10 @@ class HumanGenome19(object):
             outfile.write(mappings)
 
     async def async_generate_mappable_regions(
-            self, chroms, read_length, outfile=None):
+            self, chroms, read_length,
+            outfile=None, threads=1):
 
-        bowtie = await self.async_start_bowtie()
+        bowtie = await self.async_start_bowtie(threads=threads)
         reads_generator = self.generate_reads(chroms, read_length)
         writer = asyncio.Task(
             self.async_write_reads_generator(bowtie.stdin, reads_generator)
@@ -322,18 +325,30 @@ class HumanGenome19(object):
 
     def bins_gc_content(self, chroms, bins_df):
 
-        print(bins_df.columns)
+        result = []
         for chrom in chroms:
-            chrom_df = bins_df[bins_df.chrom == chrom]
+            chrom_df = bins_df[bins_df['bin.chrom'] == chrom]
+            gc_df = chrom_df.copy()
+            gc_df.reset_index(inplace=True)
 
+            gc_series = pd.Series(index=gc_df.index)
             chrom_seq = self.load_chrom(chrom)
-            for _index, row in chrom_df.iterrows():
+
+            for index, row in gc_df.iterrows():
                 start = row['bin.start.chrompos']
                 end = row['bin.end.chrompos']
-                bin_seq = GC(chrom_seq.seq[start:end])
-                print(bin_seq)
+                seq = chrom_seq.seq[start:end]
+                counts = [seq.count(x) for x in ['G', 'C', 'A', 'T']]
+                gc = float(sum(counts[0:2])) / sum(counts)
+                gc_series.iloc[index] = gc
+            gc_df['gc.content'] = gc_series
+            result.append(gc_df)
+        assert len(result) > 0
+        if len(result) == 1:
+            return result[0]
+        return pd.concat(result)
 
-    def calc_bin_boundaries(self, chroms, mappable_regions_df=None):
+    def bin_boundaries_generator(self, chroms, mappable_regions_df=None):
         chrom_sizes = self.chrom_sizes()
         chrom_bins = self.calc_chrom_bins()
 
@@ -378,3 +393,86 @@ class HumanGenome19(object):
                             mappable_bin.adapt_excess(current_excess)
 
             mappable_bin = None
+
+    def bin_boundaries(self, chroms=None, regions_df=None):
+        bin_boundaries_filename = self.config.bin_boundaries_filename()
+
+        if os.path.exists(bin_boundaries_filename):
+            df = pd.read_csv(bin_boundaries_filename, sep='\t')
+            return df.sort_values(by=['bin.start.abspos'])
+
+        if chroms is None:
+            chroms = self.CHROMS
+        bin_rows = []
+        for mbin in self.bin_boundaries_generator(chroms, regions_df):
+            bin_rows.append(
+                (
+                    mbin.chrom,
+                    mbin.start_pos,
+                    mbin.start_abspos,
+                    mbin.end_pos,
+                    mbin.end_pos - mbin.start_pos,
+                    mbin.bin_size
+                )
+            )
+
+        df = pd.DataFrame.from_records(
+            bin_rows,
+            columns=[
+                'bin.chrom',
+                'bin.start.chrompos',
+                'bin.start.abspos',
+                'bin.end.chrompos',    'bin.length',
+                'mappable.positions'
+            ])
+        return df.sort_values(by=['bin.start.abspos'])
+
+    def bin_count(self, filename):
+        assert self.config.cells.cache_dir is not None
+
+        dirname = self.config.abspath(self.config.cells.cache_dir)
+        assert os.path.exists(dirname)
+        assert os.path.isdir(dirname)
+
+        filename = os.path.join(dirname, filename)
+        assert os.path.exists(filename)
+
+        infile = pysam.AlignmentFile(filename, 'r')  # @UndefinedVariable
+        bins_df = self.bin_boundaries()
+        chrom_sizes = self.chrom_sizes()
+        chroms = set(self.CHROMS)
+
+        count = 0
+        dups = 0
+        total_reads = 0
+
+        prev_pos = 0
+        bin_counts = defaultdict(int)
+
+        for seg in infile:
+            total_reads += 1
+            if seg.is_unmapped:
+                continue
+            print(seg.reference_id, seg.reference_name,
+                  seg.reference_start, seg.get_tags())
+            chrom = seg.reference_name
+            if chrom not in chroms:
+                continue
+
+            abspos = chrom_sizes[chrom].abspos + seg.reference_start
+            if prev_pos == abspos:
+                dups += 1
+                continue
+            count += 1
+            index = bins_df['bin.start.abspos'].searchsorted(abspos)
+            assert len(index) == 1
+
+            index = index[0]
+            bin_counts[index] += 1
+            prev_pos = abspos
+
+            if count >= 100:
+                break
+        number_of_reads_per_bin = float(count) / len(bins_df)
+        for index, row in bins_df.iterrows():
+            pass

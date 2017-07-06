@@ -1,0 +1,8 @@
+badbins.20k
+badbins.50k
+badbins.5k
+dropareas
+example1.varbin.20k
+hg19.varbin.gc.20k: varbin.gc.20k
+hg19.varbin.gc.50k: varbin.gc.50k
+hg19.varbin.gc.5k: varbin.gc.5k

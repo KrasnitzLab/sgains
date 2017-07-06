@@ -15,8 +15,8 @@ from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 import config
 from hg19 import HumanGenome19
-import common_arguments
 import traceback
+from common_arguments import Parser
 
 
 class CLIError(Exception):
@@ -48,52 +48,30 @@ USAGE
 ''' % (program_shortdesc, )
 
     try:
-        parser = ArgumentParser(
+        argparser = ArgumentParser(
             description=program_description,
             formatter_class=RawDescriptionHelpFormatter)
-        common_arguments.genome_arguments(parser)
+        parser = Parser.from_argument_parser(argparser)
 
-        parser.add_argument(
-            "-C", "--chrom",
-            dest="chrom",
-            help="chromosome for which to generate reads")
+        config = parser.parse_arguments(argv[1:])
 
-        parser.add_argument(
-            "-o", "--outfile",
-            dest="outfile",
-            help="output file to write generated reads. "
-            "stdout if not specified",
-            metavar="path")
-
-        parser.add_argument(
-            "-l", "--length",
-            dest="length",
-            type=int,
-            help="read length to generate")
-
-        # process arguments
-        args = parser.parse_args(argv[1:])
-        config = common_arguments.process_genome_agrments(args)
-
-        generator = None
+        hg = None
         if config.genome.version == 'hg19':
-            generator = HumanGenome19(config)
+            hg = HumanGenome19(config)
 
-        if generator is None:
+        if hg is None:
             raise CLIError("wrong genome version")
 
-        chrom = args.chrom
-        assert chrom is not None
-        length = args.length
-        assert length is not None and length > 10
-
-        outfile = args.outfile
-        if outfile is None:
+        if config.output is None:
+            filename = config.bin_boundaries_filename()
+            outfile = open(config.abspath(filename), 'w')
+        elif config.output == '-':
             outfile = sys.stdout
         else:
-            outfile = open(outfile, 'w')
+            outfile = config.abspath(config.output)
+            outfile = open(outfile, "w")
 
-        for rec in generator.generate_reads([chrom], length):
+        for rec in hg.generate_reads(config.chroms, config.reads.length):
             outfile.write(">{}\n".format(rec.id))
             outfile.write(str(rec.seq).upper())
             outfile.write("\n")
