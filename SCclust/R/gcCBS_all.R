@@ -15,7 +15,7 @@
 
 cbs.segment_all <- function(input_file_dir, Nk = "5k", gc, alpha, nperm, undo.SD, min.width, method = "multiplier", genome = "hg") {
 
-  if ((genome == "hg") & (method = "dmploidies")) {
+  if ((genome == "hg") & (method == "dmploidies")) {
     stop("method dmploidies only works when genome is hgdm!")
   }
 

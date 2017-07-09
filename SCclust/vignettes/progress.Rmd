@@ -1,0 +1,19 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(SCclust)
+gc <- read.table("../data/R100_B10k/bin_boundaries.tsv", header = T)
+SAM_dir <- "../data/kendall/ready"
+
+
+segfile <- cbs.segment_all(SAM_dir, Nk = "10k", gc, alpha = 0.05, nperm = 1000, undo.SD = 1.0, min.width = 5, method = "multiplier", genome = "hg")
+
+seg.quantal <- segfile$seg.quantal
+ratio.quantal <- segfile$ratio.quantal
+
+res1 <- preprocess_segfile(seg.quantal, gc, ploidies = TRUE)
+
+```

@@ -16,4 +16,9 @@ segfile <- cbs.segment_files(file.names, gc, alpha = 0.05, nperm = 1000, undo.SD
 seg.quantal <- segfile$seg.quantal
 ratio.quantal <- segfile$ratio.quantal
 
-print(head(seg.quantal))
+res1 <- preprocess_segfile(seg.quantal, gc, ploidies = TRUE)
+breakpoint_table <- res1$breakpoint_table
+ploidies_table <- res1$ploidies_table
+
+smear_table <- findsmears(breakpoint_table, smear = 1, keepboundaries = FALSE, mask_XY = TRUE)
+
