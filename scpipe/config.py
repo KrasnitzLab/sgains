@@ -5,6 +5,7 @@ Created on Jun 10, 2017
 '''
 from box import Box
 import os
+import glob
 
 
 class Config(Box):
@@ -28,7 +29,8 @@ class Config(Box):
             "bin_boundaries": "bin_boundaries.tst",
         },
         "cells": {
-            "cache_dir": ""
+            "cache_dir": "",
+            "glob": "*.varbin.txt",
         }
     }
 
@@ -117,3 +119,10 @@ class Config(Box):
             "{}.fa".format(chrom)
         )
         return self.abspath(filename)
+
+    def cells_filenames(self):
+        assert os.path.exists(self.cells.cache_dir)
+        dirname = self.abspath(self.cells.cache_dir)
+        pattern = os.path.join(dirname, self.cells.glob)
+        filenames = glob.glob(pattern)
+        return filenames

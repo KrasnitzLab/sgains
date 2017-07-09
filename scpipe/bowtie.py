@@ -58,7 +58,8 @@ async def run_bowtie(loop):
     factory = functools.partial(BowtieProtocol, cmd_done)
     proc = loop.subprocess_exec(
         factory,
-        'bowtie', '-S', '-t', '-v', '0', '-m', '1', '-f', 'data/hg19/genomeindex', '-',
+        'bowtie', '-S', '-t', '-v', '0', '-m', '1',
+        '-f', 'data/hg19/genomeindex', '-',
         stdin=asyncio.subprocess.PIPE,
         stderr=None,
     )
@@ -107,11 +108,9 @@ async def bowtie_write_reads(bowtie, reads_generator):
 
 def parse_mapping(line):
     row = line.rstrip().split("\t")
-    name = row[0]
     flag = int(row[1])
     chrom = row[2]
     start = int(row[3])
-    end = start + 1
     return MappableRegion(flag=flag, chrom=chrom, start=start)
 
 

@@ -55,6 +55,36 @@ cbs.segment_all <- function(input_file_dir, Nk = "5k", gc, alpha, nperm, undo.SD
 
 
 
+
+#'@export
+
+cbs.segment_files <- function(file.names, gc, alpha, nperm, undo.SD, min.width) {
+  chrom.numeric <- substring(gc$bin.chrom, 4)
+  chrom.numeric[which(gc$bin.chrom == "chrX")] <- "23"
+  chrom.numeric[which(gc$bin.chrom == "chrY")] <- "24"
+  chrom.numeric <- as.numeric(chrom.numeric)
+  
+  input_list <- list()
+  for (j in 1:length(file.names)){
+    input_list[[j]] <- read.table(file.names[j], header = T)
+    input_list[[j]]$chrom <- chrom.numeric
+    input_list[[j]]$gc.content <- gc$gc.content
+  }
+  
+  output_list <- lapply(input_list, cbs.segment_1, gc, alpha, nperm, undo.SD, min.width)
+
+  output_mat = output_mat_1 <- output_list[[1]][,c("chrom","chrompos","abspos")]
+  
+  for (j in 1:length(file.names)){
+    output_mat <- cbind(output_mat, output_list[[j]][,"seg.quantal"])
+    output_mat_1 <- cbind(output_mat_1, output_list[[j]][,"ratio.quantal"])
+  }
+  print(sub("\\..*","",file.names))
+
+  colnames(output_mat) = colnames(output_mat_1) <-c("chrom","chrompos","abspos",sub("\\..*","",file.names))
+  return(list(seg.quantal = output_mat, ratio.quantal = output_mat_1))
+}
+
 cbs.segment_1 <- function(bin_mat, gc, alpha, nperm, undo.SD, min.width){
   a <- bin_mat$bincount + 1
   bin_mat$ratio <- a / mean(a)
@@ -67,7 +97,6 @@ cbs.segment_1 <- function(bin_mat, gc, alpha, nperm, undo.SD, min.width){
   segment.smoothed.CNA.object <- DNAcopy::segment(smoothed.CNA.object, alpha=alpha,
                                                   nperm=nperm, undo.splits="sdundo", undo.SD=undo.SD, min.width=2)
   thisShort <- segment.smoothed.CNA.object[[2]]
-
 
   m <- matrix(data=0, nrow=nrow(bin_mat), ncol=1)
   prevEnd <- 0
@@ -130,13 +159,6 @@ cbs.segment_1 <- function(bin_mat, gc, alpha, nperm, undo.SD, min.width){
 
   bin_mat$seg.quantal <- bin_mat$seg.mean.LOWESS * thisMultiplier
   bin_mat$ratio.quantal <- bin_mat$lowratio * thisMultiplier ###
-
-  if (method == "dmploidies"){
-    dmbinID <- which(bin_mat$chrom%in%(25:30))
-    median_ratio <- median(bin_mat$lowratio[dmbinID], na.rm = TRUE)
-    theMultiplier <- 2/median_ratio
-    bin_mat$seg.quantal <- bin_mat$seg.mean.LOWESS * theMultiplier
-    bin_mat$ratio.quantal <- bin_mat$lowratio * theMultiplier}
 
   return(bin_mat)
 }
