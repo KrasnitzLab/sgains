@@ -46,3 +46,13 @@ def varbin_counts():
     )
     df = pd.read_csv(fixture_filename, sep='\t')
     return df
+
+
+@pytest.fixture(scope='session')
+def varbin0918():
+    fixture_filename = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        "data/CJA0918.varbin.txt"
+    )
+    df = pd.read_csv(fixture_filename, sep='\t')
+    return df

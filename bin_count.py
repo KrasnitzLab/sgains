@@ -9,8 +9,9 @@ def bin_count(SAM_dir, data_dir, cell_name, Nk):
 
     chrominfo = fileToDictionary(data_dir + "/chrom.sizes.txt", 0)
     bins = fileToArray(data_dir + "/bin.boundaries." + Nk + ".sorted.txt", 0)
+    bins = fileToArray("../R100_B10k/bin_boundaries.tsv", 1)
 
-    INFILE = open(SAM_dir + "/" + cell_name + ".rmdup.sam", "r")
+    INFILE = open(SAM_dir + "/" + cell_name + ".jude58.rmdup.sam", "r")
     OUTFILE = open(SAM_dir + outfilename, "w")
     STATFILE = open(SAM_dir + statfilename, "w")
 
@@ -156,7 +157,7 @@ def fileToArray(inputFile, skipFirst):
 if __name__ == "__main__":
     data_dir = "../hg19/"
     sam_dir = "./"
-    cell_name = "CJA1247"
+    cell_name = "CJA0918"
     Nk = "bowtie"
 
     bin_count(sam_dir, data_dir, cell_name, Nk)

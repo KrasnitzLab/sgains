@@ -445,8 +445,9 @@ class HumanGenome19(object):
 
         filename = os.path.join(dirname, filename)
         assert os.path.exists(filename)
+        print(filename)
 
-        infile = pysam.AlignmentFile(filename, 'r')  # @UndefinedVariable
+        infile = pysam.AlignmentFile(filename, 'rb')  # @UndefinedVariable
         bins_df = self.bin_boundaries()
         chrom_sizes = self.chrom_sizes()
         chroms = set(self.CHROMS)
@@ -462,8 +463,6 @@ class HumanGenome19(object):
             total_reads += 1
             if seg.is_unmapped:
                 continue
-            print(seg.reference_id, seg.reference_name,
-                  seg.reference_start, seg.get_tags())
             chrom = seg.reference_name
             if chrom not in chroms:
                 continue
@@ -473,15 +472,37 @@ class HumanGenome19(object):
                 dups += 1
                 continue
             count += 1
-            index = bins_df['bin.start.abspos'].searchsorted(abspos)
+            index = bins_df['bin.start.abspos'].searchsorted(
+                abspos, side='right')
             assert len(index) == 1
 
-            index = index[0]
+            index = index[0] - 1
             bin_counts[index] += 1
             prev_pos = abspos
+        print(total_reads, dups, count)
 
-            if count >= 100:
-                break
         number_of_reads_per_bin = float(count) / len(bins_df)
+        result = []
         for index, row in bins_df.iterrows():
-            pass
+            bin_count = bin_counts[index]
+            ratio = float(bin_count) / number_of_reads_per_bin
+            result.append(
+                [
+                    row['bin.chrom'],
+                    row['bin.start'],
+                    row['bin.start.abspos'],
+                    bin_count,
+                    ratio
+                ]
+            )
+        df = pd.DataFrame.from_records(
+            result,
+            columns=[
+                'chrom',
+                'chrompos',
+                'abspos',
+                'bincount',
+                'ratio',
+            ])
+        df.sort_values(by=['abspos'], inplace=True)
+        return df
