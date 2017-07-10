@@ -27,7 +27,7 @@ do
     gzip > $trimfile
   echo ">>> Aligning $cell"
   bowtie -p 4 -S -t -n 2 -e 70 -3 18 -5 8 -m 1 --best --strata --solexa-quals \
-    ../hg19/genomeindex <(gunzip -c $trimfile | head -n 10000) | \
+    ../hg19/genomeindex <(gunzip -c $trimfile) | \
     samtools view -Sbu -o $bamfile -
   echo ">>> Rmdup $cell"
   samtools sort -o - $bamfile | \
