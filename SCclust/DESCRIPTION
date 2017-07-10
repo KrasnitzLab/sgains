@@ -13,7 +13,7 @@ LazyData: true
 RoxygenNote: 6.0.1
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
-Imports: parallel, TBEST, DNAcopy, rPython
+Imports: parallel, TBEST, DNAcopy
 URL: https://github.com/JunyanSong/SCclust
 BugReports: https://github.com/JunyanSong/SCclust/issues
 NeedsCompilation: no
