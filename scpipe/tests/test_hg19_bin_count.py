@@ -8,7 +8,7 @@ import pytest
 
 
 @pytest.mark.parametrize("chromosome", ['chr1'])  # HumanGenome19.CHROMS)
-def test_bin_boundaries_generator(hg, varbin_counts, chromosome):
+def test_bin_counts_simple(hg, varbin_counts, chromosome):
 
     print(varbin_counts.head())
 

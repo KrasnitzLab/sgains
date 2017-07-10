@@ -437,9 +437,9 @@ class HumanGenome19(object):
             return self.calc_bins_gc_content(chroms, df)
 
     def bin_count(self, filename):
-        assert self.config.cells.cache_dir is not None
+        assert self.config.cells.work_dir is not None
 
-        dirname = self.config.abspath(self.config.cells.cache_dir)
+        dirname = self.config.abspath(self.config.cells.work_dir)
         assert os.path.exists(dirname)
         assert os.path.isdir(dirname)
 
