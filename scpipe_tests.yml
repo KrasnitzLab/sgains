@@ -16,5 +16,5 @@ bins:
 
 cells:
   cache_dir: data/kendall/ready
-  glob: "*.varbin.txt"
+  glob: "*.varbin.10k.txt"
 

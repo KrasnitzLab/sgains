@@ -1,4 +1,4 @@
-bin.chrom	bin.start.chrompos	bin.start.abspos	bin.end.chrompos	bin.length	mappable.positions	gc.content
+bin.chrom	bin.start	bin.start.abspos	bin.end	bin.length	mappable.positions	gc.content
 chr1	0	0	932606	932606	275764	0.45354882883535874
 chr1	932606	932606	1213365	280759	275764	0.6126513748397208
 chr1	1213365	1213365	1503720	290355	275765	0.5915841243163564

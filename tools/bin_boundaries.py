@@ -34,10 +34,12 @@ class CLIError(Exception):
 
 def bin_boundaries(hg, config, outfile):
     regions_df = hg.load_mappable_regions()
-    df = hg.bin_boundaries(
+    bins_df = hg.calc_bin_boundaries(
         config.chroms,
         regions_df
     )
+    df = hg.calc_bins_gc_content(config.chroms, bins_df)
+
     df.to_csv(outfile, sep='\t', index=False)
 
 

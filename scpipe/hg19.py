@@ -323,20 +323,20 @@ class HumanGenome19(object):
             if start_pos_count < len(chrom_df):
                 LOG.error("chrom {} has duplicate mappable regions", chrom)
 
-    def bins_gc_content(self, chroms, bins_df):
+    def calc_bins_gc_content(self, chroms, bins_df):
 
         result = []
         for chrom in chroms:
             chrom_df = bins_df[bins_df['bin.chrom'] == chrom]
             gc_df = chrom_df.copy()
-            gc_df.reset_index(inplace=True)
+            gc_df.reset_index(inplace=True, drop=True)
 
             gc_series = pd.Series(index=gc_df.index)
             chrom_seq = self.load_chrom(chrom)
 
             for index, row in gc_df.iterrows():
-                start = row['bin.start.chrompos']
-                end = row['bin.end.chrompos']
+                start = row['bin.start']
+                end = row['bin.end']
                 seq = chrom_seq.seq[start:end]
                 counts = [seq.count(x) for x in ['G', 'C', 'A', 'T']]
                 gc = float(sum(counts[0:2])) / sum(counts)
@@ -346,7 +346,8 @@ class HumanGenome19(object):
         assert len(result) > 0
         if len(result) == 1:
             return result[0]
-        return pd.concat(result)
+        df = pd.concat(result)
+        return df
 
     def bin_boundaries_generator(self, chroms, mappable_regions_df=None):
         chrom_sizes = self.chrom_sizes()
@@ -394,12 +395,7 @@ class HumanGenome19(object):
 
             mappable_bin = None
 
-    def bin_boundaries(self, chroms=None, regions_df=None):
-        bin_boundaries_filename = self.config.bin_boundaries_filename()
-
-        if os.path.exists(bin_boundaries_filename):
-            df = pd.read_csv(bin_boundaries_filename, sep='\t')
-            return df.sort_values(by=['bin.start.abspos'])
+    def calc_bin_boundaries(self, chroms=None, regions_df=None):
 
         if chroms is None:
             chroms = self.CHROMS
@@ -420,12 +416,25 @@ class HumanGenome19(object):
             bin_rows,
             columns=[
                 'bin.chrom',
-                'bin.start.chrompos',
+                'bin.start',
                 'bin.start.abspos',
-                'bin.end.chrompos',    'bin.length',
+                'bin.end',
+                'bin.length',
                 'mappable.positions'
             ])
-        return df.sort_values(by=['bin.start.abspos'])
+        df.sort_values(by=['bin.start.abspos'], inplace=True)
+        return df
+
+    def bin_boundaries(self, chroms=None, regions_df=None):
+        bin_boundaries_filename = self.config.bin_boundaries_filename()
+
+        if os.path.exists(bin_boundaries_filename):
+            df = pd.read_csv(bin_boundaries_filename, sep='\t')
+
+            return df.sort_values(by=['bin.start.abspos'])
+        else:
+            df = self.calc_bin_boundaries(chroms, regions_df)
+            return self.calc_bins_gc_content(chroms, df)
 
     def bin_count(self, filename):
         assert self.config.cells.cache_dir is not None
