@@ -34,10 +34,10 @@ class HumanGenome19(object):
         self.config = config
 
         assert os.path.exists(config.genome.pristine)
-        if not os.path.exists(config.genome.cache_dir):
-            os.makedirs(config.genome.cache_dir)
+        if not os.path.exists(config.genome.work_dir):
+            os.makedirs(config.genome.work_dir)
 
-        assert os.path.exists(config.genome.cache_dir)
+        assert os.path.exists(config.genome.work_dir)
         self._chrom_sizes = None
         self._chrom_bins = None
         self._chrom_mappable_positions_count = None

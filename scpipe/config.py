@@ -13,24 +13,25 @@ class Config(Box):
         "genome": {
             "version": "hg19",
             "pristine": "data/hg19_safe",
-            "cache_dir": "data/hg19",
+            "work_dir": "data/hg19",
             "index": "genomeindex",
         },
         "reads": {
             "length": 100,
-            "cache_dir": "data/R100",
+            "work_dir": "data/R100",
             "mappable_regions": "mappable_regions.tsv",
             "mappable_positions_count": "mappable_positions_count.yml",
             "chrom_sizes": "chrom_sizes.yml"
         },
         "bins": {
             "bins_count": 10000,
-            "cache_dir": "data/R100_B10k",
+            "work_dir": "data/R100_B10k",
             "bin_boundaries": "bin_boundaries.tst",
         },
         "cells": {
-            "cache_dir": "",
-            "glob": "*.varbin.txt",
+            "data_dir": "",
+            "work_dir": "",
+            "suffix": ".varbin.txt",
         }
     }
 
@@ -75,28 +76,28 @@ class Config(Box):
 
     def genome_index_filename(self):
         filename = os.path.join(
-            self.genome.cache_dir,
+            self.genome.work_dir,
             self.genome.index
         )
         return self.abspath(filename)
 
     def mappable_regions_filename(self):
         filename = os.path.join(
-            self.reads.cache_dir,
+            self.reads.work_dir,
             self.reads.mappable_regions
         )
         return self.abspath(filename)
 
     def mappable_positions_count_filename(self):
         filename = os.path.join(
-            self.reads.cache_dir,
+            self.reads.work_dir,
             self.reads.mappable_positions_count
         )
         return self.abspath(filename)
 
     def chrom_sizes_filename(self):
         filename = os.path.join(
-            self.reads.cache_dir,
+            self.reads.work_dir,
             self.reads.chrom_sizes
         )
         filename = self.abspath(filename)
@@ -104,7 +105,7 @@ class Config(Box):
 
     def bin_boundaries_filename(self):
         filename = os.path.join(
-            self.bins.cache_dir,
+            self.bins.work_dir,
             self.bins.bin_boundaries
         )
         return self.abspath(filename)
@@ -113,7 +114,7 @@ class Config(Box):
         if pristine:
             cache_dir = self.genome.pristine
         else:
-            cache_dir = self.genome.cache_dir
+            cache_dir = self.genome.work_dir
         filename = os.path.join(
             cache_dir,
             "{}.fa".format(chrom)
@@ -121,8 +122,11 @@ class Config(Box):
         return self.abspath(filename)
 
     def cells_filenames(self):
-        assert os.path.exists(self.cells.cache_dir)
-        dirname = self.abspath(self.cells.cache_dir)
-        pattern = os.path.join(dirname, self.cells.glob)
+        assert os.path.exists(self.cells.work_dir)
+        dirname = self.abspath(self.cells.work_dir)
+        pattern = os.path.join(
+            dirname,
+            "*{}".format(self.cells.suffix)
+        )
         filenames = glob.glob(pattern)
         return filenames

@@ -44,7 +44,7 @@ def test_parser_genome_dir_overwrite(parser):
     argv = ["-c", "scpipe_tests.yml", "--genome-dir", "/test"]
     config = parser.parse_arguments(argv)
 
-    assert config.genome.cache_dir == "/test"
+    assert config.genome.work_dir == "/test"
 
 
 def test_parser_chroms_default(parser):
@@ -78,10 +78,10 @@ def test_default_bins_filenames(parser):
     assert config.bins.bin_boundaries == "bin_boundaries.tsv"
 
 
-def test_reads_cache_dir(parser):
+def test_reads_work_dir(parser):
     argv = ["-c", "scpipe_tests.yml", "--reads-dir", "alaBalaPortocala"]
     config = parser.parse_arguments(argv)
-    assert config.reads.cache_dir == "alaBalaPortocala"
+    assert config.reads.work_dir == "alaBalaPortocala"
 
 
 def test_reads_length(parser):
@@ -90,10 +90,10 @@ def test_reads_length(parser):
     assert config.reads.length == 42
 
 
-def test_bins_cache_dir(parser):
+def test_bins_work_dir(parser):
     argv = ["-c", "scpipe_tests.yml", "--bins-dir", "alaBalaPortocala"]
     config = parser.parse_arguments(argv)
-    assert config.bins.cache_dir == "alaBalaPortocala"
+    assert config.bins.work_dir == "alaBalaPortocala"
 
 
 def test_bins_length(parser):

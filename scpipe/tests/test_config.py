@@ -9,22 +9,20 @@ from config import Config
 
 
 def test_load_config():
-    conf = Config.load("scpipe.yml")
+    conf = Config.load("scpipe_tests.yml")
     assert conf is not None
 
     assert conf.genome is not None
-    assert os.path.basename(conf.genome.src) == "hg19_safe"
-    assert os.path.basename(conf.genome.dst) == "hg19"
-
-    assert os.path.isabs(conf.abspath(conf.genome.src))
-    assert os.path.isabs(conf.abspath(conf.genome.src))
+    assert os.path.basename(conf.genome.version) == "hg19"
 
 
 def test_bins_config():
-    conf = Config.load("scpipe.yml")
+    conf = Config.load("scpipe_tests.yml")
     assert conf is not None
 
+    assert conf.reads is not None
+    assert conf.reads.length == 100
+
     assert conf.bins is not None
-    assert conf.bins.reads_length == 100
     assert conf.bins.bins_count == 10000
-    assert conf.bins.cache_dir == "data/10k100"
+    assert conf.bins.work_dir == "data/R100_B10k"

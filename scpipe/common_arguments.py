@@ -128,7 +128,7 @@ class Parser:
         if args.genome:
             config.genome.version = args.genome
         if args.genome_dir:
-            config.genome.cache_dir = args.genome_dir
+            config.genome.work_dir = args.genome_dir
         if args.genome_index:
             config.genome.index = args.genome_index
 
@@ -141,12 +141,12 @@ class Parser:
         if args.length:
             config.reads.length = args.length
         if args.reads_dir:
-            config.reads.cache_dir = args.reads_dir
+            config.reads.work_dir = args.reads_dir
 
         if args.bins:
             config.bins.bins_count = args.bins
         if args.bins_dir:
-            config.bins.cache_dir = args.bins_dir
+            config.bins.work_dir = args.bins_dir
 
         if args.threads:
             config.threads = args.threads
@@ -154,11 +154,11 @@ class Parser:
             config.threads = 1
 
         result = Config(Box(config.to_dict(), frozen_box=True))
-        reads_cache = result.abspath(result.reads.cache_dir)
+        reads_cache = result.abspath(result.reads.work_dir)
         if not os.path.exists(reads_cache):
             os.makedirs(reads_cache)
 
-        bins_cache = result.abspath(result.bins.cache_dir)
+        bins_cache = result.abspath(result.bins.work_dir)
         if not os.path.exists(bins_cache):
             os.makedirs(bins_cache)
 

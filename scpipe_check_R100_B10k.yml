@@ -7,11 +7,14 @@ genome:
 reads:
   length: 100
   cache_dir: data/check_R100
-  mappable_regions: mappable_regions.tsv
-  mappable_positions_count: mappable_positions_count.tsv
-  chrom_sizes: chrom_sizes.yml
+  bowtie: ""
 
 bins:
   bins_count: 10000
   cache_dir: data/check_R100_B10k
   bin_boundaries: bin_boundaries.tsv
+
+cells:
+  data_dir: data/kendall
+  work_dir: data/kendall/ready
+  suffix: ".varbin.10k.txt"
