@@ -14,6 +14,12 @@ bins:
   work_dir: data/R100_B10k
   bin_boundaries: bin_boundaries.tsv
 
+mapping:
+    data_dir: data/kendall
+    work_dir: data/kendall
+    bowtie_ops: "-p 4 -S -t -n 2 -e 70 -3 18 -5 8"
+    
+
 cells:
   data_dir: data/kendall
   work_dir: data/kendall/ready

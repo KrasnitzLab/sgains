@@ -11,3 +11,4 @@ __pycache__
 .Rhistory
 .RData
 .Rproj.user
+/copy-data-*.sh

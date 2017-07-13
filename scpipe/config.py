@@ -28,6 +28,11 @@ class Config(Box):
             "work_dir": "data/R100_B10k",
             "bin_boundaries": "bin_boundaries.tst",
         },
+        "mapping": {
+            "data_dir": "",
+            "work_dir": "",
+            "bowtie_opts": "",
+        },
         "cells": {
             "data_dir": "",
             "work_dir": "",
