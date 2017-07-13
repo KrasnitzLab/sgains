@@ -92,7 +92,7 @@ class MappingPipeline(object):
         return [
             'samtools',
             'view',
-            '-bu',
+            '-b',
             '-o',
             outfile,
             '-',
@@ -119,7 +119,7 @@ class MappingPipeline(object):
             pipeline = [
                 *self.unarchive_stage(filename),
                 '|',
-                *self.head_stage(filename, lines=20000),
+                *self.head_stage(filename, lines=40000),
                 '|',
                 *self.bowtie_stage(filename),
                 '|',
