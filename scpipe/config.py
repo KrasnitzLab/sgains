@@ -33,8 +33,9 @@ class Config(Box):
             "work_dir": "",
             "bowtie_opts": "",
         },
-        "cells": {
+        "varbin": {
             "data_dir": "",
+            "data_glob": "*.rmdup.bam",
             "work_dir": "",
             "suffix": ".varbin.txt",
         }
@@ -44,6 +45,10 @@ class Config(Box):
         super(Config, self).__init__(
             data,
             **kwargs)
+
+    @staticmethod
+    def cellname(filename):
+        return os.path.basename(filename).split(os.extsep, 1)[0]
 
     @staticmethod
     def default():
@@ -126,21 +131,34 @@ class Config(Box):
         )
         return self.abspath(filename)
 
-    def cells_filenames(self):
-        assert os.path.exists(self.cells.work_dir)
-        dirname = self.abspath(self.cells.work_dir)
+    def varbin_data_filenames(self):
+        assert os.path.exists(self.varbin.data_dir)
+        dirname = self.abspath(self.varbin.data_dir)
         pattern = os.path.join(
             dirname,
-            "*{}".format(self.cells.suffix)
+            self.varbin.data_glob
         )
         filenames = glob.glob(pattern)
         return filenames
+
+    def varbin_work_dirname(self):
+        dirname = self.abspath(self.varbin.work_dir)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        return dirname
+
+    def varbin_work_filename(self, cellname):
+        outfile = os.path.join(
+            self.varbin_work_dirname(),
+            "{}.{}".format(cellname, self.varbin.suffix)
+        )
+        outfile = self.abspath(outfile)
 
     def mapping_data_dirname(self):
         assert os.path.exists(self.mapping.data_dir)
         dirname = self.abspath(self.mapping.data_dir)
         return dirname
-    
+
     def mapping_fastq_filenames(self):
         pattern = os.path.join(
             self.mapping_data_dirname(),

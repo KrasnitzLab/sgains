@@ -5,6 +5,7 @@ Created on Jul 13, 2017
 '''
 import os
 import subprocess
+from config import Config
 
 
 class MappingPipeline(object):
@@ -15,7 +16,7 @@ class MappingPipeline(object):
     @staticmethod
     def cells(filenames):
         return [
-            MappingPipeline.cellname(filename) for filename in filenames
+            Config.cellname(filename) for filename in filenames
         ]
 
     @staticmethod
@@ -27,10 +28,6 @@ class MappingPipeline(object):
             return ['cat', filename]
         assert False, 'unexptected archive extention: {}, {}'.format(
             ext, filename)
-
-    @staticmethod
-    def cellname(filename):
-        return os.path.basename(filename).split(os.extsep, 1)[0]
 
     @staticmethod
     def head_stage(_filename, lines=1000000):
@@ -83,7 +80,7 @@ class MappingPipeline(object):
         ]
 
     def samtools_view_store_stage(self, filename):
-        cellname = self.cellname((filename))
+        cellname = Config.cellname((filename))
         outfile = os.path.join(
             self.config.mapping_work_dirname(),
             "{}.rmdup.bam".format(cellname)
@@ -119,8 +116,8 @@ class MappingPipeline(object):
             pipeline = [
                 *self.unarchive_stage(filename),
                 '|',
-                *self.head_stage(filename, lines=40000),
-                '|',
+                #                 *self.head_stage(filename, lines=40000),
+                #                 '|',
                 *self.bowtie_stage(filename),
                 '|',
                 *self.samtools_view_stage(filename),

@@ -437,15 +437,7 @@ class HumanGenome19(object):
             return self.calc_bins_gc_content(chroms, df)
 
     def bin_count(self, filename):
-        assert self.config.cells.work_dir is not None
-
-        dirname = self.config.abspath(self.config.cells.work_dir)
-        assert os.path.exists(dirname)
-        assert os.path.isdir(dirname)
-
-        filename = os.path.join(dirname, filename)
         assert os.path.exists(filename)
-        print(filename)
 
         infile = pysam.AlignmentFile(filename, 'rb')  # @UndefinedVariable
         bins_df = self.bin_boundaries()
