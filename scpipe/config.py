@@ -135,3 +135,22 @@ class Config(Box):
         )
         filenames = glob.glob(pattern)
         return filenames
+
+    def mapping_data_dirname(self):
+        assert os.path.exists(self.mapping.data_dir)
+        dirname = self.abspath(self.mapping.data_dir)
+        return dirname
+    
+    def mapping_fastq_filenames(self):
+        pattern = os.path.join(
+            self.mapping_data_dirname(),
+            "*{}".format(self.mapping.data_glob)
+        )
+        filenames = glob.glob(pattern)
+        return filenames
+
+    def mapping_work_dirname(self):
+        dirname = self.abspath(self.mapping.work_dir)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        return dirname
