@@ -153,6 +153,7 @@ class Config(Box):
             "{}.{}".format(cellname, self.varbin.suffix)
         )
         outfile = self.abspath(outfile)
+        return outfile
 
     def mapping_data_dirname(self):
         assert os.path.exists(self.mapping.data_dir)
