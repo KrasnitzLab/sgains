@@ -14,8 +14,12 @@
 #'@export
 
 
-output_viewer <- function(output_file_dir, seg.quantal, ratio.quantal, pins, pinmat, mat_dist, hc_clone, sub_hc_clone,
-                          subcloneTooBig = 0.8, smear = 2, study){
+output_viewer <- function(
+		output_file_dir, seg.quantal, ratio.quantal, pins, pinmat, mat_dist, 
+		hc_clone, sub_hc_clone,
+		subcloneTooBig = 0.8, smear = 2, 
+		study,
+		cell.names){
 
 
   # system(paste("mkdir ", paste("../", output_file_dir, sep = ""), sep = ""))

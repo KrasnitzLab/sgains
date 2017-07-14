@@ -1,0 +1,34 @@
+---
+title: "Experiments with SCclust"
+output: html_notebook
+---
+
+```{r}
+library(SCclust)
+```
+
+
+```{r}
+SAM_dir <- "../data/kendall/try2/"
+gc <- read.table("../data/R100_B10k/bin_boundaries.tsv", header=T, sep="\t",as.is = T)
+bin_mat <- read.table("../data/kendall/try2/CJA0918.varbin.10k.txt", header=T, sep="\t")
+```
+
+
+```{r}
+
+bin_mat_normalized <- gc_one(bin_mat,gc)
+bin_mat_segmented <- cbs.segment_one(bin_mat_normalized, alpha = 0.05, nperm = 1000, undo.SD = 1.0, min.width = 5, method = "multiplier", genome = "hg" , graphic = TRUE)
+```
+
+```{r}
+segfile <- cbs.segment_all(SAM_dir, Nk = "10k", gc, alpha = 0.05, nperm = 1000, undo.SD = 1.0, min.width = 5, method = "multiplier", genome = "hg")
+seg.quantal <- segfile$seg.quantal
+ratio.quantal <- segfile$ratio.quantal
+```
+
+```{r}
+res1 <- preprocess_segfile(seg.quantal, gc, ploidies = TRUE)
+breakpoint_table <- res1$breakpoint_table
+ploidies_table <- res1$ploidies_table
+```

@@ -14,15 +14,20 @@ class Rpipeline(object):
 
     def run(self):
         bin_boundaries_filename = self.config.bin_boundaries_filename()
-        cells_filenames = self.config.cells_filenames()
+        varbin_filenames = self.config.varbin_work_filenames()
+        results_dirname = self.config.results_work_dirname()
+        study_name = self.config.results.study_name
+
         print(bin_boundaries_filename)
-        print(cells_filenames)
+        print(varbin_filenames)
 
         subprocess.check_call(
             [
                 'Rscript', 'scripts/pipeline.R',
+                study_name,
+                results_dirname,
                 bin_boundaries_filename,
-                *cells_filenames
+                *varbin_filenames
             ],
             shell=False)
 

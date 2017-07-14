@@ -38,6 +38,10 @@ class Config(Box):
             "data_glob": "*.rmdup.bam",
             "work_dir": "",
             "suffix": ".varbin.txt",
+        },
+        "results": {
+            "work_dir": ".",
+            "study_name": "test",
         }
     }
 
@@ -147,6 +151,12 @@ class Config(Box):
             os.makedirs(dirname)
         return dirname
 
+    def results_work_dirname(self):
+        dirname = self.abspath(self.results.work_dir)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        return dirname
+
     def varbin_work_filename(self, cellname):
         outfile = os.path.join(
             self.varbin_work_dirname(),
@@ -154,6 +164,14 @@ class Config(Box):
         )
         outfile = self.abspath(outfile)
         return outfile
+
+    def varbin_work_filenames(self):
+        dirname = self.varbin_work_dirname()
+        pattern = os.path.join(
+            dirname,
+            "*.{}".format(self.varbin.suffix)
+        )
+        return glob.glob(pattern)
 
     def mapping_data_dirname(self):
         assert os.path.exists(self.mapping.data_dir)

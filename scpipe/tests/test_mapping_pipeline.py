@@ -21,14 +21,14 @@ from config import Config
 #     pipeline.run()
 
 
-def test_bin_count_simple(hg, tests_config):
-    varbin_filenames = tests_config.varbin_data_filenames()
-    print(varbin_filenames)
-
-    for filename in varbin_filenames:
-        cellname = tests_config.cellname(filename)
-        outfile = tests_config.varbin_work_filename(cellname)
-        print(cellname, filename, outfile)
-
-        df = hg.bin_count(filename)
-        df.to_csv(outfile, index=False, sep='\t')
+# def test_bin_count_simple(hg, tests_config):
+#     varbin_filenames = tests_config.varbin_data_filenames()
+#     print(varbin_filenames)
+# 
+#     for filename in varbin_filenames:
+#         cellname = tests_config.cellname(filename)
+#         outfile = tests_config.varbin_work_filename(cellname)
+#         print(cellname, filename, outfile)
+# 
+#         df = hg.bin_count(filename)
+#         df.to_csv(outfile, index=False, sep='\t')

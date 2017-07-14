@@ -66,7 +66,7 @@ cbs.segment_files <- function(file.names, gc, alpha, nperm, undo.SD, min.width) 
   
   input_list <- list()
   for (j in 1:length(file.names)){
-    input_list[[j]] <- read.table(file.names[j], header = T)
+    input_list[[j]] <- read.table(file.names[j], header = T, as.is = T)
     input_list[[j]]$chrom <- chrom.numeric
     input_list[[j]]$gc.content <- gc$gc.content
   }
@@ -81,7 +81,11 @@ cbs.segment_files <- function(file.names, gc, alpha, nperm, undo.SD, min.width) 
   }
   print(sub("\\..*","",file.names))
 
-  colnames(output_mat) = colnames(output_mat_1) <-c("chrom","chrompos","abspos",sub("\\..*","",file.names))
+  cell_names = lapply(file.names, basename)
+  
+  colnames(output_mat) = colnames(output_mat_1) <- c(
+		  "chrom","chrompos","abspos",
+		  sub("\\..*","", cell_names))
   return(list(seg.quantal = output_mat, ratio.quantal = output_mat_1))
 }
 

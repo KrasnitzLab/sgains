@@ -1,18 +1,18 @@
 genome:
-  version: hg19
-  pristine: data/hg19_safe
-  work_dir: data/hg19
-  index: genomeindex
+    version: hg19
+    pristine: data/hg19_safe
+    work_dir: data/hg19
+    index: genomeindex
 
 reads:
-  length: 100
-  work_dir: data/R100
-  bowtie: ""
+    length: 100
+    work_dir: data/R100
+    bowtie: ""
   
 bins:
-  bins_count: 10000
-  work_dir: data/R100_B10k
-  bin_boundaries: bin_boundaries.tsv
+    bins_count: 10000
+    work_dir: data/R100_B10k
+    bin_boundaries: bin_boundaries.tsv
 
 mapping:
     data_dir: data/kendall/raw
@@ -22,8 +22,11 @@ mapping:
     
 
 varbin:
-  data_dir: data/kendall/bam
-  data_glob: "*.rmdup.bam"
-  work_dir: data/kendall/try2
-  suffix: "varbin.10k.txt"
+    data_dir: data/kendall/bam
+    data_glob: "*.rmdup.bam"
+    work_dir: data/kendall/try2
+    suffix: "varbin.10k.txt"
 
+results:
+    work_dir: data/kendall/results
+    study_name: "test_run"
