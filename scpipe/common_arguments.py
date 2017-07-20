@@ -103,7 +103,8 @@ class Parser:
         return result
 
     def parse_arguments(self, argv):
-        args = self.parser.parse_args(argv)
+        self.args = self.parser.parse_args(argv)
+        args = self.args
 
         if args.config:
             assert os.path.exists(args.config)
