@@ -165,10 +165,16 @@ class Config(Box):
             os.makedirs(dirname)
         return dirname
 
+    def segment_data_dirname(self):
+        dirname = self.abspath(self.segment.data_dir)
+        return self.abspath(dirname)
+
     def segment_work_dirname(self):
         dirname = self.abspath(self.segment.work_dir)
+        dirname = os.path.join(dirname, self.segment.study_name)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
+
         return dirname
 
     def varbin_work_filename(self, cellname):

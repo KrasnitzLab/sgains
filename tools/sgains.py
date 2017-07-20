@@ -96,7 +96,6 @@ def do_segment(defaults_config, args):
         config = Config.load(args.config)
         defaults_config.update(config)
     defaults_config = parser_segment_updates(args, defaults_config)
-    print(defaults_config)
 
     pipeline = Rpipeline(defaults_config)
     pipeline.run()

@@ -186,7 +186,7 @@ def parser_varbin_updates(args, defaults_config):
 def parser_segment_options(subparsers, defaults_config):
     segment_parser = subparsers.add_parser(
         name="segment",
-        help="prepares the SCGV input data",
+        help="segments bin counts and prepares the SCGV input data",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 

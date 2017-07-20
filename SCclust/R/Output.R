@@ -70,10 +70,10 @@ output_viewer <- function(
 			col.names=T, row.names=F, sep="\t", quote=F)
 	
     write.table(pins, 
-			paste(output_file_dir, "/", study, ".smear", smear, "bpPins.pins.txt", sep = ""),
+			paste(output_file_dir, "/", study, ".smear", smear, "bpPins.features.txt", sep = ""),
             col.names = T, row.names = F, sep = "\t", quote = F)
     write.table(pinmat, 
-			paste(output_file_dir, "/", study, ".smear", smear, "bpPinMat.pinmat.txt", sep = ""),
+			paste(output_file_dir, "/", study, ".smear", smear, "bpPinMat.feturemat.txt", sep = ""),
             col.names = T, row.names = F, sep = "\t", quote = F)
     write.table(pytableP, 
 			paste(output_file_dir, "/", study, ".smear", smear, "bpFisherTreePyP.tree.txt", sep = ""),
