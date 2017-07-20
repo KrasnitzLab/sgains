@@ -19,7 +19,7 @@ output_viewer <- function(
 		hc_clone, sub_hc_clone,
 		subcloneTooBig = 0.8, smear = 2, 
 		study,
-		cell.names){
+		cell_names){
 
 
   # system(paste("mkdir ", paste("../", output_file_dir, sep = ""), sep = ""))
@@ -61,19 +61,32 @@ output_viewer <- function(
   }
 
 
-
   if (!is.null(output_file_dir)){
-    write.table(seg.quantal, paste(output_file_dir, "/uber.hg19.", study, ".seg.quantal.R.seg.txt", sep = ""),
-                col.names = T, row.names = F, sep = "\t", quote = F)
-    write.csv(ratio.quantal,paste(output_file_dir, "/uber.hg19.", study, ".lowratio.quantal.R.ratio.csv", sep = ""))
-    write.table(pins, paste(output_file_dir, "/", study, "smear", smear, "bpPins.pins.txt", sep = ""),
-                col.names = T, row.names = F, sep = "\t", quote = F)
-    write.table(pinmat, paste(output_file_dir, "/", study, "smear", smear, "bpPinMat.pinmat.txt", sep = ""),
-                col.names = T, row.names = F, sep = "\t", quote = F)
-    write.table(pytableP, paste(output_file_dir, "/", study, "smear", smear, "bpFisherTreePyP.tree.txt", sep = ""),
-                col.names = T, row.names = F, sep = "\t", quote = F)
-    write.table(clonetable, paste(output_file_dir, "/", study, "smear", smear, "bpFisherPcloneTracks.clone.txt", sep = ""),
-                col.names = T,row.names = F, sep = "\t", quote = F)
+    write.table(seg.quantal, 
+			paste(output_file_dir, "/", study, ".seg.quantal.R.seg.txt", sep = ""),
+            col.names = T, row.names = F, sep = "\t", quote = F)
+    write.table(ratio.quantal,
+			paste(output_file_dir, "/", study, ".lowratio.quantal.R.ratio.csv", sep = ""),
+			col.names=T, row.names=F, sep="\t", quote=F)
+	
+    write.table(pins, 
+			paste(output_file_dir, "/", study, ".smear", smear, "bpPins.pins.txt", sep = ""),
+            col.names = T, row.names = F, sep = "\t", quote = F)
+    write.table(pinmat, 
+			paste(output_file_dir, "/", study, ".smear", smear, "bpPinMat.pinmat.txt", sep = ""),
+            col.names = T, row.names = F, sep = "\t", quote = F)
+    write.table(pytableP, 
+			paste(output_file_dir, "/", study, ".smear", smear, "bpFisherTreePyP.tree.txt", sep = ""),
+            col.names = T, row.names = F, sep = "\t", quote = F)
+    write.table(clonetable, 
+			paste(output_file_dir, "/", study, ".smear", smear, "bpFisherPcloneTracks.clone.txt", sep = ""),
+            col.names = T,row.names = F, sep = "\t", quote = F)
+	print(cell_names)
+	cells = data.frame(cell=cell_names)
+	
+	write.table(cells, paste(output_file_dir, "/", study, ".cells.txt", sep=""),
+		col.names=T, row.names=F, sep="\t", quote=F)
+	
   }
 
 }

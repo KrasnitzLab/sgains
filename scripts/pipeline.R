@@ -59,4 +59,5 @@ sub_hc_clone <- find_subclone(
 output_viewer(output_file_dir = output_dirname, 
 		seg.quantal, ratio.quantal, pins, 
 		pinmat, mat_dist, hc_clone, sub_hc_clone, 
-		subcloneTooBig = 0.8, smear = 1, study=study_name)
+		subcloneTooBig = 0.8, smear = 1, study=study_name,
+		cell_names = cell_names)
