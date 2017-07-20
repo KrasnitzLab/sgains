@@ -177,4 +177,40 @@ def parser_varbin_updates(args, defaults_config):
     _args_input_data_updates(args, defaults_config.varbin)
     _args_output_data_updates(args, defaults_config.varbin)
 
+    if args.suffix is not None:
+        defaults_config.varbin.suffix = args.suffix
+
+    return defaults_config
+
+
+def parser_segment_options(subparsers, defaults_config):
+    segment_parser = subparsers.add_parser(
+        name="segment",
+        help="prepares the SCGV input data",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser_input_data_options(segment_parser, defaults_config.segment)
+    parser_output_data_options(segment_parser, defaults_config.segment)
+    output_group = segment_parser.add_argument_group("study name")
+    output_group.add_argument(
+        "--study-name", "-s",
+        help="study name",
+        dest="study_name",
+        default=defaults_config.segment.study_name
+    )
+
+    parser_bins_options(segment_parser, defaults_config.bins)
+
+    return segment_parser
+
+
+def parser_segment_updates(args, defaults_config):
+    _args_common_updates(args, defaults_config)
+    _args_input_data_updates(args, defaults_config.segment)
+    _args_output_data_updates(args, defaults_config.segment)
+
+    if args.study_name is not None:
+        defaults_config.segment.study_name = args.study_name
+
     return defaults_config

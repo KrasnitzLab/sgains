@@ -15,11 +15,13 @@ import config
 import traceback
 from config import Config
 from commands import parser_mapping_options, parser_mapping_updates,\
-    parser_varbin_options, parser_varbin_updates, parser_common_options
+    parser_varbin_options, parser_varbin_updates, parser_common_options,\
+    parser_segment_options, parser_segment_updates
 import functools
 from mapping_pipeline import MappingPipeline
 from hg19 import HumanGenome19
 from termcolor import colored
+from r_pipeline import Rpipeline
 
 
 class CLIError(Exception):
@@ -89,6 +91,17 @@ def do_varbin(defaults_config, args):
                 df.to_csv(outfile, index=False, sep='\t')
 
 
+def do_segment(defaults_config, args):
+    if args.config is not None:
+        config = Config.load(args.config)
+        defaults_config.update(config)
+    defaults_config = parser_segment_updates(args, defaults_config)
+    print(defaults_config)
+
+    pipeline = Rpipeline(defaults_config)
+    pipeline.run()
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -124,6 +137,10 @@ USAGE
         varbin_parser = parser_varbin_options(subparsers, defaults_config)
         varbin_parser.set_defaults(
             func=functools.partial(do_varbin, defaults_config))
+
+        segment_parser = parser_segment_options(subparsers, defaults_config)
+        segment_parser.set_defaults(
+            func=functools.partial(do_segment, defaults_config))
 
         args = argparser.parse_args(argv[1:])
         args.func(args)

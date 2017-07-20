@@ -48,7 +48,9 @@ class Config(Box):
             "work_dir": "",
             "suffix": ".varbin.txt",
         },
-        "results": {
+        "segment": {
+            "data_dir": ".",
+            "data_glob": "*.varbin.txt",
             "work_dir": ".",
             "study_name": "test",
         }
@@ -163,8 +165,8 @@ class Config(Box):
             os.makedirs(dirname)
         return dirname
 
-    def results_work_dirname(self):
-        dirname = self.abspath(self.results.work_dir)
+    def segment_work_dirname(self):
+        dirname = self.abspath(self.segment.work_dir)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         return dirname
