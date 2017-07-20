@@ -6,10 +6,19 @@ Created on Jun 10, 2017
 from box import Box
 import os
 import glob
+from termcolor import colored
+
+
+class NonEmptyWorkDirectory(Exception):
+
+    def __init__(self, dirname):
+        super(NonEmptyWorkDirectory, self).__init__(dirname)
 
 
 class Config(Box):
     DEFAULT_CONFIG = {
+        "force": False,
+        "dry_run": False,
         "genome": {
             "version": "hg19",
             "pristine": "data/hg19_safe",
@@ -186,8 +195,18 @@ class Config(Box):
         filenames = glob.glob(pattern)
         return filenames
 
+    def check_nonempty_workdir(self, dirname):
+        if os.path.exists(dirname) and len(os.listdir(dirname)) and \
+                not self.force:
+            print(colored(
+                "ERROR: non-empty output directory and no --force option",
+                "red"))
+            raise NonEmptyWorkDirectory(dirname)
+
     def mapping_work_dirname(self):
         dirname = self.abspath(self.mapping.work_dir)
+        self.check_nonempty_workdir(dirname)
+
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         return dirname

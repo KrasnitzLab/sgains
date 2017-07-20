@@ -9,12 +9,14 @@ Created on Jul 20, 2017
 '''
 import sys
 import os
-from argparse import ArgumentParser
-from argparse import RawDescriptionHelpFormatter
+from argparse import ArgumentParser,\
+    RawDescriptionHelpFormatter
 import config
-from hg19 import HumanGenome19
 import traceback
-from common_arguments import Parser
+from config import Config
+from commands import parser_mapping_options, parser_mapping_updates
+import functools
+from mapping_pipeline import MappingPipeline
 
 
 class CLIError(Exception):
@@ -42,9 +44,14 @@ def bin_boundaries(hg, config, outfile):
     df.to_csv(outfile, sep='\t', index=False)
 
 
-def mapping(args):
-    print("mapping function called...")
-    print(args)
+def do_mapping(defaults_config, args):
+    if args.config is not None:
+        config = Config.load(args.config)
+        defaults_config.update(config)
+
+    defaults_config = parser_mapping_updates(args, defaults_config)
+    pipeline = MappingPipeline(defaults_config)
+    pipeline.run()
 
 
 def main(argv=None):
@@ -52,6 +59,8 @@ def main(argv=None):
         argv = sys.argv
     else:
         argv.extend(sys.argv)
+
+    print(argv)
 
     # Setup argument parser
     program_name = os.path.basename(sys.argv[0])
@@ -62,49 +71,53 @@ USAGE
 ''' % (program_shortdesc, )
 
     try:
+        defaults_config = Config.load("sgains.yml")
+
         argparser = ArgumentParser(
             description=program_description,
             formatter_class=RawDescriptionHelpFormatter)
 
-        parser = Parser.from_argument_parser(argparser)
+        argparser.add_argument(
+            "-v", "--verbose",
+            dest="verbose",
+            action="count",
+            help="set verbosity level [default: %(default)s]",
+            default=0
+        )
+        argparser.add_argument(
+            "-c", "--config",
+            dest="config",
+            help="configuration file",
+            metavar="path"
+        )
+
+        argparser.add_argument(
+            "-n", "--dry-run",
+            dest="dry_run",
+            action="store_true",
+            help="perform a trial run with no changes made",
+            default=False
+        )
+
+        argparser.add_argument(
+            "--force",
+            dest="force",
+            action="store_true",
+            help="allows overwriting nonempty results directory",
+            default=False
+        )
+
+        # parser = Parser.from_argument_parser(argparser)
         subparsers = argparser.add_subparsers(
             title="subcommands"
         )
-        mapping_parser = subparsers.add_parser(
-            name="mapping",
-            help="performs actual mapping of cell reads"
-        )
-        mapping_parser.set_defaults(func=mapping)
-        mapping_parser.add_argument(
-            "--data-dir", "-i",
-            dest="data_dir",
-            help="directory where cell reads are stored"
-        )
-        mapping_parser.add_argument(
-            "--work-dir", "-o",
-            dest="work_dir",
-            help="directroy where the resulting bam files "
-            "are stored"
-        )
 
-        config = parser.parse_arguments(argv[1:])
-        parser.args.func(parser.args)
+        mapping_parser = parser_mapping_options(subparsers, defaults_config)
+        mapping_parser.set_defaults(
+            func=functools.partial(do_mapping, defaults_config))
 
-        hg = None
-        if config.genome.version == 'hg19':
-            hg = HumanGenome19(config)
-
-        if hg is None:
-            raise CLIError("wrong genome version")
-
-        if config.output is None:
-            filename = config.bin_boundaries_filename()
-            outfile = open(config.abspath(filename), 'w')
-        elif config.output == '-':
-            outfile = sys.stdout
-        else:
-            outfile = config.abspath(config.output)
-            outfile = open(outfile, "w")
+        args = argparser.parse_args(argv[1:])
+        args.func(args)
 
         # bin_boundaries(hg, config, outfile)
 

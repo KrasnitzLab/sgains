@@ -6,6 +6,7 @@ Created on Jul 13, 2017
 import os
 import subprocess
 from config import Config
+from termcolor import colored
 
 
 class MappingPipeline(object):
@@ -39,11 +40,11 @@ class MappingPipeline(object):
         ]
 
     def bowtie_stage(self, _filename):
-        bowtie_ops = self.config.mapping.bowtie_ops.split(' ')
+        bowtie_opts = self.config.mapping.bowtie_opts.split(' ')
         return [
             'bowtie',
-            *bowtie_ops,
-            '-m', '1', '--best', '--strata', '--solexa-quals',
+            *bowtie_opts,
+            '-m', '1', '--best', '--strata',
             self.config.genome_index_filename(),
             '-'
         ]
@@ -130,5 +131,6 @@ class MappingPipeline(object):
                 '|',
                 *self.samtools_view_store_stage(filename),
             ]
-            print(' '.join(pipeline))
-            subprocess.check_call(' '.join(pipeline), shell=True)
+            print(colored(' '.join(pipeline), "green"))
+            if not self.config.dry_run:
+                subprocess.check_call(' '.join(pipeline), shell=True)

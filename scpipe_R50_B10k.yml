@@ -14,8 +14,3 @@ bins:
   bins_count: 10000
   work_dir: data/R50_B10k
   bin_boundaries: bin_boundaries.tsv
-
-cells:
-  data_dir: data/kendall
-  work_dir: data/kendall/ready
-  suffix: ".varbin.10k.txt"
