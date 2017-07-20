@@ -425,22 +425,22 @@ class HumanGenome19(object):
         df.sort_values(by=['bin.start.abspos'], inplace=True)
         return df
 
-    def bin_boundaries(self, chroms=None, regions_df=None):
-        bin_boundaries_filename = self.config.bin_boundaries_filename()
+    def bins_boundaries(self):
+        bins_boundaries_filename = self.config.bins_boundaries_filename()
 
-        if os.path.exists(bin_boundaries_filename):
-            df = pd.read_csv(bin_boundaries_filename, sep='\t')
-
+        if os.path.exists(bins_boundaries_filename):
+            df = pd.read_csv(bins_boundaries_filename, sep='\t')
             return df.sort_values(by=['bin.start.abspos'])
-        else:
-            df = self.calc_bin_boundaries(chroms, regions_df)
-            return self.calc_bins_gc_content(chroms, df)
+
+        return None
 
     def bin_count(self, filename):
         assert os.path.exists(filename)
 
         infile = pysam.AlignmentFile(filename, 'rb')  # @UndefinedVariable
-        bins_df = self.bin_boundaries()
+        bins_df = self.bins_boundaries()
+        assert bins_df is not None
+
         chrom_sizes = self.chrom_sizes()
         chroms = set(self.CHROMS)
 

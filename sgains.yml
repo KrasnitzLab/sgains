@@ -12,7 +12,7 @@ reads:
 bins:
     bins_count: 10000
     work_dir: data/R100_B10k
-    bin_boundaries: bin_boundaries.tsv
+    bins_boundaries: bins_boundaries.tsv
 
 mapping:
     data_dir: data/kendall/raw

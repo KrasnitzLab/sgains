@@ -35,7 +35,7 @@ class Config(Box):
         "bins": {
             "bins_count": 10000,
             "work_dir": "data/R100_B10k",
-            "bin_boundaries": "bin_boundaries.tst",
+            "bins_boundaries": "bins_boundaries.tst",
         },
         "mapping": {
             "data_dir": "",
@@ -126,10 +126,13 @@ class Config(Box):
         filename = self.abspath(filename)
         return filename
 
-    def bin_boundaries_filename(self):
+    def bins_boundaries_filename(self):
+        if os.path.exists(self.bins.bins_boundaries):
+            return self.bins.bins_boundaries
+
         filename = os.path.join(
             self.bins.work_dir,
-            self.bins.bin_boundaries
+            self.bins.bins_boundaries
         )
         return self.abspath(filename)
 

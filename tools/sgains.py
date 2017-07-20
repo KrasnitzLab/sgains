@@ -14,9 +14,12 @@ from argparse import ArgumentParser,\
 import config
 import traceback
 from config import Config
-from commands import parser_mapping_options, parser_mapping_updates
+from commands import parser_mapping_options, parser_mapping_updates,\
+    parser_varbin_options, parser_varbin_updates, parser_common_options
 import functools
 from mapping_pipeline import MappingPipeline
+from hg19 import HumanGenome19
+from termcolor import colored
 
 
 class CLIError(Exception):
@@ -54,13 +57,43 @@ def do_mapping(defaults_config, args):
     pipeline.run()
 
 
+def do_varbin(defaults_config, args):
+    if args.config is not None:
+        config = Config.load(args.config)
+        defaults_config.update(config)
+    defaults_config = parser_varbin_updates(args, defaults_config)
+    hg = HumanGenome19(defaults_config)
+
+    varbin_filenames = defaults_config.varbin_data_filenames()
+
+    for filename in varbin_filenames:
+        cellname = defaults_config.cellname(filename)
+        outfile = defaults_config.varbin_work_filename(cellname)
+        print(colored(
+            "processing cell {}; reading from {}; writing to {}".format(
+                cellname, filename, outfile),
+            "green"))
+
+        if os.path.exists(outfile) and not defaults_config.force:
+            print(
+                colored(
+                    "output file {} exists; add --force to overwrite"
+                    .format(
+                        outfile
+                    ),
+                    "red")
+            )
+        else:
+            if not defaults_config.dry_run:
+                df = hg.bin_count(filename)
+                df.to_csv(outfile, index=False, sep='\t')
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
     else:
         argv.extend(sys.argv)
-
-    print(argv)
 
     # Setup argument parser
     program_name = os.path.basename(sys.argv[0])
@@ -77,35 +110,7 @@ USAGE
             description=program_description,
             formatter_class=RawDescriptionHelpFormatter)
 
-        argparser.add_argument(
-            "-v", "--verbose",
-            dest="verbose",
-            action="count",
-            help="set verbosity level [default: %(default)s]",
-            default=0
-        )
-        argparser.add_argument(
-            "-c", "--config",
-            dest="config",
-            help="configuration file",
-            metavar="path"
-        )
-
-        argparser.add_argument(
-            "-n", "--dry-run",
-            dest="dry_run",
-            action="store_true",
-            help="perform a trial run with no changes made",
-            default=False
-        )
-
-        argparser.add_argument(
-            "--force",
-            dest="force",
-            action="store_true",
-            help="allows overwriting nonempty results directory",
-            default=False
-        )
+        parser_common_options(argparser)
 
         # parser = Parser.from_argument_parser(argparser)
         subparsers = argparser.add_subparsers(
@@ -115,6 +120,10 @@ USAGE
         mapping_parser = parser_mapping_options(subparsers, defaults_config)
         mapping_parser.set_defaults(
             func=functools.partial(do_mapping, defaults_config))
+
+        varbin_parser = parser_varbin_options(subparsers, defaults_config)
+        varbin_parser.set_defaults(
+            func=functools.partial(do_varbin, defaults_config))
 
         args = argparser.parse_args(argv[1:])
         args.func(args)
