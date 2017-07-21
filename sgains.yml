@@ -7,7 +7,7 @@ genome:
 reads:
     length: 100
     work_dir: data/R100
-    bowtie: ""
+    bowtie_opts: ""
   
 bins:
     bins_count: 10000
