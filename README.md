@@ -2,14 +2,12 @@
 
 ## Anaconda environment setup
 
-### Install Anacoda
-
 ### Install Anaconda 
 * Go to anaconda web site 
 [https://www.continuum.io/downloads](https://www.continuum.io/downloads)
 and download the latest anaconda installer for your operating system. 
 
-*s-GAINS* supports *Python 3.6* so you need to choos appropriate installer.
+*s-GAINS* supports *Python 3.6* so you need to choose appropriate installer.
 Note also that since *s-GAINS* uses *bioconda* channel the supported 
 operating systems are only those supported for *biconda* (Linux and Mac OS X only
 at the time of this writing).
