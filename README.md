@@ -12,7 +12,7 @@ and download the latest anaconda installer for your operating system.
 
 *s-GAINS* supports *Python 3.6* so you need to choose appropriate installer.
 Note also that since *s-GAINS* uses *bioconda* channel the supported 
-operating systems are only those supported for *biconda* (Linux and Mac OS X only
+operating systems are only those supported for *bioconda* (Linux and Mac OS X only
 at the time of this writing).
 
 * Install anaconda into suitable place on your local machine following
