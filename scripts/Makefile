@@ -2,7 +2,7 @@ all:
 
 
 run: install
-	python scpipe/r_pipeline.py
+	python ../scpipe/r_pipeline.py
 
 install:
 	tar zcvf SCclust_0.1.5.tar.gz SCclust

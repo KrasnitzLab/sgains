@@ -17,6 +17,7 @@ def tests_config():
     config = Config.load("scpipe_tests.yml")
     return config
 
+
 @pytest.fixture(scope='session')
 def hg():
     config = Config.load("scpipe_tests.yml")

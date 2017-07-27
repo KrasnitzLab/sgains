@@ -12,7 +12,7 @@ reads:
 bins:
     bins_count: 10000
     work_dir: data/R100_B10k
-    bin_boundaries: bin_boundaries.tsv
+    bins_boundaries: bins_boundaries.tsv
 
 mapping:
     data_dir: data/kendall/raw
@@ -27,6 +27,8 @@ varbin:
     work_dir: data/kendall/try2
     suffix: "varbin.10k.txt"
 
-results:
+segment:
+    data_dir: data/kendall/try2
+    data_glob: "*.varbin.10k.txt"
     work_dir: data/kendall/results
     study_name: "test_run"

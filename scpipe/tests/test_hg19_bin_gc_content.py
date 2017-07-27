@@ -31,7 +31,7 @@ def test_bin_boundaries_full(hg, gc_bin_boundaries, chromosome):
     fixture_df = fixture_df.reset_index()
 
     regions_df = hg.load_mappable_regions()
-    bins_df = hg.bin_boundaries([chromosome], regions_df)
+    bins_df = hg.calc_bins_boundaries([chromosome], regions_df)
     df = hg.calc_bins_gc_content([chromosome], bins_df)
 
     # assert np.all(df.columns == fixture_df.columns)

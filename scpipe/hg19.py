@@ -395,7 +395,7 @@ class HumanGenome19(object):
 
             mappable_bin = None
 
-    def calc_bin_boundaries(self, chroms=None, regions_df=None):
+    def calc_bins_boundaries(self, chroms=None, regions_df=None):
 
         if chroms is None:
             chroms = self.CHROMS
@@ -427,6 +427,7 @@ class HumanGenome19(object):
 
     def bins_boundaries(self):
         bins_boundaries_filename = self.config.bins_boundaries_filename()
+        print(os.path.abspath(bins_boundaries_filename))
 
         if os.path.exists(bins_boundaries_filename):
             df = pd.read_csv(bins_boundaries_filename, sep='\t')
@@ -435,7 +436,8 @@ class HumanGenome19(object):
         return None
 
     def bin_count(self, filename):
-        assert os.path.exists(filename)
+
+        assert os.path.exists(filename), os.path.abspath(filename)
 
         infile = pysam.AlignmentFile(filename, 'rb')  # @UndefinedVariable
         bins_df = self.bins_boundaries()

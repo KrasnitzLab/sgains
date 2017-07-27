@@ -75,13 +75,13 @@ def test_default_bins_filenames(parser):
     argv = ["-c", "scpipe_tests.yml", "-C", "chrM,chrY"]
     config = parser.parse_arguments(argv)
 
-    assert config.bins.bin_boundaries == "bin_boundaries.tsv"
+    assert config.bins.bins_boundaries == "bins_boundaries.tsv"
 
 
 def test_reads_work_dir(parser):
-    argv = ["-c", "scpipe_tests.yml", "--reads-dir", "alaBalaPortocala"]
+    argv = ["-c", "scpipe_tests.yml", "--reads-dir", "data/alaBalaPortocala"]
     config = parser.parse_arguments(argv)
-    assert config.reads.work_dir == "alaBalaPortocala"
+    assert config.reads.work_dir == "data/alaBalaPortocala"
 
 
 def test_reads_length(parser):
@@ -91,9 +91,9 @@ def test_reads_length(parser):
 
 
 def test_bins_work_dir(parser):
-    argv = ["-c", "scpipe_tests.yml", "--bins-dir", "alaBalaPortocala"]
+    argv = ["-c", "scpipe_tests.yml", "--bins-dir", "data/alaBalaPortocala"]
     config = parser.parse_arguments(argv)
-    assert config.bins.work_dir == "alaBalaPortocala"
+    assert config.bins.work_dir == "data/alaBalaPortocala"
 
 
 def test_bins_length(parser):
