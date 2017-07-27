@@ -1,5 +1,8 @@
 # Sparse Genomic Analysis of Individual Nuclei by Sequencing (s-GAINS)
 
+*Please note that this software is still under construction and
+not ready for general use*
+
 ## Anaconda environment setup
 
 ### Install Anaconda 
