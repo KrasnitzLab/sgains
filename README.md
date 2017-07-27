@@ -25,18 +25,18 @@ instructions from
 use with `sgains` pipeline. To this end you need to use:
 
     ```
-    conda create -n sgains
-    source activate sgains
+    conda create -n sgains3
+    source activate sgains3
     ```
 
-* After creating `sgains` environment you need to add *bioconda* and *r* channels:
+* After creating `sgains3` environment you need to add *bioconda* and *r* channels:
 
     ```
     conda config --add channels bioconda
     conda config --add channels r
     ```
 
-* Now you have to insall additional packages required by `sgains` tool:
+* Now you have to insall additional packages required by `sgains.py` tool:
     ```
     conda install bowtie
     conda install samtools bcftools trimmomatic biopython pysam fastqc
@@ -146,4 +146,130 @@ subcommands:
     segment             segments bin counts and prepares the SCGV input data
 ```
 
+The `sgains.py` tool supports a list of common options:
 
+* `--dry-run`, `-n` - this options instructs `sgains.py` to perform a trail run 
+displaying information of commands that should be performed but without actualy 
+running this commands
+
+* `--force` - when `sgains.py` tool is run it checks if the result files or 
+directories exists and if they already exists `sgains.py` stops whitout
+performing any changes. To overwrite this behaivor you can use `--force` option
+
+* `--config`, `-c` - instructs `sgains.py` which configuration file to use.
+
+### Use of `mapping` subcommand
+
+To list options available for `mapping` subcommand use:
+
+```
+sgains.py mapping -h
+
+usage: sgains.py mapping [-h] [--bowtie-opts BOWTIE_OPTS]
+                         [--data-dir DATA_DIR] [--glob DATA_GLOB]
+                         [--work-dir WORK_DIR] [--genome-index GENOME_INDEX]
+                         [--genome-dir GENOME_DIR]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --bowtie-opts BOWTIE_OPTS
+                        additional bowtie options (default: -p 4 -S -t -n 2 -e
+                        70 -3 18 -5 8 --solexa-quals)
+
+input data options:
+  --data-dir DATA_DIR, -i DATA_DIR
+                        input data directory where the input data is located
+                        (default: data/test_study/raw)
+  --glob DATA_GLOB, -g DATA_GLOB
+                        glob pattern for finding input data (default:
+                        *.fastq.gz)
+
+output data options:
+  --work-dir WORK_DIR, -o WORK_DIR
+                        output directory where results from processing are
+                        stored (default: data/kendall/bam)
+
+genome index options:
+  --genome-index GENOME_INDEX, -G GENOME_INDEX
+                        genome index name (default: genomeindex)
+  --genome-dir GENOME_DIR
+                        genome index directory (default: data/hg19)
+```
+
+### Use of `varbin` subcommand
+
+To list options available for `varbin` subcommand use:
+
+```
+sgains.py varbin -h
+usage: sgains.py varbin [-h] [--data-dir DATA_DIR] [--glob DATA_GLOB]
+                        [--work-dir WORK_DIR] [--suffix SUFFIX]
+                        [--bins-boundaries BINS_BOUNDARIES]
+                        [--bins-dir BINS_DIR]
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+input data options:
+  --data-dir DATA_DIR, -i DATA_DIR
+                        input data directory where the input data is located
+                        (default: data/test_study/bam)
+  --glob DATA_GLOB, -g DATA_GLOB
+                        glob pattern for finding input data (default:
+                        *.rmdup.bam)
+
+output data options:
+  --work-dir WORK_DIR, -o WORK_DIR
+                        output directory where results from processing are
+                        stored (default: data/test_study/try2)
+
+output suffix:
+  --suffix SUFFIX, -s SUFFIX
+                        suffix for output files (default: varbin.10k.txt)
+
+bins boundaries:
+  --bins-boundaries BINS_BOUNDARIES, -B BINS_BOUNDARIES
+                        bins boundaries filename (default:
+                        bins_boundaries.tsv)
+  --bins-dir BINS_DIR   bins working directory (default: data/R100_B10k)
+```
+
+
+
+### Use of `segment` subcommand
+
+To list options available for `segment` subcommand use:
+
+```
+sgains.py segment -h
+usage: sgains.py segment [-h] [--data-dir DATA_DIR] [--glob DATA_GLOB]
+                         [--work-dir WORK_DIR] [--study-name STUDY_NAME]
+                         [--bins-boundaries BINS_BOUNDARIES]
+                         [--bins-dir BINS_DIR]
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+input data options:
+  --data-dir DATA_DIR, -i DATA_DIR
+                        input data directory where the input data is located
+                        (default: data/test_study/try2)
+  --glob DATA_GLOB, -g DATA_GLOB
+                        glob pattern for finding input data (default:
+                        *.varbin.10k.txt)
+
+output data options:
+  --work-dir WORK_DIR, -o WORK_DIR
+                        output directory where results from processing are
+                        stored (default: data/test_study/segment)
+
+study name:
+  --study-name STUDY_NAME, -s STUDY_NAME
+                        study name (default: test_study)
+
+bins boundaries:
+  --bins-boundaries BINS_BOUNDARIES, -B BINS_BOUNDARIES
+                        bins boundaries filename (default:
+                        bins_boundaries.tsv)
+  --bins-dir BINS_DIR   bins working directory (default: data/R100_B10k)
+```
