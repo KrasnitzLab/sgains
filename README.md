@@ -97,7 +97,6 @@ mapping:
     data_glob: "*.fastq.gz"
     work_dir: data/test_study/bam
     bowtie_opts: "-S -t -n 2 -e 70 -3 18 -5 8 --solexa-quals"
-    
 
 varbin:
     data_dir: data/test_study/bam
