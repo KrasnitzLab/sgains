@@ -15,20 +15,20 @@ bins:
     bins_boundaries: bins_boundaries.tsv
 
 mapping:
-    data_dir: data/kendall/raw
+    data_dir: data/test_study/raw
     data_glob: "*.fastq.gz"
     work_dir: data/kendall/bam
     bowtie_opts: "-p 4 -S -t -n 2 -e 70 -3 18 -5 8 --solexa-quals"
     
 
 varbin:
-    data_dir: data/kendall/bam
+    data_dir: data/test_study/bam
     data_glob: "*.rmdup.bam"
-    work_dir: data/kendall/try2
+    work_dir: data/test_study/try2
     suffix: "varbin.10k.txt"
 
 segment:
-    data_dir: data/kendall/try2
+    data_dir: data/test_study/try2
     data_glob: "*.varbin.10k.txt"
-    work_dir: data/kendall/results
-    study_name: "test_run"
+    work_dir: data/test_study/segment
+    study_name: "test_study"

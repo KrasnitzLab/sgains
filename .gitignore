@@ -12,3 +12,4 @@ __pycache__
 .RData
 .Rproj.user
 /copy-data-*.sh
+/setenv.sh
