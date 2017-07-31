@@ -1,5 +1,5 @@
 *.swp
-data/*
+/data
 .project
 .pydevproject
 __pycache__
