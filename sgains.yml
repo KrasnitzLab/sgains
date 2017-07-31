@@ -4,7 +4,7 @@ genome:
     work_dir: data/hg19
     genome_index: genomeindex
 
-reads:
+mappable_regions:
     length: 100
     work_dir: data/R100
     bowtie_opts: ""

@@ -26,12 +26,12 @@ class Config(Box):
             "work_dir": "data/hg19",
             "index": "genomeindex",
         },
-        "reads": {
+        "mappable_regions": {
             "length": 100,
             "work_dir": "data/R100",
-            "mappable_regions": "mappable_regions.tsv",
-            "mappable_positions_count": "mappable_positions_count.yml",
-            "chrom_sizes": "chrom_sizes.yml"
+            "mappable_regions": "hg19_R100_mappable_regions.txt",
+            "chrom_sizes": "chrom_sizes.yml",
+            "bowtie_opts": "",
         },
         "bins": {
             "bins_count": 10000,
@@ -114,22 +114,22 @@ class Config(Box):
 
     def mappable_regions_filename(self):
         filename = os.path.join(
-            self.reads.work_dir,
-            self.reads.mappable_regions
+            self.mappable_regions.work_dir,
+            self.mappable_regions.mappable_regions
         )
         return self.abspath(filename)
 
     def mappable_positions_count_filename(self):
         filename = os.path.join(
-            self.reads.work_dir,
-            self.reads.mappable_positions_count
+            self.mappable_regions.work_dir,
+            self.mappable_regions.mappable_positions_count
         )
         return self.abspath(filename)
 
     def chrom_sizes_filename(self):
         filename = os.path.join(
-            self.reads.work_dir,
-            self.reads.chrom_sizes
+            self.mappable_regions.work_dir,
+            self.mappable_regions.chrom_sizes
         )
         filename = self.abspath(filename)
         return filename

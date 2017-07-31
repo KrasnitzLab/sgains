@@ -17,6 +17,7 @@ import pandas as pd
 from utils import MappableState, Mapping, MappableRegion, \
     MappableBin, BinParams, LOG
 import pysam
+from termcolor import colored
 
 
 class HumanGenome19(object):
@@ -124,12 +125,25 @@ class HumanGenome19(object):
         outfile.write(out)
         await outfile.drain()
 
-    async def async_start_bowtie(self, threads=1):
+    async def async_start_bowtie(self, bowtie_opts=""):
         genomeindex = self.config.genome_index_filename()
+        if bowtie_opts:
+            command = [
+                'bowtie', '-S', '-t', '-v', '0', '-m', '1',
+                *bowtie_opts.split(' '),
+                '-f', genomeindex, '-',
+            ]
+        else:
+            command = [
+                'bowtie', '-S', '-t', '-v', '0', '-m', '1',
+                '-f', genomeindex, '-',
+            ]
+        print(colored(
+            "going to execute bowtie: {}".format(" ".join(command)),
+            "green"
+        ))
         create = asyncio.create_subprocess_exec(
-            'bowtie', '-S', '-t', '-v', '0', '-m', '1',
-            '--threads', str(threads),
-            '-f', genomeindex, '-',
+            *command,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
         )
@@ -168,9 +182,9 @@ class HumanGenome19(object):
 
     async def async_generate_mappable_regions(
             self, chroms, read_length,
-            outfile=None, threads=1):
+            outfile=None, bowtie_opts=""):
 
-        bowtie = await self.async_start_bowtie(threads=threads)
+        bowtie = await self.async_start_bowtie(bowtie_opts=bowtie_opts)
         reads_generator = self.generate_reads(chroms, read_length)
         writer = asyncio.Task(
             self.async_write_reads_generator(bowtie.stdin, reads_generator)

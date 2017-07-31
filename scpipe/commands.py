@@ -305,3 +305,48 @@ def parser_genomeindex_options(subparsers, defaults_config):
         default=defaults_config.genome.index)
 
     return genomeindex_parser
+
+
+def parser_mappable_regions_options(subparsers, defaults_config):
+    mappable_regions_parser = subparsers.add_parser(
+        name="mappable-regions",
+        help="finds all mappable regions in specified genome",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    group = parser_genome_options(
+        mappable_regions_parser, defaults_config.genome)
+    group.add_argument(
+        "--bowtie-opts",
+        dest="bowtie_opts",
+        help="additional bowtie options",
+        default=defaults_config.mappable_regions.bowtie_opts)
+
+    group = mappable_regions_parser.add_argument_group(
+        "mappable regions options")
+    group.add_argument(
+        "--work-dir", "-o",
+        dest="work_dir",
+        help="output directory where results from processing are stored",
+        default=defaults_config.mappable_regions.work_dir
+    )
+    group.add_argument(
+        "--read-length", "-l",
+        dest="length",
+        type=int,
+        help="read length to use for generation of mappable regions",
+        default=defaults_config.mappable_regions.length
+    )
+
+    return mappable_regions_parser
+
+
+def parser_mappable_regions_updates(args, defaults_config):
+    _args_common_updates(args, defaults_config)
+    _args_output_data_updates(args, defaults_config.mappable_regions)
+    _args_genome_updates(args, defaults_config)
+
+    if args.bowtie_opts:
+        defaults_config.mappable_regions.bowtie_opts = args.bowtie_opts
+
+    return defaults_config
