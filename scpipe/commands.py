@@ -265,3 +265,43 @@ def parser_process_updates(args, defaults_config):
         defaults_config.mapping.bowtie_opts = args.bowtie_opts
 
     return defaults_config
+
+
+def parser_genomeindex_updates(args, defaults_config):
+    _args_common_updates(args, defaults_config)
+    if args.data_dir is not None:
+        defaults_config.genome.data_dir = args.data_dir
+    _args_output_data_updates(args, defaults_config.genome)
+    if args.genome_index is not None:
+        defaults_config.genome.index = args.genome_index
+
+    return defaults_config
+
+
+def parser_genomeindex_options(subparsers, defaults_config):
+    genomeindex_parser = subparsers.add_parser(
+        name="genomeindex",
+        help="build appropriate genome index",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    group = genomeindex_parser.add_argument_group(
+        "input data options")
+    group.add_argument(
+        "--data-dir", "-i",
+        dest="data_dir",
+        help="input data directory where the input data is located",
+        default=defaults_config.genome.data_dir
+    )
+
+    parser_output_data_options(genomeindex_parser, defaults_config.genome)
+
+    group = genomeindex_parser.add_argument_group(
+        "genome index options")
+    group.add_argument(
+        "--genome-index", "-G",
+        dest="genome_index",
+        help="genome index name",
+        default=defaults_config.genome.index)
+
+    return genomeindex_parser

@@ -22,7 +22,7 @@ class Config(Box):
         "dry_run": False,
         "genome": {
             "version": "hg19",
-            "pristine": "data/hg19_safe",
+            "data_dir": "data/hg19_safe",
             "work_dir": "data/hg19",
             "index": "genomeindex",
         },
@@ -146,7 +146,7 @@ class Config(Box):
 
     def chrom_filename(self, chrom, pristine=False):
         if pristine:
-            cache_dir = self.genome.pristine
+            cache_dir = self.genome.data_dir
         else:
             cache_dir = self.genome.work_dir
         filename = os.path.join(

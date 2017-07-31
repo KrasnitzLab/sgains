@@ -17,11 +17,13 @@ from config import Config
 from commands import parser_mapping_options, parser_mapping_updates,\
     parser_varbin_options, parser_varbin_updates, parser_common_options,\
     parser_segment_options, parser_segment_updates, parser_process_options,\
-    parser_process_updates
+    parser_process_updates, parser_genomeindex_updates,\
+    parser_genomeindex_options
 import functools
 from mapping_pipeline import MappingPipeline
 from r_pipeline import Rpipeline
 from varbin_pipeline import VarbinPipeline
+from genomeindex_pipeline import GenomeIndexPipeline
 
 
 class CLIError(Exception):
@@ -47,6 +49,16 @@ def bin_boundaries(hg, config, outfile):
     df = hg.calc_bins_gc_content(config.chroms, bins_df)
 
     df.to_csv(outfile, sep='\t', index=False)
+
+
+def do_genomeindex(defaults_config, args):
+    if args.config is not None:
+        config = Config.load(args.config)
+        defaults_config.update(config)
+
+    defaults_config = parser_genomeindex_updates(args, defaults_config)
+    pipeline = GenomeIndexPipeline(defaults_config)
+    pipeline.run()
 
 
 def do_mapping(defaults_config, args):
@@ -143,6 +155,11 @@ USAGE
         subparsers = argparser.add_subparsers(
             title="subcommands"
         )
+
+        genomeindex_parser = parser_genomeindex_options(
+            subparsers, defaults_config)
+        genomeindex_parser.set_defaults(
+            func=functools.partial(do_genomeindex, defaults_config))
 
         mapping_parser = parser_mapping_options(subparsers, defaults_config)
         mapping_parser.set_defaults(

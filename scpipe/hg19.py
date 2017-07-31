@@ -33,7 +33,7 @@ class HumanGenome19(object):
         assert config.genome.version == self.VERSION
         self.config = config
 
-        assert os.path.exists(config.genome.pristine)
+        assert os.path.exists(config.genome.data_dir)
         if not os.path.exists(config.genome.work_dir):
             os.makedirs(config.genome.work_dir)
 

@@ -1,8 +1,8 @@
 genome:
     version: hg19
-    pristine: data/hg19_safe
+    data_dir: data/hg19_safe
     work_dir: data/hg19
-    index: genomeindex
+    genome_index: genomeindex
 
 reads:
     length: 100
@@ -12,7 +12,7 @@ reads:
 bins:
     bins_count: 10000
     work_dir: data/R100_B10k
-    bins_boundaries: bins_boundaries.tsv
+    bins_boundaries: hg19_R100_B10k_bins_boundaries.txt
 
 mapping:
     data_dir: data/test_study/raw
