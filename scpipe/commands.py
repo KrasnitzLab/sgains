@@ -79,6 +79,7 @@ def parser_genome_options(parser, defaults_config):
         dest="genome_dir",
         help="genome index directory",
         default=defaults_config.work_dir)
+    return group
 
 
 def parser_bins_options(parser, defaults_config):
@@ -106,9 +107,8 @@ def parser_mapping_options(subparsers, defaults_config):
 
     parser_input_data_options(mapping_parser, defaults_config.mapping)
     parser_output_data_options(mapping_parser, defaults_config.mapping)
-    parser_genome_options(mapping_parser, defaults_config.genome)
-
-    mapping_parser.add_argument(
+    group = parser_genome_options(mapping_parser, defaults_config.genome)
+    group.add_argument(
         "--bowtie-opts",
         dest="bowtie_opts",
         help="additional bowtie options",
@@ -229,10 +229,6 @@ def parser_process_options(subparsers, defaults_config):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser_input_data_options(process_parser, defaults_config.mapping)
-    parser_output_data_options(process_parser, defaults_config.segment)
-    parser_genome_options(process_parser, defaults_config.genome)
-
     output_group = process_parser.add_argument_group("study name")
     output_group.add_argument(
         "--study-name", "-s",
@@ -241,13 +237,18 @@ def parser_process_options(subparsers, defaults_config):
         default=defaults_config.segment.study_name
     )
 
-    parser_bins_options(process_parser, defaults_config.bins)
+    parser_input_data_options(process_parser, defaults_config.mapping)
 
-    process_parser.add_argument(
+    parser_output_data_options(process_parser, defaults_config.segment)
+
+    group = parser_genome_options(process_parser, defaults_config.genome)
+    group.add_argument(
         "--bowtie-opts",
         dest="bowtie_opts",
         help="additional bowtie options",
         default=defaults_config.mapping.bowtie_opts)
+
+    parser_bins_options(process_parser, defaults_config.bins)
 
     return process_parser
 

@@ -158,6 +158,115 @@ performing any changes. To overwrite this behaivor you can use `--force` option
 
 * `--config`, `-c` - instructs `sgains.py` which configuration file to use.
 
+### Use of `process` subcommand
+
+To list options available for `mapping` subcommand use:
+
+```
+sgains.py mapping -h
+
+usage: sgains.py process [-h] [--study-name STUDY_NAME] [--data-dir DATA_DIR]
+                         [--glob DATA_GLOB] [--work-dir WORK_DIR]
+                         [--genome-index GENOME_INDEX]
+                         [--genome-dir GENOME_DIR] [--bowtie-opts BOWTIE_OPTS]
+                         [--bins-boundaries BINS_BOUNDARIES]
+                         [--bins-dir BINS_DIR]
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+study name:
+  --study-name STUDY_NAME, -s STUDY_NAME
+                        study name (default: test_study)
+
+input data options:
+  --data-dir DATA_DIR, -i DATA_DIR
+                        input data directory where the input data is located
+                        (default: data/test_study/raw)
+  --glob DATA_GLOB, -g DATA_GLOB
+                        glob pattern for finding input data (default:
+                        *.fastq.gz)
+
+output data options:
+  --work-dir WORK_DIR, -o WORK_DIR
+                        output directory where results from processing are
+                        stored (default: data/test_study/segment)
+
+genome index options:
+  --genome-index GENOME_INDEX, -G GENOME_INDEX
+                        genome index name (default: genomeindex)
+  --genome-dir GENOME_DIR
+                        genome index directory (default: data/hg19)
+  --bowtie-opts BOWTIE_OPTS
+                        additional bowtie options (default: -p 10 -S -t -n 2
+                        -e 70 -3 18 -5 8 --solexa-quals)
+
+bins boundaries:
+  --bins-boundaries BINS_BOUNDARIES, -B BINS_BOUNDARIES
+                        bins boundaries filename (default:
+                        bins_boundaries.tsv)
+  --bins-dir BINS_DIR   bins working directory (default: data/R100_B10k)
+```
+
+* The data processd by the `process` subcommand is grouped into an entity, that
+is names with `--study-name` option. This name will be used when creating
+results directories and when creating some of results files.
+
+* The input for `process` subcommand are *FASTQ* files containing the reads for
+each individual cell. All *FASTQ* file for given study are expected to be located
+into single directory. You should specify this directory using `--data-dir` option.
+
+* The results from `process` subcommand are stored into output data directory
+which you should specify using `--work-dir` option. The process subcommand will
+create directory named after the study name (passed with the `--study-name` option)
+and inside that directory will create three additional subdirectories - `mapping`,
+`varbin` and `segment`, that will store intermediate results from respective
+pipeline stages.
+
+    ```
+    try06/try_process/
+    ├── mappings
+    │   ├── CJA0754.rmdup.bam
+    │   ├── CJA0769.rmdup.bam
+    │   ├── CJA0901.rmdup.bam
+    │   ├── CJA0918.rmdup.bam
+    │   ├── CJA1164.rmdup.bam
+    │   ├── CJA1210.rmdup.bam
+    │   ├── CJA1243.rmdup.bam
+    │   ├── CJA1247.rmdup.bam
+    │   └── CJA1355.rmdup.bam
+    └── varbin
+        └── CJA1247.varbin.10k.txt
+    ```
+
+* The first stage of the pipeline invokes `bowtie` to map reads from
+*FASTQ* files. This stage needs a path to bowtie index, that you can pass
+using `--genome-index` option. 
+
+* When running `bowtie` for mapping *FASTQ* reads the pipeline passes a combination
+of `-m 1 --best --strata`. If you need to pass additional options to `bowtie`
+you can use `--bowtie-opts` option.
+
+* The `varbin` stage of the pipeline needs a bins boundaries file prepared in
+advance. You can pass bins boundaries file using `--bins-boundaries` option.
+
+
+#### Example usage of `process` subcommand
+
+If your input files are located into `data/test_study/raw` directory, then you
+can use following command:
+
+```
+sgians.py process --data-dir data/test_study/raw \
+    --work-dir data/ --study-name test_study \
+    --genome-index data/hg19/genomeindex \
+    --bin-boundaries data/R100_10k/bins_boundaries.tsv \
+    --bowtie-opts "-S -t -n 2 -e 70 -3 18 -5 8 --solexa-quals"
+```
+
+
+
+
 ### Use of `mapping` subcommand
 
 To list options available for `mapping` subcommand use:

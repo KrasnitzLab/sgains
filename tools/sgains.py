@@ -87,7 +87,7 @@ def do_process(defaults_config, args):
 
     mapping_workdir = os.path.join(
         defaults_config.segment_work_dirname(),
-        'mappings')
+        'mapping')
     varbin_workdir = os.path.join(
         defaults_config.segment_work_dirname(),
         'varbin')
