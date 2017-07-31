@@ -82,7 +82,7 @@ def parser_genome_options(parser, defaults_config):
     return group
 
 
-def parser_bins_options(parser, defaults_config):
+def _parser_bins_options(parser, defaults_config):
     group = parser.add_argument_group(
         "bins boundaries")
     group.add_argument(
@@ -172,7 +172,7 @@ def parser_varbin_options(subparsers, defaults_config):
         default=defaults_config.varbin.suffix
     )
 
-    parser_bins_options(varbin_parser, defaults_config.bins)
+    _parser_bins_options(varbin_parser, defaults_config.bins)
 
     return varbin_parser
 
@@ -205,7 +205,7 @@ def parser_segment_options(subparsers, defaults_config):
         default=defaults_config.segment.study_name
     )
 
-    parser_bins_options(segment_parser, defaults_config.bins)
+    _parser_bins_options(segment_parser, defaults_config.bins)
 
     return segment_parser
 
@@ -248,7 +248,7 @@ def parser_process_options(subparsers, defaults_config):
         help="additional bowtie options",
         default=defaults_config.mapping.bowtie_opts)
 
-    parser_bins_options(process_parser, defaults_config.bins)
+    _parser_bins_options(process_parser, defaults_config.bins)
 
     return process_parser
 
@@ -350,3 +350,64 @@ def parser_mappable_regions_updates(args, defaults_config):
         defaults_config.mappable_regions.bowtie_opts = args.bowtie_opts
 
     return defaults_config
+
+
+def parser_bins_updates(args, defaults_config):
+    _args_common_updates(args, defaults_config)
+    _args_output_data_updates(args, defaults_config.bins)
+    if args.bins_count:
+        defaults_config.bins.bins_count = args.bins_count
+    if args.bins_boundaries:
+        defaults_config.bins.bins_boundaries = args.bins_boundaries
+    if args.data_dir:
+        defaults_config.mappable_regions.work_dir = args.data_dir
+    if args.mappable_regions:
+        defaults_config.mappable_regions.mappable_regions = \
+            args.mappable_regions
+
+    return defaults_config
+
+
+def parser_bins_options(subparsers, defaults_config):
+    bins_parser = subparsers.add_parser(
+        name="bins",
+        help="finds all bins boundaries for specified bins count "
+        "and read length",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    group = bins_parser.add_argument_group(
+        "bins options")
+    group.add_argument(
+        "--work-dir", "-o",
+        dest="work_dir",
+        help="output directory where results from processing are stored",
+        default=defaults_config.bins.work_dir
+    )
+    group.add_argument(
+        "--bins-count", "-C",
+        dest="bins_count",
+        type=int,
+        help="number of bins",
+        default=defaults_config.bins.bins_count
+    )
+    group.add_argument(
+        "--bins-boundaries", "-B",
+        dest="bins_boundaries",
+        help="filename where bins boundaries are stored",
+        default=defaults_config.bins.bins_boundaries)
+
+    group = bins_parser.add_argument_group(
+        "mappable regions options")
+    group.add_argument(
+        "--data-dir", "-i",
+        dest="data_dir",
+        help="directory where to find mappable regions file",
+        default=defaults_config.mappable_regions.work_dir
+    )
+    group.add_argument(
+        "--mappable-regions", "-M",
+        dest="mappable_regions",
+        help="filename where mappable regions are stored",
+        default=defaults_config.mappable_regions.mappable_regions)
+
+    return bins_parser

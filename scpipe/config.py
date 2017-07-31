@@ -121,8 +121,8 @@ class Config(Box):
 
     def mappable_positions_count_filename(self):
         filename = os.path.join(
-            self.mappable_regions.work_dir,
-            self.mappable_regions.mappable_positions_count
+            self.bins.work_dir,
+            "B{}_mappable_positions_count.yaml".format(self.bins.bins_count)
         )
         return self.abspath(filename)
 

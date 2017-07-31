@@ -19,13 +19,14 @@ from commands import parser_mapping_options, parser_mapping_updates,\
     parser_segment_options, parser_segment_updates, parser_process_options,\
     parser_process_updates, parser_genomeindex_updates,\
     parser_genomeindex_options, parser_mappable_regions_updates,\
-    parser_mappable_regions_options
+    parser_mappable_regions_options, parser_bins_updates, parser_bins_options
 import functools
 from mapping_pipeline import MappingPipeline
 from r_pipeline import Rpipeline
 from varbin_pipeline import VarbinPipeline
 from genomeindex_pipeline import GenomeIndexPipeline
 from mappableregions_pipeline import MappableRegionsPipeline
+from bins_pipeline import BinsPipeline
 
 
 class CLIError(Exception):
@@ -70,6 +71,15 @@ def do_mappable_regions(defaults_config, args):
 
     defaults_config = parser_mappable_regions_updates(args, defaults_config)
     pipeline = MappableRegionsPipeline(defaults_config)
+    pipeline.run()
+
+
+def do_bins(defaults_config, args):
+    if args.config is not None:
+        config = Config.load(args.config)
+        defaults_config.update(config)
+    defaults_config = parser_bins_updates(args, defaults_config)
+    pipeline = BinsPipeline(defaults_config)
     pipeline.run()
 
 
@@ -177,6 +187,10 @@ USAGE
             subparsers, defaults_config)
         mappable_regions_parser.set_defaults(
             func=functools.partial(do_mappable_regions, defaults_config))
+
+        bins_parser = parser_bins_options(subparsers, defaults_config)
+        bins_parser.set_defaults(
+            func=functools.partial(do_bins, defaults_config))
 
         mapping_parser = parser_mapping_options(subparsers, defaults_config)
         mapping_parser.set_defaults(

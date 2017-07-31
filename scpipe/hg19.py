@@ -242,15 +242,6 @@ class HumanGenome19(object):
                 result[row[0]] += int(row[2]) - int(row[1])
         return Box(result)
 
-#     def mappable_regions(self):
-#         filename = self.mappable_regions_filename()
-#         assert os.path.exists(filename)
-#         result = []
-#         with open(filename, 'r') as infile:
-#             for line in infile.readlines():
-#                 row = [r.strip() for r in line.strip().split('\t')]
-#                 result.append([row[0], int(row[1]), int(row[2])])
-
     def chrom_mappable_positions_count(self):
         if self._chrom_mappable_positions_count is None:
             filename = self.config.mappable_positions_count_filename()
