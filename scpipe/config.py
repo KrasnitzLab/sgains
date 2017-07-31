@@ -7,6 +7,7 @@ from box import Box
 import os
 import glob
 from termcolor import colored
+import copy
 
 
 class NonEmptyWorkDirectory(Exception):
@@ -55,6 +56,11 @@ class Config(Box):
             "study_name": "test",
         }
     }
+
+    @staticmethod
+    def copy(config):
+        new_box = Box(copy.deepcopy(config.to_dict()))
+        return Config(new_box)
 
     def __init__(self, data, **kwargs):
         super(Config, self).__init__(
@@ -216,7 +222,6 @@ class Config(Box):
 
     def mapping_work_dirname(self):
         dirname = self.abspath(self.mapping.work_dir)
-        self.check_nonempty_workdir(dirname)
 
         if not os.path.exists(dirname):
             os.makedirs(dirname)

@@ -103,15 +103,17 @@ def parser_mapping_options(subparsers, defaults_config):
         help="performs actual mapping of cell reads",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
+
+    parser_input_data_options(mapping_parser, defaults_config.mapping)
+    parser_output_data_options(mapping_parser, defaults_config.mapping)
+    parser_genome_options(mapping_parser, defaults_config.genome)
+
     mapping_parser.add_argument(
         "--bowtie-opts",
         dest="bowtie_opts",
         help="additional bowtie options",
         default=defaults_config.mapping.bowtie_opts)
 
-    parser_input_data_options(mapping_parser, defaults_config.mapping)
-    parser_output_data_options(mapping_parser, defaults_config.mapping)
-    parser_genome_options(mapping_parser, defaults_config.genome)
     return mapping_parser
 
 
@@ -146,6 +148,9 @@ def parser_mapping_updates(args, defaults_config):
     _args_input_data_updates(args, defaults_config.mapping)
     _args_output_data_updates(args, defaults_config.mapping)
     _args_genome_updates(args, defaults_config)
+
+    if args.bowtie_opts:
+        defaults_config.mapping.bowtie_ops = args.bowtie_opts
 
     return defaults_config
 
@@ -212,5 +217,50 @@ def parser_segment_updates(args, defaults_config):
 
     if args.study_name is not None:
         defaults_config.segment.study_name = args.study_name
+
+    return defaults_config
+
+
+def parser_process_options(subparsers, defaults_config):
+    process_parser = subparsers.add_parser(
+        name="process",
+        help="combines mapping, varbin and segment subcommands into "
+        "single command",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser_input_data_options(process_parser, defaults_config.mapping)
+    parser_output_data_options(process_parser, defaults_config.segment)
+    parser_genome_options(process_parser, defaults_config.genome)
+
+    output_group = process_parser.add_argument_group("study name")
+    output_group.add_argument(
+        "--study-name", "-s",
+        help="study name",
+        dest="study_name",
+        default=defaults_config.segment.study_name
+    )
+
+    parser_bins_options(process_parser, defaults_config.bins)
+
+    process_parser.add_argument(
+        "--bowtie-opts",
+        dest="bowtie_opts",
+        help="additional bowtie options",
+        default=defaults_config.mapping.bowtie_opts)
+
+    return process_parser
+
+
+def parser_process_updates(args, defaults_config):
+    _args_common_updates(args, defaults_config)
+    _args_input_data_updates(args, defaults_config.mapping)
+    _args_output_data_updates(args, defaults_config.segment)
+    _args_genome_updates(args, defaults_config)
+
+    if args.study_name is not None:
+        defaults_config.segment.study_name = args.study_name
+    if args.bowtie_opts:
+        defaults_config.mapping.bowtie_opts = args.bowtie_opts
 
     return defaults_config

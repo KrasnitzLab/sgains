@@ -16,12 +16,12 @@ import traceback
 from config import Config
 from commands import parser_mapping_options, parser_mapping_updates,\
     parser_varbin_options, parser_varbin_updates, parser_common_options,\
-    parser_segment_options, parser_segment_updates
+    parser_segment_options, parser_segment_updates, parser_process_options,\
+    parser_process_updates
 import functools
 from mapping_pipeline import MappingPipeline
-from hg19 import HumanGenome19
-from termcolor import colored
 from r_pipeline import Rpipeline
+from varbin_pipeline import VarbinPipeline
 
 
 class CLIError(Exception):
@@ -64,31 +64,9 @@ def do_varbin(defaults_config, args):
         config = Config.load(args.config)
         defaults_config.update(config)
     defaults_config = parser_varbin_updates(args, defaults_config)
-    hg = HumanGenome19(defaults_config)
 
-    varbin_filenames = defaults_config.varbin_data_filenames()
-
-    for filename in varbin_filenames:
-        cellname = defaults_config.cellname(filename)
-        outfile = defaults_config.varbin_work_filename(cellname)
-        print(colored(
-            "processing cell {}; reading from {}; writing to {}".format(
-                cellname, filename, outfile),
-            "green"))
-
-        if os.path.exists(outfile) and not defaults_config.force:
-            print(
-                colored(
-                    "output file {} exists; add --force to overwrite"
-                    .format(
-                        outfile
-                    ),
-                    "red")
-            )
-        else:
-            if not defaults_config.dry_run:
-                df = hg.bin_count(filename)
-                df.to_csv(outfile, index=False, sep='\t')
+    pipeline = VarbinPipeline(defaults_config)
+    pipeline.run()
 
 
 def do_segment(defaults_config, args):
@@ -98,6 +76,43 @@ def do_segment(defaults_config, args):
     defaults_config = parser_segment_updates(args, defaults_config)
 
     pipeline = Rpipeline(defaults_config)
+    pipeline.run()
+
+
+def do_process(defaults_config, args):
+    if args.config is not None:
+        config = Config.load(args.config)
+        defaults_config.update(config)
+    defaults_config = parser_process_updates(args, defaults_config)
+
+    mapping_workdir = os.path.join(
+        defaults_config.segment_work_dirname(),
+        'mappings')
+    varbin_workdir = os.path.join(
+        defaults_config.segment_work_dirname(),
+        'varbin')
+    segment_workdir = os.path.join(
+        defaults_config.segment_work_dirname(),
+        'segment')
+
+    mapping_config = Config.copy(defaults_config)
+    mapping_config.mapping.work_dir = mapping_workdir
+
+    varbin_config = Config.copy(defaults_config)
+    varbin_config.varbin.data_dir = mapping_workdir
+    varbin_config.varbin.work_dir = varbin_workdir
+
+    segment_config = Config.copy(defaults_config)
+    segment_config.segment.data_dir = varbin_workdir
+    segment_config.segment.work_dir = segment_workdir
+
+    pipeline = MappingPipeline(mapping_config)
+    pipeline.run()
+
+    pipeline = VarbinPipeline(varbin_config)
+    pipeline.run()
+
+    pipeline = Rpipeline(segment_config)
     pipeline.run()
 
 
@@ -140,6 +155,10 @@ USAGE
         segment_parser = parser_segment_options(subparsers, defaults_config)
         segment_parser.set_defaults(
             func=functools.partial(do_segment, defaults_config))
+
+        process_parser = parser_process_options(subparsers, defaults_config)
+        process_parser.set_defaults(
+            func=functools.partial(do_process, defaults_config))
 
         args = argparser.parse_args(argv[1:])
         args.func(args)

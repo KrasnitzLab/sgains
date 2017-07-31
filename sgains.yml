@@ -18,7 +18,7 @@ mapping:
     data_dir: data/test_study/raw
     data_glob: "*.fastq.gz"
     work_dir: data/kendall/bam
-    bowtie_opts: "-p 4 -S -t -n 2 -e 70 -3 18 -5 8 --solexa-quals"
+    bowtie_opts: "-p 10 -S -t -n 2 -e 70 -3 18 -5 8 --solexa-quals"
     
 
 varbin:

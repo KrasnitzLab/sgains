@@ -113,6 +113,11 @@ class MappingPipeline(object):
         fastq_filenames = self.config.mapping_fastq_filenames()
         assert fastq_filenames
 
+        work_dirname = self.config.abspath(self.config.mapping.work_dir)
+        self.config.check_nonempty_workdir(
+            work_dirname
+        )
+
         for filename in fastq_filenames:
             pipeline = [
                 *self.unarchive_stage(filename),
