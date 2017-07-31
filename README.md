@@ -10,10 +10,10 @@ not ready for general use*
 [https://www.continuum.io/downloads](https://www.continuum.io/downloads)
 and download the latest anaconda installer for your operating system. 
 
-*s-GAINS* supports *Python 3.6* so you need to choose appropriate installer.
+* *s-GAINS* supports *Python 3.6* so you need to choose appropriate installer.
 Note also that since *s-GAINS* uses *bioconda* channel the supported 
-operating systems are only those supported for *bioconda* (Linux and Mac OS X only
-at the time of this writing).
+operating systems are only those supported for *bioconda* (at the time of
+this writing that are Linux and Mac OS X).
 
 * Install anaconda into suitable place on your local machine following
 instructions from 
@@ -46,6 +46,15 @@ use with `sgains` pipeline. To this end you need to use:
     pip install python-box termcolor PyYAML pytest pytest-asyncio
     ```
 
+### Setup R environment
+
+Go to `scripts` directory and invoke `setup.R` script:
+
+```
+cd scripts/
+Rscript setup.R
+```
+
 ### Configure *s-GAINS* environment
 
 In the root directory of the project there is a `setenv.sh` script. The purpose
@@ -71,48 +80,6 @@ The second line activates prevously created anaconda environment.
 
 The last two lines setup paths so that *s-GAINS* tools be accessible in your 
 environment.
-
-## Configure the *s-GAINS* pipeline
-
-Example *s-GAINS* pipeline configuration:
-
-```
-genome:
-    version: hg19
-    pristine: data/hg19_safe
-    work_dir: data/hg19
-    index: genomeindex
-
-reads:
-    length: 100
-    work_dir: data/R100
-    bowtie_opts: ""
-  
-bins:
-    bins_count: 10000
-    work_dir: data/R100_B10k
-    bins_boundaries: bins_boundaries.tsv
-
-mapping:
-    data_dir: data/test_study/raw
-    data_glob: "*.fastq.gz"
-    work_dir: data/test_study/bam
-    bowtie_opts: "-S -t -n 2 -e 70 -3 18 -5 8 --solexa-quals"
-
-varbin:
-    data_dir: data/test_study/bam
-    data_glob: "*.rmdup.bam"
-    work_dir: data/test_study/try2
-    suffix: "varbin.10k.txt"
-
-segment:
-    data_dir: data/test_study/try2
-    data_glob: "*.varbin.10k.txt"
-    work_dir: data/test_study/results
-    study_name: "test_study"
-```
-
-Each section of this file configures different parts of ths *s-GAINS* pipeline.
 
 
 ## Usage of `sgains.py` tool
@@ -208,40 +175,47 @@ bins boundaries:
   --bins-dir BINS_DIR   bins working directory (default: data/R100_B10k)
 ```
 
-* The data processd by the `process` subcommand is grouped into an entity, that
-is names with `--study-name` option. This name will be used when creating
+* The data created by the `process` subcommand is grouped into an entity, that
+is named with `--study-name` option. This name will be used when creating
 results directories and when creating some of results files.
 
 * The input for `process` subcommand are *FASTQ* files containing the reads for
-each individual cell. All *FASTQ* file for given study are expected to be located
+each individual cell. All *FASTQ* files for given study are expected to be located
 into single directory. You should specify this directory using `--data-dir` option.
 
 * The results from `process` subcommand are stored into output data directory
 which you should specify using `--work-dir` option. The process subcommand will
 create directory named after the study name (passed with the `--study-name` option)
 and inside that directory will create three additional subdirectories - `mapping`,
-`varbin` and `segment`, that will store intermediate results from respective
+`varbin` and `segment`, that will contain intermediate results from respective
 pipeline stages.
 
     ```
-    try06/try_process/
-    ├── mappings
-    │   ├── CJA0754.rmdup.bam
-    │   ├── CJA0769.rmdup.bam
-    │   ├── CJA0901.rmdup.bam
-    │   ├── CJA0918.rmdup.bam
-    │   ├── CJA1164.rmdup.bam
-    │   ├── CJA1210.rmdup.bam
-    │   ├── CJA1243.rmdup.bam
-    │   ├── CJA1247.rmdup.bam
-    │   └── CJA1355.rmdup.bam
-    └── varbin
-        └── CJA1247.varbin.10k.txt
+    try06/
+    └── test_study
+        ├── mappings
+        │   ├── ....rmdup.bam
+        │   ├── ...
+        │   └── ...
+        ├── varbin
+        │   ├── ....varbin.10k.txt
+        │   ├── ...
+        │   └── ...
+        └── segment
+            └── test_study
+               ├── test_study.cells.txt
+               ├── test_study.lowratio.quantal.R.ratio.csv
+               ├── test_study.seg.quantal.R.seg.txt
+               ├── test_study.smear1bpFisherPcloneTracks.clone.txt
+               ├── test_study.smear1bpFisherTreePyP.tree.txt
+               ├── test_study.smear1bpPinMat.featuremat.txt
+               └── test_study.smear1bpPins.features.txt
     ```
 
-* The first stage of the pipeline invokes `bowtie` to map reads from
-*FASTQ* files. This stage needs a path to bowtie index, that you can pass
-using `--genome-index` option. 
+* The first mapping stage of the pipeline invokes `bowtie` to map reads from
+*FASTQ* files. This stage needs a name of the bowtie index (user 
+`--genome-index` option to specify bowtie index name) and a directory, 
+where this index is located (use `--genome-dir` to pass this parameter). 
 
 * When running `bowtie` for mapping *FASTQ* reads the pipeline passes a combination
 of `-m 1 --best --strata`. If you need to pass additional options to `bowtie`
@@ -257,12 +231,13 @@ If your input files are located into `data/test_study/raw` directory, then you
 can use following command:
 
 ```
-sgians.py process --data-dir data/test_study/raw \
-    --work-dir data/ --study-name test_study \
-    --genome-index data/hg19/genomeindex \
-    --bin-boundaries data/R100_10k/bins_boundaries.tsv \
+sgains.py process --data-dir data/test_study/raw \
+    --work-dir data/try10 --study-name test_study \
+    --genome-index genomeindex --genome-dir data/hg19/\
+    --bins-boundaries data/R100_10k/bins_boundaries.tsv \
     --bowtie-opts "-S -t -n 2 -e 70 -3 18 -5 8 --solexa-quals"
 ```
+
 
 
 
@@ -382,3 +357,46 @@ bins boundaries:
                         bins_boundaries.tsv)
   --bins-dir BINS_DIR   bins working directory (default: data/R100_B10k)
 ```
+
+
+## Configure the *s-GAINS* pipeline
+
+Example *s-GAINS* pipeline configuration:
+
+```
+genome:
+    version: hg19
+    pristine: data/hg19_safe
+    work_dir: data/hg19
+    index: genomeindex
+
+reads:
+    length: 100
+    work_dir: data/R100
+    bowtie_opts: ""
+  
+bins:
+    bins_count: 10000
+    work_dir: data/R100_B10k
+    bins_boundaries: bins_boundaries.tsv
+
+mapping:
+    data_dir: data/test_study/raw
+    data_glob: "*.fastq.gz"
+    work_dir: data/test_study/bam
+    bowtie_opts: "-S -t -n 2 -e 70 -3 18 -5 8 --solexa-quals"
+
+varbin:
+    data_dir: data/test_study/bam
+    data_glob: "*.rmdup.bam"
+    work_dir: data/test_study/try2
+    suffix: "varbin.10k.txt"
+
+segment:
+    data_dir: data/test_study/try2
+    data_glob: "*.varbin.10k.txt"
+    work_dir: data/test_study/results
+    study_name: "test_study"
+```
+
+Each section of this file configures different parts of ths *s-GAINS* pipeline.
