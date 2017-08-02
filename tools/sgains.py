@@ -14,7 +14,7 @@ from argparse import ArgumentParser,\
 import config
 import traceback
 from config import Config
-from commands import parser_mapping_options, parser_mapping_updates,\
+from cli_commands import parser_mapping_options, parser_mapping_updates,\
     parser_varbin_options, parser_varbin_updates, parser_common_options,\
     parser_segment_options, parser_segment_updates, parser_process_options,\
     parser_process_updates, parser_genomeindex_updates,\
