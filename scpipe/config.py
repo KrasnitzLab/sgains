@@ -91,7 +91,8 @@ class Config(Box):
         with open(filename, 'r') as infile:
             config = Box.from_yaml(infile)
             config.filename = os.path.abspath(filename)
-            config.dirname = os.path.dirname(config.filename)
+            # config.dirname = os.path.dirname(config.filename)
+            config.dirname = os.curdir
 
             default.update(config.to_dict())
             return Config(

@@ -9,7 +9,7 @@ from config import Config
 
 
 def test_load_config():
-    conf = Config.load("scpipe_tests.yml")
+    conf = Config.load("scpipe/tests/data/scpipe_tests.yml")
     assert conf is not None
 
     assert conf.genome is not None
@@ -17,7 +17,7 @@ def test_load_config():
 
 
 def test_bins_config():
-    conf = Config.load("scpipe_tests.yml")
+    conf = Config.load("scpipe/tests/data/scpipe_tests.yml")
     assert conf is not None
 
     assert conf.mappable_regions is not None

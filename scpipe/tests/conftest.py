@@ -14,13 +14,13 @@ import pandas as pd
 
 @pytest.fixture(scope='session')
 def tests_config():
-    config = Config.load("scpipe_tests.yml")
+    config = Config.load("scpipe/tests/data/scpipe_tests.yml")
     return config
 
 
 @pytest.fixture(scope='session')
 def hg():
-    config = Config.load("scpipe_tests.yml")
+    config = Config.load("scpipe/tests/data/scpipe_tests.yml")
     return HumanGenome19(config)
 
 
