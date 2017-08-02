@@ -157,7 +157,7 @@ class MappableRegionsMixin(object):
         group = self.subparser.add_argument_group(
             "mappable regions options")
         group.add_argument(
-            "--mappable-dir", "-o",
+            "--mappable-dir", "-m",
             dest="mappable_dir",
             help="directory where mappable regions file is stroed",
             default=self.config.mappable_regions.work_dir

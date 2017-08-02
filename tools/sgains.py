@@ -7,24 +7,26 @@ Created on Jul 20, 2017
 
 @author: lubo
 '''
-import sys
-import os
 from argparse import ArgumentParser,\
     RawDescriptionHelpFormatter
-import config
+import functools
+import os
+import sys
 import traceback
-from config import Config
+
 from cli_commands import parser_mapping_options, parser_mapping_updates,\
     parser_varbin_options, parser_varbin_updates, parser_common_options,\
     parser_segment_options, parser_segment_updates, parser_process_options,\
     parser_process_updates
-import functools
+from commands.bins_command import BinsCommand
+from commands.genomeindex_command import GenomeIndexCommand
+from commands.mappable_regions_command import MappableRegionsCommand
+from config import Config
+import config
 from mapping_pipeline import MappingPipeline
 from r_pipeline import Rpipeline
 from varbin_pipeline import VarbinPipeline
-from commands.genomeindex import GenomeIndexCommand
-from commands.mappable_regions import MappableRegionsCommand
-from commands.bins_command import BinsCommand
+from commands.prepare_command import PrepareCommand
 
 
 class CLIError(Exception):
@@ -147,6 +149,10 @@ USAGE
         bins_command = BinsCommand(
             defaults_config, argparser, subparsers)
         bins_command.add_options()
+
+        prepare_command = PrepareCommand(
+            defaults_config, argparser, subparsers)
+        prepare_command.add_options()
 
         mapping_parser = parser_mapping_options(subparsers, defaults_config)
         mapping_parser.set_defaults(

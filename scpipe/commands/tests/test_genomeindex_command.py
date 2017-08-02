@@ -5,9 +5,9 @@ Created on Aug 2, 2017
 '''
 import pytest
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from commands.genomeindex_command import GenomeIndexCommand
 from config import Config
 from cli_commands import parser_common_options
-from commands.mappable_regions import MappableRegionsCommand
 
 
 @pytest.fixture
@@ -34,25 +34,22 @@ def argsubparser(argparser):
 
 
 @pytest.fixture
-def mappable_regions_command(tests_config, argparser, argsubparser):
-    command = MappableRegionsCommand(tests_config, argparser, argsubparser)
+def genomeindex_command(tests_config, argparser, argsubparser):
+    command = GenomeIndexCommand(tests_config, argparser, argsubparser)
     assert command is not None
 
     return command
 
 
-def test_mappable_regions_long(
-        argparser, tests_config, mappable_regions_command):
-    mappable_regions_command.add_options()
+def test_genomeindex_long(argparser, tests_config, genomeindex_command):
+    genomeindex_command.add_options()
 
     argv = [
         "--dry-run", "--force",
-        "mappable-regions",
-        "--mappable-dir", "data/proba",
+        "genomeindex",
+        "--work-dir", "data/proba",
         "--genome-index", "probaindex",
-        "--genome-dir", "data/hg19_safe/",
-        "--read-length", "200",
-        "--bowtie-opts", "-1 -2 -3",
+        "--data-dir", "data/hg19_safe/",
     ]
 
     args = argparser.parse_args(argv)
@@ -61,26 +58,20 @@ def test_mappable_regions_long(
     assert tests_config.force
     assert tests_config.dry_run
 
-    assert tests_config.genome.work_dir == "data/hg19_safe/"
+    assert tests_config.genome.work_dir == "data/proba"
     assert tests_config.genome.index == "probaindex"
-
-    assert tests_config.mappable_regions.length == 200
-    assert tests_config.mappable_regions.work_dir == "data/proba"
-    assert tests_config.mappable_regions.bowtie_opts == "-1 -2 -3"
+    assert tests_config.genome.data_dir == "data/hg19_safe/"
 
 
-def test_mappable_regions_short(
-        argparser, tests_config, mappable_regions_command):
-    mappable_regions_command.add_options()
+def test_genomeindex_short(argparser, tests_config, genomeindex_command):
+    genomeindex_command.add_options()
 
     argv = [
         "-n", "-F",
-        "mappable-regions",
+        "genomeindex",
         "-o", "data/proba",
         "-G", "probaindex",
-        "--genome-dir", "data/hg19_safe/",
-        "-l", "200",
-        "--bowtie-opts", "-1 -2 -3",
+        "-i", "data/hg19_safe/",
     ]
 
     args = argparser.parse_args(argv)
@@ -89,9 +80,6 @@ def test_mappable_regions_short(
     assert tests_config.force
     assert tests_config.dry_run
 
-    assert tests_config.genome.work_dir == "data/hg19_safe/"
+    assert tests_config.genome.work_dir == "data/proba"
     assert tests_config.genome.index == "probaindex"
-
-    assert tests_config.mappable_regions.length == 200
-    assert tests_config.mappable_regions.work_dir == "data/proba"
-    assert tests_config.mappable_regions.bowtie_opts == "-1 -2 -3"
+    assert tests_config.genome.data_dir == "data/hg19_safe/"
