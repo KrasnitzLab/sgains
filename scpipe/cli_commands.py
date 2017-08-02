@@ -30,7 +30,7 @@ def parser_common_options(parser):
     )
 
     parser.add_argument(
-        "--force",
+        "--force", "-F",
         dest="force",
         action="store_true",
         help="allows overwriting nonempty results directory",

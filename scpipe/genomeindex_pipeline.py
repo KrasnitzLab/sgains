@@ -68,15 +68,16 @@ class GenomeIndexPipeline(object):
                 "use --force to overwrite", "red"))
             raise ValueError("destination file exists... use --force")
 
-        with open(dst, 'wb') as output:
-            for chrom in self.hg.CHROMS:
-                src = self.config.chrom_filename(chrom, pristine=False)
-                print(colored(
-                    "appending {} to {}".format(src, dst),
-                    "green"))
-                with open(src, 'rb') as src:
-                    if not self.config.dry_run:
-                        shutil.copyfileobj(src, output, 1024 * 1024 * 10)
+        if not self.config.dry_run:
+            with open(dst, 'wb') as output:
+                for chrom in self.hg.CHROMS:
+                    src = self.config.chrom_filename(chrom, pristine=False)
+                    print(colored(
+                        "appending {} to {}".format(src, dst),
+                        "green"))
+                    with open(src, 'rb') as src:
+                        if not self.config.dry_run:
+                            shutil.copyfileobj(src, output, 1024 * 1024 * 10)
 
     def build_bowtie_index(self):
         src = os.path.join(
