@@ -17,18 +17,14 @@ from config import Config
 from cli_commands import parser_mapping_options, parser_mapping_updates,\
     parser_varbin_options, parser_varbin_updates, parser_common_options,\
     parser_segment_options, parser_segment_updates, parser_process_options,\
-    parser_process_updates, parser_genomeindex_updates,\
-    parser_genomeindex_options, parser_mappable_regions_updates,\
-    parser_mappable_regions_options, parser_bins_updates, parser_bins_options
+    parser_process_updates
 import functools
 from mapping_pipeline import MappingPipeline
 from r_pipeline import Rpipeline
 from varbin_pipeline import VarbinPipeline
-from genomeindex_pipeline import GenomeIndexPipeline
-from mappableregions_pipeline import MappableRegionsPipeline
-from bins_pipeline import BinsPipeline
 from commands.genomeindex import GenomeIndexCommand
 from commands.mappable_regions import MappableRegionsCommand
+from commands.bins_command import BinsCommand
 
 
 class CLIError(Exception):
@@ -43,26 +39,6 @@ class CLIError(Exception):
 
     def __unicode__(self):
         return self.msg
-
-
-def bin_boundaries(hg, config, outfile):
-    regions_df = hg.load_mappable_regions()
-    bins_df = hg.calc_bin_boundaries(
-        config.chroms,
-        regions_df
-    )
-    df = hg.calc_bins_gc_content(config.chroms, bins_df)
-
-    df.to_csv(outfile, sep='\t', index=False)
-
-
-def do_bins(defaults_config, args):
-    if args.config is not None:
-        config = Config.load(args.config)
-        defaults_config.update(config)
-    defaults_config = parser_bins_updates(args, defaults_config)
-    pipeline = BinsPipeline(defaults_config)
-    pipeline.run()
 
 
 def do_mapping(defaults_config, args):
@@ -168,9 +144,9 @@ USAGE
             defaults_config, argparser, subparsers)
         mappable_regions_command.add_options()
 
-        bins_parser = parser_bins_options(subparsers, defaults_config)
-        bins_parser.set_defaults(
-            func=functools.partial(do_bins, defaults_config))
+        bins_command = BinsCommand(
+            defaults_config, argparser, subparsers)
+        bins_command.add_options()
 
         mapping_parser = parser_mapping_options(subparsers, defaults_config)
         mapping_parser.set_defaults(

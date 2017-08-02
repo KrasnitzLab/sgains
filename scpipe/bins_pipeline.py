@@ -34,13 +34,10 @@ class BinsPipeline(object):
 
         regions_df = self.hg.load_mappable_regions()
 
-        if self.config.dry_run:
-            return
-
-        bins_df = self.hg.calc_bins_boundaries(
-            self.hg.CHROMS,
-            regions_df
-        )
-        df = self.hg.calc_bins_gc_content(self.hg.CHROMS, bins_df)
-
-        df.to_csv(outfile, sep='\t', index=False)
+        if not self.config.dry_run:
+            bins_df = self.hg.calc_bins_boundaries(
+                self.hg.CHROMS,
+                regions_df
+            )
+            df = self.hg.calc_bins_gc_content(self.hg.CHROMS, bins_df)
+            df.to_csv(outfile, sep='\t', index=False)

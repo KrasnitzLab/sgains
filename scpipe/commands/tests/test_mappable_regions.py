@@ -48,7 +48,7 @@ def test_mappable_regions_long(
     argv = [
         "--dry-run", "--force",
         "mappable-regions",
-        "--work-dir", "data/proba",
+        "--mappable-dir", "data/proba",
         "--genome-index", "probaindex",
         "--genome-dir", "data/hg19_safe/",
         "--read-length", "200",
