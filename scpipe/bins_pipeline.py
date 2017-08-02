@@ -32,9 +32,8 @@ class BinsPipeline(object):
                 "red"))
             raise ValueError("output file already exists")
 
-        regions_df = self.hg.load_mappable_regions()
-
         if not self.config.dry_run:
+            regions_df = self.hg.load_mappable_regions()
             bins_df = self.hg.calc_bins_boundaries(
                 self.hg.CHROMS,
                 regions_df

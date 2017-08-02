@@ -7,6 +7,9 @@ from commands.common import GenomeIndexMixin, OptionsBase, \
     MappableRegionsMixin,\
     BinsBoundariesMixin
 import argparse
+from genomeindex_pipeline import GenomeIndexPipeline
+from mappableregions_pipeline import MappableRegionsPipeline
+from bins_pipeline import BinsPipeline
 
 
 class PrepareCommand(
@@ -43,3 +46,12 @@ class PrepareCommand(
     def run(self, args):
         print("prepare subcommand runned with args: {}".format(args))
         self.process_args(args)
+
+        pipeline = GenomeIndexPipeline(self.config)
+        pipeline.run()
+
+        pipeline = MappableRegionsPipeline(self.config)
+        pipeline.run()
+
+        pipeline = BinsPipeline(self.config)
+        pipeline.run()
