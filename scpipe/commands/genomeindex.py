@@ -17,6 +17,7 @@ class GenomeIndexCommand(
 
     def __init__(self, config, parser, subparsers):
         super(GenomeIndexCommand, self).__init__(config)
+        self.config = config
         self.subconfig = config.genome
         self.parser = parser
         self.subparser = subparsers.add_parser(

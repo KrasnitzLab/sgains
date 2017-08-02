@@ -9,7 +9,7 @@ from config import Config
 class OptionsBase(object):
 
     def __init__(self, config):
-        self.config = config
+        self.config = None
         self.subconfig = None
         self.parser = None
         self.subparser = None
@@ -73,7 +73,7 @@ class WorkDirMixin(object):
             "--work-dir", "-o",
             dest="work_dir",
             help="output directory where results from processing are stored",
-            default=self.subconfig
+            default=self.subconfig.work_dir
         )
         return group
 

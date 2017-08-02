@@ -27,6 +27,7 @@ from varbin_pipeline import VarbinPipeline
 from genomeindex_pipeline import GenomeIndexPipeline
 from mappableregions_pipeline import MappableRegionsPipeline
 from bins_pipeline import BinsPipeline
+from commands.genomeindex import GenomeIndexCommand
 
 
 class CLIError(Exception):
@@ -178,10 +179,9 @@ USAGE
             title="subcommands"
         )
 
-        genomeindex_parser = parser_genomeindex_options(
-            subparsers, defaults_config)
-        genomeindex_parser.set_defaults(
-            func=functools.partial(do_genomeindex, defaults_config))
+        genomeindex_command = GenomeIndexCommand(
+            defaults_config, argparser, subparsers)
+        genomeindex_command.add_options()
 
         mappable_regions_parser = parser_mappable_regions_options(
             subparsers, defaults_config)
