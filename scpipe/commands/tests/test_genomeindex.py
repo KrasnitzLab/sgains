@@ -47,7 +47,7 @@ def test_genomeindex_long(argparser, tests_config, genomeindex_command):
     argv = [
         "--dry-run", "--force",
         "genomeindex",
-        "--work-dir", "proba",
+        "--work-dir", "data/proba",
         "--genome-index", "probaindex",
         "--data-dir", "data/hg19_safe/",
     ]
@@ -58,7 +58,7 @@ def test_genomeindex_long(argparser, tests_config, genomeindex_command):
     assert tests_config.force
     assert tests_config.dry_run
 
-    assert tests_config.genome.work_dir == "proba"
+    assert tests_config.genome.work_dir == "data/proba"
     assert tests_config.genome.index == "probaindex"
     assert tests_config.genome.data_dir == "data/hg19_safe/"
 
@@ -69,7 +69,7 @@ def test_genomeindex_short(argparser, tests_config, genomeindex_command):
     argv = [
         "-n", "-F",
         "genomeindex",
-        "-o", "proba",
+        "-o", "data/proba",
         "-G", "probaindex",
         "-i", "data/hg19_safe/",
     ]
@@ -80,6 +80,6 @@ def test_genomeindex_short(argparser, tests_config, genomeindex_command):
     assert tests_config.force
     assert tests_config.dry_run
 
-    assert tests_config.genome.work_dir == "proba"
+    assert tests_config.genome.work_dir == "data/proba"
     assert tests_config.genome.index == "probaindex"
     assert tests_config.genome.data_dir == "data/hg19_safe/"
