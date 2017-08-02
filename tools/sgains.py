@@ -28,6 +28,7 @@ from genomeindex_pipeline import GenomeIndexPipeline
 from mappableregions_pipeline import MappableRegionsPipeline
 from bins_pipeline import BinsPipeline
 from commands.genomeindex import GenomeIndexCommand
+from commands.mappable_regions import MappableRegionsCommand
 
 
 class CLIError(Exception):
@@ -53,26 +54,6 @@ def bin_boundaries(hg, config, outfile):
     df = hg.calc_bins_gc_content(config.chroms, bins_df)
 
     df.to_csv(outfile, sep='\t', index=False)
-
-
-def do_genomeindex(defaults_config, args):
-    if args.config is not None:
-        config = Config.load(args.config)
-        defaults_config.update(config)
-
-    defaults_config = parser_genomeindex_updates(args, defaults_config)
-    pipeline = GenomeIndexPipeline(defaults_config)
-    pipeline.run()
-
-
-def do_mappable_regions(defaults_config, args):
-    if args.config is not None:
-        config = Config.load(args.config)
-        defaults_config.update(config)
-
-    defaults_config = parser_mappable_regions_updates(args, defaults_config)
-    pipeline = MappableRegionsPipeline(defaults_config)
-    pipeline.run()
 
 
 def do_bins(defaults_config, args):
@@ -183,10 +164,9 @@ USAGE
             defaults_config, argparser, subparsers)
         genomeindex_command.add_options()
 
-        mappable_regions_parser = parser_mappable_regions_options(
-            subparsers, defaults_config)
-        mappable_regions_parser.set_defaults(
-            func=functools.partial(do_mappable_regions, defaults_config))
+        mappable_regions_command = MappableRegionsCommand(
+            defaults_config, argparser, subparsers)
+        mappable_regions_command.add_options()
 
         bins_parser = parser_bins_options(subparsers, defaults_config)
         bins_parser.set_defaults(

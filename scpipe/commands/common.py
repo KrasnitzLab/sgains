@@ -9,7 +9,7 @@ from config import Config
 class OptionsBase(object):
 
     def __init__(self, config):
-        self.config = None
+        self.config = config
         self.subconfig = None
         self.parser = None
         self.subparser = None
@@ -95,22 +95,22 @@ class GenomeIndexMixin(object):
             "--genome-index", "-G",
             dest="genome_index",
             help="genome index name",
-            default=self.subconfig.index)
+            default=self.config.genome.index)
 
         if genome_dir:
             group.add_argument(
                 "--genome-dir",
                 dest="genome_dir",
                 help="genome index directory",
-                default=self.subconfig.work_dir)
+                default=self.config.genome.work_dir)
         return group
 
     def genome_index_update(self, args, genome_dir=False):
         if args.genome_index is not None:
-            self.subconfig.index = args.genome_index
+            self.config.genome.index = args.genome_index
         if genome_dir:
             if args.genome_dir is not None:
-                self.subconfig.work_dir = args.genome_dir
+                self.config.genome.work_dir = args.genome_dir
 
 
 class BinsBoundariesMixin(object):
