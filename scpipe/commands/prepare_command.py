@@ -5,12 +5,11 @@ Created on Aug 2, 2017
 '''
 from commands.common import GenomeIndexMixin, OptionsBase, \
     MappableRegionsMixin,\
-    BinsBoundariesMixin, DataDirMixin
+    BinsBoundariesMixin
 import argparse
 
 
 class PrepareCommand(
-        DataDirMixin,
         GenomeIndexMixin,
         MappableRegionsMixin,
         BinsBoundariesMixin,
@@ -29,15 +28,13 @@ class PrepareCommand(
         self.parser.set_defaults(func=self.run)
 
     def add_options(self):
-        self.data_dir_options(glob=False)
-        self.genome_index_options(genome_dir=True)
+        self.genome_index_options(input_dir=True)
         self.mappable_regions_options(read_length=True)
         self.bins_boundaries_options(bins_count=True)
 
     def process_args(self, args):
         self.common_updates(args)
-        self.data_dir_update(args, glob=False)
-        self.genome_index_update(args, genome_dir=True)
+        self.genome_index_update(args, input_dir=True)
         self.mappable_regions_update(args, read_length=True)
         self.bins_boundaries_updates(args, bins_count=True)
 

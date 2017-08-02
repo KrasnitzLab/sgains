@@ -3,14 +3,13 @@ Created on Aug 2, 2017
 
 @author: lubo
 '''
-from commands.common import WorkDirMixin, OptionsBase, GenomeIndexMixin,\
+from commands.common import OptionsBase, GenomeIndexMixin,\
     MappableRegionsMixin
 import argparse
 from mappableregions_pipeline import MappableRegionsPipeline
 
 
 class MappableRegionsCommand(
-        WorkDirMixin,
         GenomeIndexMixin,
         MappableRegionsMixin,
         OptionsBase):
@@ -28,11 +27,11 @@ class MappableRegionsCommand(
 
     def add_options(self):
         self.mappable_regions_options(read_length=True)
-        self.genome_index_options(genome_dir=True)
+        self.genome_index_options(input_dir=False)
 
     def process_args(self, args):
         self.common_updates(args)
-        self.genome_index_update(args, genome_dir=True)
+        self.genome_index_update(args, input_dir=False)
         self.mappable_regions_update(args, read_length=True)
 
     def run(self, args):

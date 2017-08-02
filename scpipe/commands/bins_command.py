@@ -6,12 +6,11 @@ Created on Aug 2, 2017
 import argparse
 
 from bins_pipeline import BinsPipeline
-from commands.common import WorkDirMixin, GenomeIndexMixin, OptionsBase,\
+from commands.common import GenomeIndexMixin, OptionsBase,\
     MappableRegionsMixin, BinsBoundariesMixin
 
 
 class BinsCommand(
-        WorkDirMixin,
         GenomeIndexMixin,
         MappableRegionsMixin,
         BinsBoundariesMixin,

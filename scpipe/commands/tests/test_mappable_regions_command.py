@@ -76,7 +76,7 @@ def test_mappable_regions_short(
     argv = [
         "-n", "-F",
         "mappable-regions",
-        "-o", "data/proba",
+        "-m", "data/proba",
         "-G", "probaindex",
         "--genome-dir", "data/hg19_safe/",
         "-l", "200",

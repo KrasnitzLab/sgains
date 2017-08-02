@@ -47,9 +47,9 @@ def test_genomeindex_long(argparser, tests_config, genomeindex_command):
     argv = [
         "--dry-run", "--force",
         "genomeindex",
-        "--work-dir", "data/proba",
+        "--genome-dir", "data/proba",
         "--genome-index", "probaindex",
-        "--data-dir", "data/hg19_safe/",
+        "--genome-pristine", "data/hg19_safe/",
     ]
 
     args = argparser.parse_args(argv)
@@ -69,9 +69,9 @@ def test_genomeindex_short(argparser, tests_config, genomeindex_command):
     argv = [
         "-n", "-F",
         "genomeindex",
-        "-o", "data/proba",
+        "--genome-dir", "data/proba",
         "-G", "probaindex",
-        "-i", "data/hg19_safe/",
+        "--genome-pristine", "data/hg19_safe/",
     ]
 
     args = argparser.parse_args(argv)

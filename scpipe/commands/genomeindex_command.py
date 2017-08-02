@@ -4,14 +4,12 @@ Created on Aug 2, 2017
 @author: lubo
 '''
 import argparse
-from commands.common import OptionsBase, WorkDirMixin, DataDirMixin,\
+from commands.common import OptionsBase,\
     GenomeIndexMixin
 from genomeindex_pipeline import GenomeIndexPipeline
 
 
 class GenomeIndexCommand(
-        WorkDirMixin,
-        DataDirMixin,
         GenomeIndexMixin,
         OptionsBase):
 
@@ -27,15 +25,11 @@ class GenomeIndexCommand(
         self.parser.set_defaults(func=self.run)
 
     def add_options(self):
-        self.data_dir_options(glob=False)
-        self.work_dir_options()
-        self.genome_index_options(genome_dir=False)
+        self.genome_index_options(input_dir=True)
 
     def process_args(self, args):
         self.common_updates(args)
-        self.data_dir_update(args, glob=False)
-        self.work_dir_update(args)
-        self.genome_index_update(args, genome_dir=False)
+        self.genome_index_update(args, input_dir=True)
 
         return self.config
 
