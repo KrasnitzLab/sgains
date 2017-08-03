@@ -14,6 +14,38 @@ class OptionsBase(object):
         self.parser = None
         self.subparser = None
 
+    @staticmethod
+    def common_options(parser):
+        parser.add_argument(
+            "-v", "--verbose",
+            dest="verbose",
+            action="count",
+            help="set verbosity level [default: %(default)s]",
+            default=0
+        )
+        parser.add_argument(
+            "-c", "--config",
+            dest="config",
+            help="configuration file",
+            metavar="path"
+        )
+
+        parser.add_argument(
+            "-n", "--dry-run",
+            dest="dry_run",
+            action="store_true",
+            help="perform a trial run with no changes made",
+            default=False
+        )
+
+        parser.add_argument(
+            "--force", "-F",
+            dest="force",
+            action="store_true",
+            help="allows overwriting nonempty results directory",
+            default=False
+        )
+
     def common_updates(self, args):
         if args.config is not None:
             config = Config.load(args.config)

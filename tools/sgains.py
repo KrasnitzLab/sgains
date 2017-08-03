@@ -13,16 +13,16 @@ import os
 import sys
 import traceback
 
-from cli_commands import parser_common_options
 from commands.bins_command import BinsCommand
 from commands.genomeindex_command import GenomeIndexCommand
 from commands.mappable_regions_command import MappableRegionsCommand
-from config import Config
-from commands.prepare_command import PrepareCommand
 from commands.mapping_command import MappingCommand
-from commands.varbin_command import VarbinCommand
-from commands.segment_command import SegmentCommand
+from commands.prepare_command import PrepareCommand
 from commands.process_command import ProcessCommand
+from commands.segment_command import SegmentCommand
+from commands.varbin_command import VarbinCommand
+from config import Config
+from commands.common import OptionsBase
 
 
 class CLIError(Exception):
@@ -60,9 +60,8 @@ USAGE
             description=program_description,
             formatter_class=RawDescriptionHelpFormatter)
 
-        parser_common_options(argparser)
+        OptionsBase.common_options(argparser)
 
-        # parser = Parser.from_argument_parser(argparser)
         subparsers = argparser.add_subparsers(
             title="subcommands"
         )

@@ -6,7 +6,6 @@ Created on Aug 3, 2017
 import pytest
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from config import Config
-from cli_commands import parser_common_options
 from commands.mappable_regions_command import MappableRegionsCommand
 from commands.genomeindex_command import GenomeIndexCommand
 from commands.bins_command import BinsCommand
@@ -15,6 +14,7 @@ from commands.mapping_command import MappingCommand
 from commands.varbin_command import VarbinCommand
 from commands.segment_command import SegmentCommand
 from commands.process_command import ProcessCommand
+from commands.common import OptionsBase
 
 
 @pytest.fixture
@@ -28,7 +28,7 @@ def argparser():
     parser = ArgumentParser(
         description="test program description",
         formatter_class=RawDescriptionHelpFormatter)
-    parser_common_options(parser)
+    OptionsBase.common_options(parser)
     return parser
 
 
