@@ -14,8 +14,8 @@ import os
 import sys
 import traceback
 
-from cli_commands import parser_mapping_options, parser_mapping_updates,\
-    parser_varbin_options, parser_varbin_updates, parser_common_options,\
+from cli_commands import parser_varbin_options, \
+    parser_varbin_updates, parser_common_options,\
     parser_segment_options, parser_segment_updates, parser_process_options,\
     parser_process_updates
 from commands.bins_command import BinsCommand
@@ -27,6 +27,7 @@ from mapping_pipeline import MappingPipeline
 from r_pipeline import Rpipeline
 from varbin_pipeline import VarbinPipeline
 from commands.prepare_command import PrepareCommand
+from commands.mapping_command import MappingCommand
 
 
 class CLIError(Exception):
@@ -41,16 +42,6 @@ class CLIError(Exception):
 
     def __unicode__(self):
         return self.msg
-
-
-def do_mapping(defaults_config, args):
-    if args.config is not None:
-        config = Config.load(args.config)
-        defaults_config.update(config)
-
-    defaults_config = parser_mapping_updates(args, defaults_config)
-    pipeline = MappingPipeline(defaults_config)
-    pipeline.run()
 
 
 def do_varbin(defaults_config, args):
@@ -154,9 +145,9 @@ USAGE
             defaults_config, argparser, subparsers)
         prepare_command.add_options()
 
-        mapping_parser = parser_mapping_options(subparsers, defaults_config)
-        mapping_parser.set_defaults(
-            func=functools.partial(do_mapping, defaults_config))
+        mapping_command = MappingCommand(
+            defaults_config, argparser, subparsers)
+        mapping_command.add_options()
 
         varbin_parser = parser_varbin_options(subparsers, defaults_config)
         varbin_parser.set_defaults(

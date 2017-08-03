@@ -11,6 +11,7 @@ from commands.mappable_regions_command import MappableRegionsCommand
 from commands.genomeindex_command import GenomeIndexCommand
 from commands.bins_command import BinsCommand
 from commands.prepare_command import PrepareCommand
+from commands.mapping_command import MappingCommand
 
 
 @pytest.fixture
@@ -63,6 +64,14 @@ def bins_command(tests_config, argparser, argsubparser):
 @pytest.fixture
 def prepare_command(tests_config, argparser, argsubparser):
     command = PrepareCommand(tests_config, argparser, argsubparser)
+    assert command is not None
+
+    return command
+
+
+@pytest.fixture
+def mapping_command(tests_config, argparser, argsubparser):
+    command = MappingCommand(tests_config, argparser, argsubparser)
     assert command is not None
 
     return command

@@ -6,12 +6,11 @@ Created on Aug 2, 2017
 import argparse
 
 from bins_pipeline import BinsPipeline
-from commands.common import GenomeIndexMixin, OptionsBase,\
+from commands.common import OptionsBase,\
     MappableRegionsMixin, BinsBoundariesMixin
 
 
 class BinsCommand(
-        GenomeIndexMixin,
         MappableRegionsMixin,
         BinsBoundariesMixin,
         OptionsBase):
@@ -38,7 +37,7 @@ class BinsCommand(
         self.bins_boundaries_updates(args, bins_count=True)
 
     def run(self, args):
-        print("mappable-regions subcommand called with args: {}".format(args))
+        print("bins subcommand called with args: {}".format(args))
         self.process_args(args)
         pipeline = BinsPipeline(self.config)
         pipeline.run()
