@@ -14,9 +14,8 @@ import os
 import sys
 import traceback
 
-from cli_commands import parser_varbin_options, \
-    parser_varbin_updates, parser_common_options,\
-    parser_segment_options, parser_segment_updates, parser_process_options,\
+from cli_commands import parser_common_options,\
+    parser_process_options,\
     parser_process_updates
 from commands.bins_command import BinsCommand
 from commands.genomeindex_command import GenomeIndexCommand
