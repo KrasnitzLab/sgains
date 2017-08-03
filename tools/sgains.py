@@ -66,6 +66,14 @@ USAGE
             title="subcommands"
         )
 
+        process_command = ProcessCommand(
+            defaults_config, argparser, subparsers)
+        process_command.add_options()
+
+        prepare_command = PrepareCommand(
+            defaults_config, argparser, subparsers)
+        prepare_command.add_options()
+
         genomeindex_command = GenomeIndexCommand(
             defaults_config, argparser, subparsers)
         genomeindex_command.add_options()
@@ -78,10 +86,6 @@ USAGE
             defaults_config, argparser, subparsers)
         bins_command.add_options()
 
-        prepare_command = PrepareCommand(
-            defaults_config, argparser, subparsers)
-        prepare_command.add_options()
-
         mapping_command = MappingCommand(
             defaults_config, argparser, subparsers)
         mapping_command.add_options()
@@ -93,10 +97,6 @@ USAGE
         segment_command = SegmentCommand(
             defaults_config, argparser, subparsers)
         segment_command.add_options()
-
-        process_command = ProcessCommand(
-            defaults_config, argparser, subparsers)
-        process_command.add_options()
 
         args = argparser.parse_args(argv[1:])
         args.func(args)
