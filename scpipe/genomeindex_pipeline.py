@@ -7,7 +7,6 @@ from hg19 import HumanGenome19
 import os
 import shutil
 from termcolor import colored
-from jupyter_core.migrate import dst
 import subprocess
 
 
