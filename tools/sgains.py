@@ -9,26 +9,20 @@ Created on Jul 20, 2017
 '''
 from argparse import ArgumentParser,\
     RawDescriptionHelpFormatter
-import functools
 import os
 import sys
 import traceback
 
-from cli_commands import parser_common_options,\
-    parser_process_options,\
-    parser_process_updates
+from cli_commands import parser_common_options
 from commands.bins_command import BinsCommand
 from commands.genomeindex_command import GenomeIndexCommand
 from commands.mappable_regions_command import MappableRegionsCommand
 from config import Config
-import config
-from mapping_pipeline import MappingPipeline
-from r_pipeline import Rpipeline
-from varbin_pipeline import VarbinPipeline
 from commands.prepare_command import PrepareCommand
 from commands.mapping_command import MappingCommand
 from commands.varbin_command import VarbinCommand
 from commands.segment_command import SegmentCommand
+from commands.process_command import ProcessCommand
 
 
 class CLIError(Exception):
@@ -43,43 +37,6 @@ class CLIError(Exception):
 
     def __unicode__(self):
         return self.msg
-
-
-def do_process(defaults_config, args):
-    if args.config is not None:
-        config = Config.load(args.config)
-        defaults_config.update(config)
-    defaults_config = parser_process_updates(args, defaults_config)
-
-    mapping_workdir = os.path.join(
-        defaults_config.segment_work_dirname(),
-        'mapping')
-    varbin_workdir = os.path.join(
-        defaults_config.segment_work_dirname(),
-        'varbin')
-    segment_workdir = os.path.join(
-        defaults_config.segment_work_dirname(),
-        'segment')
-
-    mapping_config = Config.copy(defaults_config)
-    mapping_config.mapping.work_dir = mapping_workdir
-
-    varbin_config = Config.copy(defaults_config)
-    varbin_config.varbin.data_dir = mapping_workdir
-    varbin_config.varbin.work_dir = varbin_workdir
-
-    segment_config = Config.copy(defaults_config)
-    segment_config.segment.data_dir = varbin_workdir
-    segment_config.segment.work_dir = segment_workdir
-
-    pipeline = MappingPipeline(mapping_config)
-    pipeline.run()
-
-    pipeline = VarbinPipeline(varbin_config)
-    pipeline.run()
-
-    pipeline = Rpipeline(segment_config)
-    pipeline.run()
 
 
 def main(argv=None):
@@ -138,9 +95,9 @@ USAGE
             defaults_config, argparser, subparsers)
         segment_command.add_options()
 
-        process_parser = parser_process_options(subparsers, defaults_config)
-        process_parser.set_defaults(
-            func=functools.partial(do_process, defaults_config))
+        process_command = ProcessCommand(
+            defaults_config, argparser, subparsers)
+        process_command.add_options()
 
         args = argparser.parse_args(argv[1:])
         args.func(args)

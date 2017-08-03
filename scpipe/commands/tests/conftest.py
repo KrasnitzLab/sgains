@@ -14,6 +14,7 @@ from commands.prepare_command import PrepareCommand
 from commands.mapping_command import MappingCommand
 from commands.varbin_command import VarbinCommand
 from commands.segment_command import SegmentCommand
+from commands.process_command import ProcessCommand
 
 
 @pytest.fixture
@@ -90,6 +91,14 @@ def varbin_command(tests_config, argparser, argsubparser):
 @pytest.fixture
 def segment_command(tests_config, argparser, argsubparser):
     command = SegmentCommand(tests_config, argparser, argsubparser)
+    assert command is not None
+
+    return command
+
+
+@pytest.fixture
+def process_command(tests_config, argparser, argsubparser):
+    command = ProcessCommand(tests_config, argparser, argsubparser)
     assert command is not None
 
     return command
