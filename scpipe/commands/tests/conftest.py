@@ -12,6 +12,7 @@ from commands.genomeindex_command import GenomeIndexCommand
 from commands.bins_command import BinsCommand
 from commands.prepare_command import PrepareCommand
 from commands.mapping_command import MappingCommand
+from commands.varbin_command import VarbinCommand
 
 
 @pytest.fixture
@@ -72,6 +73,14 @@ def prepare_command(tests_config, argparser, argsubparser):
 @pytest.fixture
 def mapping_command(tests_config, argparser, argsubparser):
     command = MappingCommand(tests_config, argparser, argsubparser)
+    assert command is not None
+
+    return command
+
+
+@pytest.fixture
+def varbin_command(tests_config, argparser, argsubparser):
+    command = VarbinCommand(tests_config, argparser, argsubparser)
     assert command is not None
 
     return command

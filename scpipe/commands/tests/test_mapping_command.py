@@ -5,7 +5,7 @@ Created on Aug 2, 2017
 '''
 
 
-def test_bins_long(
+def test_mapping_long(
         argparser, tests_config, mapping_command):
     mapping_command.add_options()
 

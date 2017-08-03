@@ -28,6 +28,7 @@ from r_pipeline import Rpipeline
 from varbin_pipeline import VarbinPipeline
 from commands.prepare_command import PrepareCommand
 from commands.mapping_command import MappingCommand
+from commands.varbin_command import VarbinCommand
 
 
 class CLIError(Exception):
@@ -42,16 +43,6 @@ class CLIError(Exception):
 
     def __unicode__(self):
         return self.msg
-
-
-def do_varbin(defaults_config, args):
-    if args.config is not None:
-        config = Config.load(args.config)
-        defaults_config.update(config)
-    defaults_config = parser_varbin_updates(args, defaults_config)
-
-    pipeline = VarbinPipeline(defaults_config)
-    pipeline.run()
 
 
 def do_segment(defaults_config, args):
@@ -149,9 +140,9 @@ USAGE
             defaults_config, argparser, subparsers)
         mapping_command.add_options()
 
-        varbin_parser = parser_varbin_options(subparsers, defaults_config)
-        varbin_parser.set_defaults(
-            func=functools.partial(do_varbin, defaults_config))
+        varbin_command = VarbinCommand(
+            defaults_config, argparser, subparsers)
+        varbin_command.add_options()
 
         segment_parser = parser_segment_options(subparsers, defaults_config)
         segment_parser.set_defaults(
