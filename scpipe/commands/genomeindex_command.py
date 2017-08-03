@@ -19,7 +19,7 @@ class GenomeIndexCommand(
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="genomeindex",
-            help="build appropriate genome index",
+            help="builds appropriate bowtie index for the reference genome",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter
         )
         self.parser.set_defaults(func=self.run)
