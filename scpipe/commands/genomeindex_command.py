@@ -6,7 +6,7 @@ Created on Aug 2, 2017
 import argparse
 from commands.common import OptionsBase,\
     GenomeIndexMixin
-from genomeindex_pipeline import GenomeIndexPipeline
+from pipelines.genomeindex_pipeline import GenomeIndexPipeline
 
 
 class GenomeIndexCommand(

@@ -6,7 +6,7 @@ Created on Aug 2, 2017
 from commands.common import OptionsBase, GenomeIndexMixin,\
     MappableRegionsMixin
 import argparse
-from mappableregions_pipeline import MappableRegionsPipeline
+from pipelines.mappableregions_pipeline import MappableRegionsPipeline
 
 
 class MappableRegionsCommand(

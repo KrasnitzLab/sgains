@@ -7,7 +7,7 @@ import argparse
 
 from commands.common import GenomeIndexMixin, OptionsBase, DataDirMixin,\
     WorkDirMixin
-from mapping_pipeline import MappingPipeline
+from pipelines.mapping_pipeline import MappingPipeline
 
 
 class MappingMixin(DataDirMixin, WorkDirMixin, GenomeIndexMixin):

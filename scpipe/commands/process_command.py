@@ -8,9 +8,9 @@ from commands.common import OptionsBase, DataDirMixin, WorkDirMixin,\
 import argparse
 import os
 from config import Config
-from mapping_pipeline import MappingPipeline
-from varbin_pipeline import VarbinPipeline
-from r_pipeline import Rpipeline
+from pipelines.mapping_pipeline import MappingPipeline
+from pipelines.varbin_pipeline import VarbinPipeline
+from pipelines.r_pipeline import Rpipeline
 
 
 class ProcessCommand(

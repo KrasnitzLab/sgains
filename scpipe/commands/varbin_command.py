@@ -7,7 +7,7 @@ import argparse
 
 from commands.common import OptionsBase, DataDirMixin,\
     WorkDirMixin, BinsBoundariesMixin
-from varbin_pipeline import VarbinPipeline
+from pipelines.varbin_pipeline import VarbinPipeline
 
 
 class VarbinMixin(DataDirMixin, WorkDirMixin, BinsBoundariesMixin):

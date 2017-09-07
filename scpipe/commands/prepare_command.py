@@ -7,9 +7,9 @@ from commands.common import GenomeIndexMixin, OptionsBase, \
     MappableRegionsMixin,\
     BinsBoundariesMixin
 import argparse
-from genomeindex_pipeline import GenomeIndexPipeline
-from mappableregions_pipeline import MappableRegionsPipeline
-from bins_pipeline import BinsPipeline
+from pipelines.genomeindex_pipeline import GenomeIndexPipeline
+from pipelines.mappableregions_pipeline import MappableRegionsPipeline
+from pipelines.bins_pipeline import BinsPipeline
 
 
 class PrepareCommand(

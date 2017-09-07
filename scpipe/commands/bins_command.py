@@ -5,7 +5,7 @@ Created on Aug 2, 2017
 '''
 import argparse
 
-from bins_pipeline import BinsPipeline
+from pipelines.bins_pipeline import BinsPipeline
 from commands.common import OptionsBase,\
     MappableRegionsMixin, BinsBoundariesMixin
 

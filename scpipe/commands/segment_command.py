@@ -7,7 +7,7 @@ import argparse
 
 from commands.common import OptionsBase, DataDirMixin,\
     WorkDirMixin, BinsBoundariesMixin
-from r_pipeline import Rpipeline
+from pipelines.r_pipeline import Rpipeline
 
 
 class SegmentMixin(DataDirMixin, WorkDirMixin, BinsBoundariesMixin):
