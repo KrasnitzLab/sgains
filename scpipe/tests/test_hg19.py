@@ -21,16 +21,6 @@ def test_mask_chrY(hg):
     hg.save_chrom(rec, "chrY.psr.test")
 
 
-def test_generate_reads(hg):
-    generator = hg.generate_reads(['chr1'], 100)
-
-    for num, rec in enumerate(generator):
-        print(rec.id, len(rec))
-        if num >= 10:
-            break
-    generator.close()
-
-
 def test_count_chrom_mappable_positions(hg):
     result = hg.calc_chrom_mappable_positions_count()
 
