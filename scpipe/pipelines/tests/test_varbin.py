@@ -5,10 +5,13 @@ Created on Jul 6, 2017
 '''
 import numpy as np
 
+from pipelines.varbin_pipeline import VarbinPipeline
 
-def test_bin_counts_0918(hg, varbin0918):
 
-    df = hg.bins_count("data/test_study/CJA0918.jude58.rmdup.bam")
+def test_bin_counts_0918(tests_config, varbin0918):
+    pipeline = VarbinPipeline(tests_config)
+
+    df = pipeline.varbin("data/test_study/CJA0918.jude58.rmdup.bam")
 
     print(df.head())
     print(varbin0918.head())

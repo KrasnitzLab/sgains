@@ -85,71 +85,7 @@ class HumanGenome19(object):
 
         return None
 
-    def bins_count(self, filename):
 
-        assert os.path.exists(filename), os.path.abspath(filename)
-
-        infile = pysam.AlignmentFile(filename, 'rb')  # @UndefinedVariable
-        bins_df = self.bins_boundaries()
-        assert bins_df is not None
-
-        chrom_sizes = self.chrom_sizes()
-        chroms = set(self.CHROMS)
-
-        count = 0
-        dups = 0
-        total_reads = 0
-
-        prev_pos = 0
-        bin_counts = defaultdict(int)
-
-        for seg in infile:
-            total_reads += 1
-            if seg.is_unmapped:
-                continue
-            chrom = seg.reference_name
-            if chrom not in chroms:
-                continue
-
-            abspos = chrom_sizes[chrom].abspos + seg.reference_start
-            if prev_pos == abspos:
-                dups += 1
-                continue
-            count += 1
-            index = bins_df['bin.start.abspos'].searchsorted(
-                abspos, side='right')
-            assert len(index) == 1
-
-            index = index[0] - 1
-            bin_counts[index] += 1
-            prev_pos = abspos
-        print(total_reads, dups, count)
-
-        number_of_reads_per_bin = float(count) / len(bins_df)
-        result = []
-        for index, row in bins_df.iterrows():
-            bin_count = bin_counts[index]
-            ratio = float(bin_count) / number_of_reads_per_bin
-            result.append(
-                [
-                    row['bin.chrom'],
-                    row['bin.start'],
-                    row['bin.start.abspos'],
-                    bin_count,
-                    ratio
-                ]
-            )
-        df = pd.DataFrame.from_records(
-            result,
-            columns=[
-                'chrom',
-                'chrompos',
-                'abspos',
-                'bincount',
-                'ratio',
-            ])
-        df.sort_values(by=['abspos'], inplace=True)
-        return df
 
     CHRY_PARs = [
         (10000, 2649520),
