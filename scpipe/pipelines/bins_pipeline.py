@@ -3,14 +3,11 @@ Created on Jul 31, 2017
 
 @author: lubo
 '''
-from collections import defaultdict
-
 from hg19 import HumanGenome19
 from termcolor import colored
 import os
 import pandas as pd
 from utils import BinParams, MappableBin
-import pysam
 
 
 class BinsPipeline(object):

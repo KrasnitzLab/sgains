@@ -12,10 +12,6 @@ from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 from box import Box
 
 import pandas as pd
-from utils import MappableState, Mapping, MappableRegion, \
-    MappableBin, BinParams, LOG
-import pysam
-from termcolor import colored
 
 
 class HumanGenome19(object):
@@ -26,6 +22,11 @@ class HumanGenome19(object):
         "chr7", "chr8", "chr9", "chr10", "chr11", "chr12",
         "chr13", "chr14", "chr15", "chr16", "chr17", "chr18",
         "chr19", "chr20", "chr21", "chr22", "chrX", "chrY"
+    ]
+
+    CHRY_PARs = [
+        (10000, 2649520),
+        (59034049, 59363566),
     ]
 
     def __init__(self, config):
@@ -75,6 +76,15 @@ class HumanGenome19(object):
                 self._chrom_sizes = result
         return self._chrom_sizes
 
+    def load_mappable_regions(self):
+        df = pd.read_csv(
+            self.config.mappable_regions_filename(),
+            names=['chrom', 'start_pos', 'end_pos'],
+            sep='\t')
+        df.sort_values(by=['chrom', 'start_pos', 'end_pos'], inplace=True)
+
+        return df
+
     def bins_boundaries(self):
         bins_boundaries_filename = self.config.bins_boundaries_filename()
         print(os.path.abspath(bins_boundaries_filename))
@@ -84,13 +94,6 @@ class HumanGenome19(object):
             return df.sort_values(by=['bin.start.abspos'])
 
         return None
-
-
-
-    CHRY_PARs = [
-        (10000, 2649520),
-        (59034049, 59363566),
-    ]
 
     def mask_chrY_pars(self):
         chr_y = self.load_chrom("chrY", pristine=True)
@@ -178,15 +181,6 @@ class HumanGenome19(object):
             chrom_bins[chrom].bin_size = bin_size
 
         return chrom_bins
-
-    def load_mappable_regions(self):
-        df = pd.read_csv(
-            self.config.mappable_regions_filename(),
-            names=['chrom', 'start_pos', 'end_pos'],
-            sep='\t')
-        df.sort_values(by=['chrom', 'start_pos', 'end_pos'], inplace=True)
-
-        return df
 
     @staticmethod
     def to_fasta_string(rec):
