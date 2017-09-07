@@ -8,7 +8,7 @@ import numpy as np
 
 def test_bin_counts_0918(hg, varbin0918):
 
-    df = hg.bin_count("data/test_study/CJA0918.jude58.rmdup.bam")
+    df = hg.bins_count("data/test_study/CJA0918.jude58.rmdup.bam")
 
     print(df.head())
     print(varbin0918.head())

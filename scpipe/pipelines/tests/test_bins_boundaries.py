@@ -6,16 +6,18 @@ Created on Jun 23, 2017
 import pytest
 import numpy as np
 
-from hg19 import HumanGenome19
+from pipelines.bins_pipeline import BinsPipeline
 
 
-@pytest.mark.parametrize("chromosome", HumanGenome19.CHROMS)
-def test_bin_boundaries_generator(hg, bin_boundaries, chromosome):
+@pytest.mark.parametrize("chromosome", ['chr1'])
+def test_bins_boundaries_generator(tests_config, bin_boundaries, chromosome):
 
-    mappable_regions_df = hg.load_mappable_regions()
+    pipeline = BinsPipeline(tests_config)
+
+    mappable_regions_df = pipeline.hg.load_mappable_regions()
 
     chrom_df = bin_boundaries[bin_boundaries['bin.chrom'] == chromosome]
-    for index, mappable_bin in enumerate(hg.bin_boundaries_generator(
+    for index, mappable_bin in enumerate(pipeline.bins_boundaries_generator(
             [chromosome], mappable_regions_df)):
         fixture_bin = chrom_df.iloc[index, :]
 
@@ -30,13 +32,15 @@ def test_bin_boundaries_generator(hg, bin_boundaries, chromosome):
             (index, mappable_bin, fixture_bin)
 
 
-@pytest.mark.parametrize("chromosome", HumanGenome19.CHROMS)
-def test_bin_boundaries(hg, bin_boundaries, chromosome):
+@pytest.mark.parametrize("chromosome", ['chr1'])  # HumanGenome19.CHROMS)
+def test_bins_boundaries(tests_config, bin_boundaries, chromosome):
+    pipeline = BinsPipeline(tests_config)
+
     fixture_df = bin_boundaries[bin_boundaries['bin.chrom'] == chromosome]
     fixture_df = fixture_df.reset_index()
 
-    regions_df = hg.load_mappable_regions()
-    bins_df = hg.calc_bins_boundaries([chromosome], regions_df)
+    regions_df = pipeline.hg.load_mappable_regions()
+    bins_df = pipeline.calc_bins_boundaries([chromosome], regions_df)
 
     df = bins_df[bins_df['bin.chrom'] == chromosome]
     df = df.reset_index()
