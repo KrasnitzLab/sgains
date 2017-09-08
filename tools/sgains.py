@@ -99,9 +99,9 @@ USAGE
         segment_command.add_options()
 
         args = argparser.parse_args(argv[1:])
-        args.func(args)
+        print(args)
 
-        # bin_boundaries(hg, config, outfile)
+        args.func(args)
 
         return 0
     except KeyboardInterrupt:

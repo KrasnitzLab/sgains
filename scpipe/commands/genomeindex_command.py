@@ -22,7 +22,7 @@ class GenomeIndexCommand(
             help="builds appropriate bowtie index for the reference genome",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter
         )
-        self.parser.set_defaults(func=self.run)
+        self.subparser.set_defaults(func=self.run)
 
     def add_options(self):
         self.genome_index_options(input_dir=True)

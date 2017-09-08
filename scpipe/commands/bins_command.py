@@ -25,7 +25,7 @@ class BinsCommand(
             "and read length",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter
         )
-        self.parser.set_defaults(func=self.run)
+        self.subparser.set_defaults(func=self.run)
 
     def add_options(self):
         self.mappable_regions_options(read_length=False)

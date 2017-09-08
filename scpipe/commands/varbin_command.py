@@ -45,7 +45,7 @@ class VarbinCommand(
             help="applies varbin algorithm to count read mappings in each bin",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter
         )
-        self.parser.set_defaults(func=self.run)
+        self.subparser.set_defaults(func=self.run)
 
     def add_options(self):
         self.mapping_options()
