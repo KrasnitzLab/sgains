@@ -7,6 +7,8 @@ import os
 import subprocess
 from config import Config
 from termcolor import colored
+import multiprocessing
+import functools
 
 
 class MappingPipeline(object):
@@ -109,6 +111,29 @@ class MappingPipeline(object):
             '-'
         ]
 
+    def samtools_index_bam(self, filename):
+        cellname = Config.cellname((filename))
+        outfile = os.path.join(
+            self.config.mapping_work_dirname(),
+            "{}.rmdup.bam".format(cellname)
+        )
+        outfile = self.config.abspath(outfile)
+        return [
+            'samtools'
+            'index',
+            outfile,
+        ]
+
+    @staticmethod
+    def execute_once(dry_run, pipeline):
+        print(colored(' '.join(pipeline), "green"))
+        if not dry_run:
+            subprocess.check_call(
+                ' '.join(pipeline),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                shell=True)
+
     def run(self):
         fastq_filenames = self.config.mapping_fastq_filenames()
         assert fastq_filenames
@@ -118,6 +143,7 @@ class MappingPipeline(object):
             work_dirname
         )
 
+        commands = []
         for filename in fastq_filenames:
             pipeline = [
                 *self.unarchive_stage(filename),
@@ -136,6 +162,8 @@ class MappingPipeline(object):
                 '|',
                 *self.samtools_view_store_stage(filename),
             ]
-            print(colored(' '.join(pipeline), "green"))
-            if not self.config.dry_run:
-                subprocess.check_call(' '.join(pipeline), shell=True)
+            commands.append(pipeline)
+
+        pool = multiprocessing.Pool(processes=self.config.parallel)
+        pool.map(functools.partial(
+            MappingPipeline.execute_once, self.config.dry_run), commands)

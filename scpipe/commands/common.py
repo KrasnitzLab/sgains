@@ -45,6 +45,14 @@ class OptionsBase(object):
             default=False
         )
 
+        parser.add_argument(
+            "--parallel", "-p",
+            dest="parallel",
+            help="number of task to run in parallel",
+            type=int,
+            default=1
+        )
+
     def common_updates(self, args):
         if args.config is not None:
             config = Config.load(args.config)
@@ -57,6 +65,9 @@ class OptionsBase(object):
             self.config.dry_run = args.dry_run
         if args.force is not None:
             self.config.force = args.force
+
+        if args.parallel is not None:
+            self.config.parallel = args.parallel
 
 
 class DataDirMixin(object):

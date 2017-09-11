@@ -20,6 +20,8 @@ class Config(Box):
     DEFAULT_CONFIG = {
         "force": False,
         "dry_run": False,
+        "parallel": 1,
+
         "genome": {
             "version": "hg19",
             "data_dir": "data/hg19_safe",
@@ -237,7 +239,7 @@ class Config(Box):
 
     def mapping_work_dirname(self):
         dirname = self.abspath(self.mapping.work_dir)
-
+        print("mapping work dir: {}".format(dirname))
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         return dirname

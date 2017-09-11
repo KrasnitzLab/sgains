@@ -11,6 +11,7 @@ def test_mapping_long(
 
     argv = [
         "--dry-run", "--force",
+        "--parallel", "10",
         "mapping",
         "--genome-index", "probaindex",
         "--genome-dir", "data/hg19_safe",
@@ -28,6 +29,7 @@ def test_mapping_long(
 
     assert config.force
     assert config.dry_run
+    assert config.parallel == 10
 
     assert config.genome.work_dir == "data/hg19_safe"
     assert config.genome.index == "probaindex"
