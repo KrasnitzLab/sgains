@@ -51,6 +51,7 @@ class MappingCommand(
         self.mapping_options()
 
     def process_args(self, args):
+        self.common_updates(args)
         self.mapping_updates(args)
 
     def run(self, args):

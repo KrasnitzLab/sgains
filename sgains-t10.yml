@@ -1,0 +1,34 @@
+genome:
+    version: hg19
+    data_dir: data/hg19_safe
+    work_dir: data/hg19
+    genome_index: genomeindex
+
+mappable_regions:
+    length: 50
+    work_dir: data/R50_tool_run
+    bowtie_opts: "-p 1"
+  
+bins:
+    bins_count: 50000
+    work_dir: data/R50_B50k
+    bins_boundaries: hg19_R50_B50k_bins_boundaries.txt
+
+mapping:
+    data_dir: data/safe/Navin2011/T10
+    data_glob: "*.fastq.gz"
+    work_dir: data/Navin2011/T10
+    bowtie_opts: "-S -t -m 1 --best --strata"
+    
+
+varbin:
+    data_dir: data/Navin2011/T10
+    data_glob: "*.rmdup.bam"
+    work_dir: data/Navin2011/T10_varbin
+    suffix: "varbin.10k.txt"
+
+segment:
+    data_dir: data/Navin2011/T10_varbin
+    data_glob: "*.varbin.10k.txt"
+    work_dir: data/Navin2011/T10_segment
+    study_name: "navin2011_T10"

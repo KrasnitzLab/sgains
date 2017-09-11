@@ -49,7 +49,9 @@ class OptionsBase(object):
     def common_updates(self, args):
         if args.config is not None:
             config = Config.load(args.config)
-            self.config.update(config)
+            print("config loaded: {}".format(config))
+            self.config = config
+            print("config updated: {}".format(self.config))
 
         if args.dry_run is not None:
             self.config.dry_run = args.dry_run

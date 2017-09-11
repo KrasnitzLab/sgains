@@ -51,6 +51,7 @@ class SegmentCommand(
         self.segment_options()
 
     def process_args(self, args):
+        self.common_updates(args)
         self.segment_updates(args)
 
     def run(self, args):
