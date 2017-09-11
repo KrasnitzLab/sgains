@@ -54,7 +54,7 @@ USAGE
 ''' % (program_shortdesc, )
 
     try:
-        defaults_config = Config.load("sgains.yml")
+        defaults_config = Config.parse_args(argv)
 
         argparser = ArgumentParser(
             description=program_description,
@@ -67,36 +67,36 @@ USAGE
         )
 
         process_command = ProcessCommand(
-            defaults_config, argparser, subparsers)
-        process_command.add_options()
+            argparser, subparsers)
+        process_command.add_options(defaults_config)
 
         prepare_command = PrepareCommand(
-            defaults_config, argparser, subparsers)
-        prepare_command.add_options()
+            argparser, subparsers)
+        prepare_command.add_options(defaults_config)
 
         genomeindex_command = GenomeIndexCommand(
-            defaults_config, argparser, subparsers)
-        genomeindex_command.add_options()
+            argparser, subparsers)
+        genomeindex_command.add_options(defaults_config)
 
         mappable_regions_command = MappableRegionsCommand(
-            defaults_config, argparser, subparsers)
-        mappable_regions_command.add_options()
+            argparser, subparsers)
+        mappable_regions_command.add_options(defaults_config)
 
         bins_command = BinsCommand(
-            defaults_config, argparser, subparsers)
-        bins_command.add_options()
+            argparser, subparsers)
+        bins_command.add_options(defaults_config)
 
         mapping_command = MappingCommand(
-            defaults_config, argparser, subparsers)
-        mapping_command.add_options()
+            argparser, subparsers)
+        mapping_command.add_options(defaults_config)
 
         varbin_command = VarbinCommand(
-            defaults_config, argparser, subparsers)
-        varbin_command.add_options()
+            argparser, subparsers)
+        varbin_command.add_options(defaults_config)
 
         segment_command = SegmentCommand(
-            defaults_config, argparser, subparsers)
-        segment_command.add_options()
+            argparser, subparsers)
+        segment_command.add_options(defaults_config)
 
         args = argparser.parse_args(argv[1:])
         print(args)
@@ -105,6 +105,7 @@ USAGE
 
         return 0
     except KeyboardInterrupt:
+        traceback.print_exc()
         return 0
     except Exception as e:
         traceback.print_exc()

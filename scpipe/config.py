@@ -82,6 +82,23 @@ class Config(Box):
         )
 
     @staticmethod
+    def parse_args(argv):
+        if '-c' in argv:
+            index = argv.index('-c')
+        elif '--config' in argv:
+            index = argv.index('--config')
+        else:
+            config = Config.load('./sgains.yml')
+            return config
+        index += 1
+        if index < 0 or index >= len(argv):
+            raise ValueError('config filename not found')
+
+        filename = argv[index]
+        config = Config.load(filename)
+        return config
+
+    @staticmethod
     def load(filename):
         default = Config.default()
 
