@@ -19,9 +19,9 @@ class SegmentMixin(DataDirMixin, WorkDirMixin, BinsBoundariesMixin):
             "--study-name", "-s",
             help="study name",
             dest="study_name",
-            default=self.config.segment.study_name
+            default=config.segment.study_name
         )
-        self.bins_boundaries_options(bins_count=False)
+        self.bins_boundaries_options(config=config, bins_count=False)
 
     def segment_updates(self, args):
         self.common_updates(args)
@@ -36,8 +36,8 @@ class SegmentCommand(
         SegmentMixin,
         OptionsBase):
 
-    def __init__(self, config, parser, subparsers):
-        super(SegmentCommand, self).__init__(config)
+    def __init__(self, parser, subparsers):
+        super(SegmentCommand, self).__init__()
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="segment",

@@ -20,8 +20,8 @@ class ProcessCommand(
         WorkDirMixin,
         OptionsBase):
 
-    def __init__(self, config, parser, subparsers):
-        super(ProcessCommand, self).__init__(config)
+    def __init__(self, parser, subparsers):
+        super(ProcessCommand, self).__init__()
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="process",
@@ -31,23 +31,23 @@ class ProcessCommand(
         )
         self.subparser.set_defaults(func=self.run)
 
-    def add_options(self):
-        self.data_dir_options(config=self.config.mapping, glob=True)
-        group = self.work_dir_options(config=self.config.segment)
+    def add_options(self, config):
+        self.data_dir_options(config=config.mapping, glob=True)
+        group = self.work_dir_options(config=config.segment)
         group.add_argument(
             "--study-name", "-s",
             help="study name",
             dest="study_name",
-            default=self.config.segment.study_name
+            default=config.segment.study_name
         )
-        group = self.genome_index_options(input_dir=False)
+        group = self.genome_index_options(config=config, input_dir=False)
         group.add_argument(
             "--bowtie-opts",
             dest="bowtie_opts",
             help="additional bowtie options",
-            default=self.config.mapping.bowtie_opts
+            default=config.mapping.bowtie_opts
         )
-        self.bins_boundaries_options(bins_count=False)
+        self.bins_boundaries_options(config=config, bins_count=False)
 
     def process_args(self, args):
         self.common_updates(args)

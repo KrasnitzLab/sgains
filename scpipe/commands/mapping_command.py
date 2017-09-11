@@ -13,13 +13,13 @@ from pipelines.mapping_pipeline import MappingPipeline
 class MappingMixin(DataDirMixin, WorkDirMixin, GenomeIndexMixin):
 
     def mapping_options(self, config):
-        self.genome_index_options(input_dir=False)
+        self.genome_index_options(config=config, input_dir=False)
         group = self.data_dir_options(config=config.mapping, glob=True)
         group.add_argument(
             "--bowtie-opts",
             dest="bowtie_opts",
             help="additional bowtie options",
-            default=self.config.mapping.bowtie_opts
+            default=config.mapping.bowtie_opts
         )
         self.work_dir_options(config=config.mapping)
 
@@ -36,8 +36,8 @@ class MappingCommand(
         MappingMixin,
         OptionsBase):
 
-    def __init__(self, config, parser, subparsers):
-        super(MappingCommand, self).__init__(config)
+    def __init__(self, parser, subparsers):
+        super(MappingCommand, self).__init__()
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="mapping",

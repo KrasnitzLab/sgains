@@ -7,7 +7,7 @@ Created on Aug 2, 2017
 
 def test_process_long(
         argparser, tests_config, process_command):
-    process_command.add_options()
+    process_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",
@@ -29,18 +29,21 @@ def test_process_long(
     args = argparser.parse_args(argv)
     args.func(args)
 
-    assert tests_config.force
-    assert tests_config.dry_run
+    config = process_command.config
+    assert config is not None
 
-    assert tests_config.bins.work_dir == "data/test_study/bins"
-    assert tests_config.bins.bins_boundaries == "test_bins_boundaries.txt"
+    assert config.force
+    assert config.dry_run
 
-    assert tests_config.genome.work_dir == "data/hg19_safe"
-    assert tests_config.genome.index == "probaindex"
+    assert config.bins.work_dir == "data/test_study/bins"
+    assert config.bins.bins_boundaries == "test_bins_boundaries.txt"
 
-    assert tests_config.mapping.data_dir == "data/test_study/raw"
-    assert tests_config.mapping.data_glob == "*.fastq.gz"
-    assert tests_config.mapping.bowtie_opts == "-1 -2 -3"
+    assert config.genome.work_dir == "data/hg19_safe"
+    assert config.genome.index == "probaindex"
 
-    assert tests_config.segment.study_name == "test_study"
-    assert tests_config.segment.work_dir == "data/proba"
+    assert config.mapping.data_dir == "data/test_study/raw"
+    assert config.mapping.data_glob == "*.fastq.gz"
+    assert config.mapping.bowtie_opts == "-1 -2 -3"
+
+    assert config.segment.study_name == "test_study"
+    assert config.segment.work_dir == "data/proba"

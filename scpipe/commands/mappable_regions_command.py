@@ -14,8 +14,8 @@ class MappableRegionsCommand(
         MappableRegionsMixin,
         OptionsBase):
 
-    def __init__(self, config, parser, subparsers):
-        super(MappableRegionsCommand, self).__init__(config)
+    def __init__(self, parser, subparsers):
+        super(MappableRegionsCommand, self).__init__()
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="mappable-regions",
@@ -24,9 +24,9 @@ class MappableRegionsCommand(
         )
         self.subparser.set_defaults(func=self.run)
 
-    def add_options(self):
-        self.mappable_regions_options(read_length=True)
-        self.genome_index_options(input_dir=False)
+    def add_options(self, config):
+        self.mappable_regions_options(config=config, read_length=True)
+        self.genome_index_options(config=config, input_dir=False)
 
     def process_args(self, args):
         self.common_updates(args)

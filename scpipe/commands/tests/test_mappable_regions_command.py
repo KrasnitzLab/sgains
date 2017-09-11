@@ -7,7 +7,7 @@ Created on Aug 2, 2017
 
 def test_mappable_regions_long(
         argparser, tests_config, mappable_regions_command):
-    mappable_regions_command.add_options()
+    mappable_regions_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",
@@ -22,20 +22,23 @@ def test_mappable_regions_long(
     args = argparser.parse_args(argv)
     args.func(args)
 
-    assert tests_config.force
-    assert tests_config.dry_run
+    config = mappable_regions_command.config
+    assert config is not None
 
-    assert tests_config.genome.work_dir == "data/hg19_safe/"
-    assert tests_config.genome.index == "probaindex"
+    assert config.force
+    assert config.dry_run
 
-    assert tests_config.mappable_regions.length == 200
-    assert tests_config.mappable_regions.work_dir == "data/proba"
-    assert tests_config.mappable_regions.bowtie_opts == "-1 -2 -3"
+    assert config.genome.work_dir == "data/hg19_safe/"
+    assert config.genome.index == "probaindex"
+
+    assert config.mappable_regions.length == 200
+    assert config.mappable_regions.work_dir == "data/proba"
+    assert config.mappable_regions.bowtie_opts == "-1 -2 -3"
 
 
 def test_mappable_regions_short(
         argparser, tests_config, mappable_regions_command):
-    mappable_regions_command.add_options()
+    mappable_regions_command.add_options(tests_config)
 
     argv = [
         "-n", "-F",
@@ -50,12 +53,15 @@ def test_mappable_regions_short(
     args = argparser.parse_args(argv)
     args.func(args)
 
-    assert tests_config.force
-    assert tests_config.dry_run
+    config = mappable_regions_command.config
+    assert config is not None
 
-    assert tests_config.genome.work_dir == "data/hg19_safe/"
-    assert tests_config.genome.index == "probaindex"
+    assert config.force
+    assert config.dry_run
 
-    assert tests_config.mappable_regions.length == 200
-    assert tests_config.mappable_regions.work_dir == "data/proba"
-    assert tests_config.mappable_regions.bowtie_opts == "-1 -2 -3"
+    assert config.genome.work_dir == "data/hg19_safe/"
+    assert config.genome.index == "probaindex"
+
+    assert config.mappable_regions.length == 200
+    assert config.mappable_regions.work_dir == "data/proba"
+    assert config.mappable_regions.bowtie_opts == "-1 -2 -3"

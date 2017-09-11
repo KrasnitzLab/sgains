@@ -13,8 +13,8 @@ class GenomeIndexCommand(
         GenomeIndexMixin,
         OptionsBase):
 
-    def __init__(self, config, parser, subparsers):
-        super(GenomeIndexCommand, self).__init__(config)
+    def __init__(self, parser, subparsers):
+        super(GenomeIndexCommand, self).__init__()
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="genomeindex",
@@ -23,8 +23,8 @@ class GenomeIndexCommand(
         )
         self.subparser.set_defaults(func=self.run)
 
-    def add_options(self):
-        self.genome_index_options(input_dir=True)
+    def add_options(self, config):
+        self.genome_index_options(config=config, input_dir=True)
 
     def process_args(self, args):
         self.common_updates(args)

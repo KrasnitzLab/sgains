@@ -15,8 +15,8 @@ class BinsCommand(
         BinsBoundariesMixin,
         OptionsBase):
 
-    def __init__(self, config, parser, subparsers):
-        super(BinsCommand, self).__init__(config)
+    def __init__(self, parser, subparsers):
+        super(BinsCommand, self).__init__()
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="bins",
@@ -26,9 +26,9 @@ class BinsCommand(
         )
         self.subparser.set_defaults(func=self.run)
 
-    def add_options(self):
-        self.mappable_regions_options(read_length=False)
-        self.bins_boundaries_options(bins_count=True)
+    def add_options(self, config):
+        self.mappable_regions_options(config=config, read_length=False)
+        self.bins_boundaries_options(config=config, bins_count=True)
 
     def process_args(self, args):
         self.common_updates(args)

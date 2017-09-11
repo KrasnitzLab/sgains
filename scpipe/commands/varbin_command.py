@@ -19,9 +19,9 @@ class VarbinMixin(DataDirMixin, WorkDirMixin, BinsBoundariesMixin):
             "--suffix", "-s",
             help="suffix for output files",
             dest="suffix",
-            default=self.config.varbin.suffix
+            default=config.varbin.suffix
         )
-        self.bins_boundaries_options(bins_count=False)
+        self.bins_boundaries_options(config=config, bins_count=False)
 
     def mapping_updates(self, args):
         self.common_updates(args)
@@ -36,8 +36,8 @@ class VarbinCommand(
         VarbinMixin,
         OptionsBase):
 
-    def __init__(self, config, parser, subparsers):
-        super(VarbinCommand, self).__init__(config)
+    def __init__(self, parser, subparsers):
+        super(VarbinCommand, self).__init__()
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="varbin",

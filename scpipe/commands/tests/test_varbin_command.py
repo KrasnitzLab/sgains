@@ -23,10 +23,13 @@ def test_varbin_long(
     args = argparser.parse_args(argv)
     args.func(args)
 
-    assert tests_config.force
-    assert tests_config.dry_run
+    config = varbin_command.config
+    assert config is not None
 
-    assert tests_config.bins.work_dir == "data/test_study/bins"
-    assert tests_config.bins.bins_boundaries == "test_bins_boundaries.txt"
-    assert tests_config.varbin.data_dir == "data/test_study/bam"
-    assert tests_config.varbin.data_glob == "*.rmdup.bam"
+    assert config.force
+    assert config.dry_run
+
+    assert config.bins.work_dir == "data/test_study/bins"
+    assert config.bins.bins_boundaries == "test_bins_boundaries.txt"
+    assert config.varbin.data_dir == "data/test_study/bam"
+    assert config.varbin.data_glob == "*.rmdup.bam"

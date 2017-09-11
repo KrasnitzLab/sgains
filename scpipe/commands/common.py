@@ -8,8 +8,8 @@ from config import Config
 
 class OptionsBase(object):
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
+        self.config = None
         self.parser = None
         self.subparser = None
 
@@ -48,9 +48,10 @@ class OptionsBase(object):
     def common_updates(self, args):
         if args.config is not None:
             config = Config.load(args.config)
-            print("config loaded: {}".format(config))
-            self.config = config
-            print("config updated: {}".format(self.config))
+        else:
+            config = Config.load("sgains.yml")
+
+        self.config = config
 
         if args.dry_run is not None:
             self.config.dry_run = args.dry_run
@@ -115,7 +116,7 @@ class WorkDirMixin(object):
 class GenomeIndexMixin(object):
     __slots__ = ()
 
-    def genome_index_options(self, input_dir=False):
+    def genome_index_options(self, config, input_dir=False):
         assert self.subparser is not None
 
         group = self.subparser.add_argument_group(
@@ -124,26 +125,26 @@ class GenomeIndexMixin(object):
             "--genome-index", "-G",
             dest="genome_index",
             help="genome index name",
-            default=self.config.genome.index)
+            default=config.genome.index)
 
         group.add_argument(
             "--genome-dir",
             dest="genome_dir",
             help="genome index directory",
-            default=self.config.genome.work_dir)
+            default=config.genome.work_dir)
 
         group.add_argument(
             "--genome-version",
             dest="genome_version",
             help="version of reference genome in use (supports only hg19)",
-            default=self.config.genome.version)
+            default=config.genome.version)
         if input_dir:
             group.add_argument(
                 "--genome-pristine",
                 dest="genome_pristine",
                 help="directory where clean copy of reference genome "
                 "is located",
-                default=self.config.genome.data_dir)
+                default=config.genome.data_dir)
         return group
 
     def genome_index_update(self, args, input_dir=False):
@@ -162,20 +163,20 @@ class GenomeIndexMixin(object):
 class BinsBoundariesMixin(object):
     __slots__ = ()
 
-    def bins_boundaries_options(self, bins_count=False):
+    def bins_boundaries_options(self, config, bins_count=False):
         group = self.subparser.add_argument_group(
             "bins boundaries")
         group.add_argument(
             "--bins-boundaries", "-B",
             dest="bins_boundaries",
             help="bins boundaries filename",
-            default=self.config.bins.bins_boundaries
+            default=config.bins.bins_boundaries
         )
         group.add_argument(
             "--bins-dir",
             dest="bins_dir",
             help="bins working directory",
-            default=self.config.bins.work_dir
+            default=config.bins.work_dir
         )
         if bins_count:
             group.add_argument(
@@ -183,7 +184,7 @@ class BinsBoundariesMixin(object):
                 dest="bins_count",
                 type=int,
                 help="number of bins",
-                default=self.config.bins.bins_count
+                default=config.bins.bins_count
             )
 
     def bins_boundaries_updates(self, args, bins_count=False):
@@ -199,20 +200,20 @@ class BinsBoundariesMixin(object):
 class MappableRegionsMixin(object):
     __slots__ = ()
 
-    def mappable_regions_options(self, read_length=False):
+    def mappable_regions_options(self, config, read_length=False):
         group = self.subparser.add_argument_group(
             "mappable regions options")
         group.add_argument(
             "--mappable-dir", "-m",
             dest="mappable_dir",
             help="directory where mappable regions file is stroed",
-            default=self.config.mappable_regions.work_dir
+            default=config.mappable_regions.work_dir
         )
         group.add_argument(
             "--mappable-regions", "-M",
             dest="mappable_regions",
             help="filename where mappable regions are stored",
-            default=self.config.mappable_regions.mappable_regions
+            default=config.mappable_regions.mappable_regions
         )
         if read_length:
             group.add_argument(
@@ -220,13 +221,13 @@ class MappableRegionsMixin(object):
                 dest="length",
                 type=int,
                 help="read length to use for generation of mappable regions",
-                default=self.config.mappable_regions.length
+                default=config.mappable_regions.length
             )
             group.add_argument(
                 "--bowtie-opts",
                 dest="bowtie_opts",
                 help="additional bowtie options",
-                default=self.config.mappable_regions.bowtie_opts
+                default=config.mappable_regions.bowtie_opts
             )
         return group
 

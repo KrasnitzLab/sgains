@@ -6,7 +6,7 @@ Created on Aug 2, 2017
 
 
 def test_genomeindex_long(argparser, tests_config, genomeindex_command):
-    genomeindex_command.add_options()
+    genomeindex_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",
@@ -19,16 +19,19 @@ def test_genomeindex_long(argparser, tests_config, genomeindex_command):
     args = argparser.parse_args(argv)
     args.func(args)
 
-    assert tests_config.force
-    assert tests_config.dry_run
+    config = genomeindex_command.config
+    assert config is not None
 
-    assert tests_config.genome.work_dir == "data/proba"
-    assert tests_config.genome.index == "probaindex"
-    assert tests_config.genome.data_dir == "data/hg19_safe/"
+    assert config.force
+    assert config.dry_run
+
+    assert config.genome.work_dir == "data/proba"
+    assert config.genome.index == "probaindex"
+    assert config.genome.data_dir == "data/hg19_safe/"
 
 
 def test_genomeindex_short(argparser, tests_config, genomeindex_command):
-    genomeindex_command.add_options()
+    genomeindex_command.add_options(tests_config)
 
     argv = [
         "-n", "-F",
@@ -41,9 +44,12 @@ def test_genomeindex_short(argparser, tests_config, genomeindex_command):
     args = argparser.parse_args(argv)
     args.func(args)
 
-    assert tests_config.force
-    assert tests_config.dry_run
+    config = genomeindex_command.config
+    assert config is not None
 
-    assert tests_config.genome.work_dir == "data/proba"
-    assert tests_config.genome.index == "probaindex"
-    assert tests_config.genome.data_dir == "data/hg19_safe/"
+    assert config.force
+    assert config.dry_run
+
+    assert config.genome.work_dir == "data/proba"
+    assert config.genome.index == "probaindex"
+    assert config.genome.data_dir == "data/hg19_safe/"

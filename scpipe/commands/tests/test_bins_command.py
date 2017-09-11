@@ -7,7 +7,7 @@ Created on Aug 2, 2017
 
 def test_bins_long(
         argparser, tests_config, bins_command):
-    bins_command.add_options()
+    bins_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",
@@ -22,13 +22,16 @@ def test_bins_long(
     args = argparser.parse_args(argv)
     args.func(args)
 
-    assert tests_config.force
-    assert tests_config.dry_run
+    config = bins_command.config
+    assert config is not None
 
-    assert tests_config.mappable_regions.work_dir == "data/R100"
-    assert tests_config.mappable_regions.mappable_regions == \
+    assert config.force
+    assert config.dry_run
+
+    assert config.mappable_regions.work_dir == "data/R100"
+    assert config.mappable_regions.mappable_regions == \
         "mappable_regions.tsv"
 
-    assert tests_config.bins.work_dir == "data/proba"
-    assert tests_config.bins.bins_boundaries == "test_bins_boundaries.txt"
-    assert tests_config.bins.bins_count == 33
+    assert config.bins.work_dir == "data/proba"
+    assert config.bins.bins_boundaries == "test_bins_boundaries.txt"
+    assert config.bins.bins_count == 33

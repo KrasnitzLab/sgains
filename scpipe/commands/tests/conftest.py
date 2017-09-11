@@ -41,64 +41,64 @@ def argsubparser(argparser):
 
 
 @pytest.fixture
-def mappable_regions_command(tests_config, argparser, argsubparser):
-    command = MappableRegionsCommand(tests_config, argparser, argsubparser)
+def mappable_regions_command(argparser, argsubparser):
+    command = MappableRegionsCommand(argparser, argsubparser)
     assert command is not None
 
     return command
 
 
 @pytest.fixture
-def genomeindex_command(tests_config, argparser, argsubparser):
-    command = GenomeIndexCommand(tests_config, argparser, argsubparser)
+def genomeindex_command(argparser, argsubparser):
+    command = GenomeIndexCommand(argparser, argsubparser)
     assert command is not None
 
     return command
 
 
 @pytest.fixture
-def bins_command(tests_config, argparser, argsubparser):
-    command = BinsCommand(tests_config, argparser, argsubparser)
+def bins_command(argparser, argsubparser):
+    command = BinsCommand(argparser, argsubparser)
     assert command is not None
 
     return command
 
 
 @pytest.fixture
-def prepare_command(tests_config, argparser, argsubparser):
-    command = PrepareCommand(tests_config, argparser, argsubparser)
+def prepare_command(argparser, argsubparser):
+    command = PrepareCommand(argparser, argsubparser)
     assert command is not None
 
     return command
 
 
 @pytest.fixture
-def mapping_command(tests_config, argparser, argsubparser):
-    command = MappingCommand(tests_config, argparser, argsubparser)
+def mapping_command(argparser, argsubparser):
+    command = MappingCommand(argparser, argsubparser)
     assert command is not None
 
     return command
 
 
 @pytest.fixture
-def varbin_command(tests_config, argparser, argsubparser):
-    command = VarbinCommand(tests_config, argparser, argsubparser)
+def varbin_command(argparser, argsubparser):
+    command = VarbinCommand(argparser, argsubparser)
     assert command is not None
 
     return command
 
 
 @pytest.fixture
-def segment_command(tests_config, argparser, argsubparser):
-    command = SegmentCommand(tests_config, argparser, argsubparser)
+def segment_command(argparser, argsubparser):
+    command = SegmentCommand(argparser, argsubparser)
     assert command is not None
 
     return command
 
 
 @pytest.fixture
-def process_command(tests_config, argparser, argsubparser):
-    command = ProcessCommand(tests_config, argparser, argsubparser)
+def process_command(argparser, argsubparser):
+    command = ProcessCommand(argparser, argsubparser)
     assert command is not None
 
     return command

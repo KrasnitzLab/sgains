@@ -18,8 +18,8 @@ class PrepareCommand(
         BinsBoundariesMixin,
         OptionsBase):
 
-    def __init__(self, config, parser, subparsers):
-        super(PrepareCommand, self).__init__(config)
+    def __init__(self, parser, subparsers):
+        super(PrepareCommand, self).__init__()
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="prepare",
@@ -29,10 +29,10 @@ class PrepareCommand(
         )
         self.subparser.set_defaults(func=self.run)
 
-    def add_options(self):
-        self.genome_index_options(input_dir=True)
-        self.mappable_regions_options(read_length=True)
-        self.bins_boundaries_options(bins_count=True)
+    def add_options(self, config):
+        self.genome_index_options(config=config, input_dir=True)
+        self.mappable_regions_options(config=config, read_length=True)
+        self.bins_boundaries_options(config=config, bins_count=True)
 
     def process_args(self, args):
         self.common_updates(args)

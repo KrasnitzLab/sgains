@@ -23,13 +23,16 @@ def test_segment_long(
     args = argparser.parse_args(argv)
     args.func(args)
 
-    assert tests_config.force
-    assert tests_config.dry_run
+    config = segment_command.config
+    assert config is not None
 
-    assert tests_config.bins.work_dir == "data/test_study/bins"
-    assert tests_config.bins.bins_boundaries == "test_bins_boundaries.txt"
+    assert config.force
+    assert config.dry_run
 
-    assert tests_config.segment.data_dir == "data/test_study/results"
-    assert tests_config.segment.data_glob == "*.varbin.txt"
-    assert tests_config.segment.study_name == "test_study"
-    assert tests_config.segment.work_dir == "data/proba"
+    assert config.bins.work_dir == "data/test_study/bins"
+    assert config.bins.bins_boundaries == "test_bins_boundaries.txt"
+
+    assert config.segment.data_dir == "data/test_study/results"
+    assert config.segment.data_glob == "*.varbin.txt"
+    assert config.segment.study_name == "test_study"
+    assert config.segment.work_dir == "data/proba"
