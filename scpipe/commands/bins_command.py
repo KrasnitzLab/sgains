@@ -17,7 +17,6 @@ class BinsCommand(
 
     def __init__(self, config, parser, subparsers):
         super(BinsCommand, self).__init__(config)
-        self.subconfig = config.genome
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="bins",

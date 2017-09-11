@@ -22,7 +22,6 @@ class ProcessCommand(
 
     def __init__(self, config, parser, subparsers):
         super(ProcessCommand, self).__init__(config)
-        self.subconfig = config.varbin
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="process",

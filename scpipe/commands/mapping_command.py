@@ -12,21 +12,21 @@ from pipelines.mapping_pipeline import MappingPipeline
 
 class MappingMixin(DataDirMixin, WorkDirMixin, GenomeIndexMixin):
 
-    def mapping_options(self):
+    def mapping_options(self, config):
         self.genome_index_options(input_dir=False)
-        group = self.data_dir_options(glob=True)
+        group = self.data_dir_options(config=config.mapping, glob=True)
         group.add_argument(
             "--bowtie-opts",
             dest="bowtie_opts",
             help="additional bowtie options",
             default=self.config.mapping.bowtie_opts
         )
-        self.work_dir_options()
+        self.work_dir_options(config=config.mapping)
 
     def mapping_updates(self, args):
         self.common_updates(args)
-        self.work_dir_update(args)
-        self.data_dir_update(args, glob=True)
+        self.work_dir_update(args, config=self.config.mapping)
+        self.data_dir_update(args, config=self.config.mapping, glob=True)
         self.genome_index_update(args, input_dir=False)
         if args.bowtie_opts:
             self.config.mapping.bowtie_opts = args.bowtie_opts
@@ -38,7 +38,6 @@ class MappingCommand(
 
     def __init__(self, config, parser, subparsers):
         super(MappingCommand, self).__init__(config)
-        self.subconfig = config.mapping
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="mapping",
@@ -47,8 +46,8 @@ class MappingCommand(
         )
         self.subparser.set_defaults(func=self.run)
 
-    def add_options(self):
-        self.mapping_options()
+    def add_options(self, config):
+        self.mapping_options(config)
 
     def process_args(self, args):
         self.common_updates(args)

@@ -7,7 +7,7 @@ Created on Aug 2, 2017
 
 def test_varbin_long(
         argparser, tests_config, varbin_command):
-    varbin_command.add_options()
+    varbin_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",

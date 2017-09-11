@@ -10,7 +10,6 @@ class OptionsBase(object):
 
     def __init__(self, config):
         self.config = config
-        self.subconfig = None
         self.parser = None
         self.subparser = None
 
@@ -62,10 +61,8 @@ class OptionsBase(object):
 class DataDirMixin(object):
     __slots__ = ()
 
-    def data_dir_options(self, config=None, glob=False):
+    def data_dir_options(self, config, glob=False):
         assert self.subparser is not None
-        if config is None:
-            config = self.subconfig
 
         group = self.subparser.add_argument_group(
             "input data options")
@@ -84,10 +81,8 @@ class DataDirMixin(object):
 
         return group
 
-    def data_dir_update(self, args, config=None, glob=False):
+    def data_dir_update(self, args, config, glob=False):
         assert self.subparser is not None
-        if config is None:
-            config = self.subconfig
 
         if args.data_dir is not None:
             config.data_dir = args.data_dir
@@ -99,10 +94,8 @@ class DataDirMixin(object):
 class WorkDirMixin(object):
     __slots__ = ()
 
-    def work_dir_options(self, config=None):
+    def work_dir_options(self, config):
         assert self.subparser is not None
-        if config is None:
-            config = self.subconfig
 
         group = self.subparser.add_argument_group(
             "output data options")
@@ -114,10 +107,7 @@ class WorkDirMixin(object):
         )
         return group
 
-    def work_dir_update(self, args, config=None):
-        if config is None:
-            config = self.subconfig
-
+    def work_dir_update(self, args, config):
         if args.work_dir is not None:
             config.work_dir = args.work_dir
 
@@ -126,7 +116,6 @@ class GenomeIndexMixin(object):
     __slots__ = ()
 
     def genome_index_options(self, input_dir=False):
-        assert self.subconfig is not None
         assert self.subparser is not None
 
         group = self.subparser.add_argument_group(

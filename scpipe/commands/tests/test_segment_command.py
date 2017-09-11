@@ -7,7 +7,7 @@ Created on Aug 2, 2017
 
 def test_segment_long(
         argparser, tests_config, segment_command):
-    segment_command.add_options()
+    segment_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",

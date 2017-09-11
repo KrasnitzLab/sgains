@@ -12,9 +12,9 @@ from pipelines.varbin_pipeline import VarbinPipeline
 
 class VarbinMixin(DataDirMixin, WorkDirMixin, BinsBoundariesMixin):
 
-    def mapping_options(self):
-        self.data_dir_options(glob=True)
-        group = self.work_dir_options()
+    def mapping_options(self, config):
+        self.data_dir_options(config=config.varbin, glob=True)
+        group = self.work_dir_options(config=config.varbin)
         group.add_argument(
             "--suffix", "-s",
             help="suffix for output files",
@@ -25,8 +25,8 @@ class VarbinMixin(DataDirMixin, WorkDirMixin, BinsBoundariesMixin):
 
     def mapping_updates(self, args):
         self.common_updates(args)
-        self.work_dir_update(args)
-        self.data_dir_update(args, glob=True)
+        self.work_dir_update(args, config=self.config.varbin)
+        self.data_dir_update(args, config=self.config.varbin, glob=True)
         self.bins_boundaries_updates(args, bins_count=False)
         if args.suffix is not None:
             self.config.varbin.suffix = args.suffix
@@ -38,7 +38,6 @@ class VarbinCommand(
 
     def __init__(self, config, parser, subparsers):
         super(VarbinCommand, self).__init__(config)
-        self.subconfig = config.varbin
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="varbin",
@@ -47,8 +46,8 @@ class VarbinCommand(
         )
         self.subparser.set_defaults(func=self.run)
 
-    def add_options(self):
-        self.mapping_options()
+    def add_options(self, config):
+        self.mapping_options(config)
 
     def process_args(self, args):
         self.common_updates(args)
