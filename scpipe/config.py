@@ -3,7 +3,7 @@ Created on Jun 10, 2017
 
 @author: lubo
 '''
-from box import Box
+from box import Box, _get_box_config
 import os
 import glob
 from termcolor import colored
@@ -59,15 +59,24 @@ class Config(Box):
         }
     }
 
+    def __new__(cls, *args, **kwargs):
+        """
+        Due to the way pickling works in python 3, we need to make sure
+        the box config is created as early as possible.
+        """
+        obj = super(Box, cls).__new__(cls, *args, **kwargs)
+        obj._box_config = _get_box_config(cls, kwargs)
+        return obj
+
+    def __init__(self, *args, **kwargs):
+        super(Config, self).__init__(
+            *args,
+            **kwargs)
+
     @staticmethod
     def copy(config):
         new_box = Box(copy.deepcopy(config.to_dict()))
         return Config(new_box)
-
-    def __init__(self, data, **kwargs):
-        super(Config, self).__init__(
-            data,
-            **kwargs)
 
     @staticmethod
     def cellname(filename):
@@ -242,3 +251,12 @@ class Config(Box):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         return dirname
+
+    def __getstate__(self):
+        state = self.to_dict()
+        state['_box_config'] = copy.copy(self._box_config)
+
+    def __setstate__(self, state):
+        # print("__setstate__: {}".format(state))
+        self._box_config = state['_box_config']
+        self.__dict__.update(state)
