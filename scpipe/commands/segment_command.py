@@ -27,6 +27,11 @@ class SegmentMixin(DataDirMixin, WorkDirMixin, BinsBoundariesMixin):
         self.common_updates(args)
         self.work_dir_update(args, config=self.config.segment)
         self.data_dir_update(args, config=self.config.segment, glob=True)
+        if args.data_dir:
+            self.config.varbin.work_dir = args.data_dir
+        if args.data_glob:
+            self.config.varbin.suffix = args.data_glob
+
         self.bins_boundaries_updates(args, bins_count=False)
         if args.study_name is not None:
             self.config.segment.study_name = args.study_name

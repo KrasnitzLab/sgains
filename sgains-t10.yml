@@ -29,6 +29,6 @@ varbin:
 
 segment:
     data_dir: data/Navin2011/T10_varbin
-    data_glob: "*.varbin.10k.txt"
+    data_glob: "varbin.10k.txt"
     work_dir: data/Navin2011/T10_segment
     study_name: "navin2011_T10"

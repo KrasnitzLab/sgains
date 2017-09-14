@@ -239,7 +239,6 @@ class Config(Box):
 
     def mapping_work_dirname(self):
         dirname = self.abspath(self.mapping.work_dir)
-        print("mapping work dir: {}".format(dirname))
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         return dirname
