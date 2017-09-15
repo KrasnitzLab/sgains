@@ -257,6 +257,5 @@ class Config(Box):
         state['_box_config'] = copy.copy(self._box_config)
 
     def __setstate__(self, state):
-        # print("__setstate__: {}".format(state))
         self._box_config = state['_box_config']
         self.__dict__.update(state)

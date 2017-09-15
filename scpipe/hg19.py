@@ -87,7 +87,6 @@ class HumanGenome19(object):
 
     def bins_boundaries(self):
         bins_boundaries_filename = self.config.bins_boundaries_filename()
-        print(os.path.abspath(bins_boundaries_filename))
 
         if os.path.exists(bins_boundaries_filename):
             df = pd.read_csv(bins_boundaries_filename, sep='\t')

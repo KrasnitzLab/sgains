@@ -9,6 +9,7 @@ from termcolor import colored
 import os
 import pandas as pd
 import pysam
+import multiprocessing
 
 
 class VarbinPipeline(object):
@@ -83,30 +84,33 @@ class VarbinPipeline(object):
         df.sort_values(by=['abspos'], inplace=True)
         return df
 
+    def run_once(self, varbin_filename):
+        cellname = self.config.cellname(varbin_filename)
+        outfile = self.config.varbin_work_filename(cellname)
+        print(colored(
+            "processing cell {}; reading from {}; writing to {}".format(
+                cellname, varbin_filename, outfile),
+            "green"))
+
+        if os.path.exists(outfile) and not self.config.force:
+            print(
+                colored(
+                    "output file {} exists; add --force to overwrite"
+                    .format(
+                        outfile
+                    ),
+                    "red")
+            )
+        else:
+            if not self.config.dry_run:
+                df = self.varbin(varbin_filename)
+                df.to_csv(outfile, index=False, sep='\t')
+
     def run(self):
         varbin_filenames = self.config.varbin_data_filenames()
         print(colored(
             "processing files: {}".format(varbin_filenames),
             "green"))
 
-        for filename in varbin_filenames:
-            cellname = self.config.cellname(filename)
-            outfile = self.config.varbin_work_filename(cellname)
-            print(colored(
-                "processing cell {}; reading from {}; writing to {}".format(
-                    cellname, filename, outfile),
-                "green"))
-
-            if os.path.exists(outfile) and not self.config.force:
-                print(
-                    colored(
-                        "output file {} exists; add --force to overwrite"
-                        .format(
-                            outfile
-                        ),
-                        "red")
-                )
-            else:
-                if not self.config.dry_run:
-                    df = self.varbin(filename)
-                    df.to_csv(outfile, index=False, sep='\t')
+        pool = multiprocessing.Pool(processes=self.config.parallel)
+        pool.map(self.run_once, varbin_filenames)
