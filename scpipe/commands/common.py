@@ -300,7 +300,7 @@ class MappingMixin(object):
             "--mapping-suffix",
             dest="mapping_suffix",
             help="mapping files suffix pattern",
-            default=config.mapping.reads_suffix)
+            default=config.mapping.mapping_suffix)
         return group
 
     def mapping_dir_updates(self, args):
