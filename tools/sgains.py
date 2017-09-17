@@ -12,6 +12,7 @@ from argparse import ArgumentParser,\
 import os
 import sys
 import traceback
+import setproctitle  # @UnresolvedImport
 
 from commands.bins_command import BinsCommand
 from commands.genomeindex_command import GenomeIndexCommand
@@ -36,6 +37,7 @@ class CLIError(Exception):
         return self.msg
 
     def __unicode__(self):
+
         return self.msg
 
 
@@ -54,6 +56,8 @@ USAGE
 ''' % (program_shortdesc, )
 
     try:
+        setproctitle.setproctitle('sgains')
+
         defaults_config = Config.parse_args(argv)
 
         argparser = ArgumentParser(
