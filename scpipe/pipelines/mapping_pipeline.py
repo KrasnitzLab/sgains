@@ -42,7 +42,7 @@ class MappingPipeline(object):
         ]
 
     def bowtie_stage(self, _filename):
-        bowtie_opts = self.config.mapping.bowtie_opts.split(' ')
+        bowtie_opts = self.config.mapping.mapping_bowtie_opts.split(' ')
         return [
             'bowtie',
             *bowtie_opts,
@@ -85,7 +85,7 @@ class MappingPipeline(object):
     def samtools_view_store_stage(self, filename):
         cellname = Config.cellname((filename))
         outfile = os.path.join(
-            self.config.mapping_work_dirname(),
+            self.config.mapping_dirname(),
             "{}.rmdup.bam".format(cellname)
         )
         outfile = self.config.abspath(outfile)
@@ -135,10 +135,10 @@ class MappingPipeline(object):
                 shell=True)
 
     def run(self):
-        fastq_filenames = self.config.mapping_fastq_filenames()
+        fastq_filenames = self.config.mapping_reads_filenames()
         assert fastq_filenames
 
-        work_dirname = self.config.abspath(self.config.mapping.work_dir)
+        work_dirname = self.config.abspath(self.config.mapping.mapping_dir)
         self.config.check_nonempty_workdir(
             work_dirname
         )

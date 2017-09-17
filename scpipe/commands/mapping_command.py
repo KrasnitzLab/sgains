@@ -23,7 +23,7 @@ class MappingMixin(GenomeIndexMixin):
             default=config.mapping.reads_dir
         )
         group.add_argument(
-            "--reads-suffx",
+            "--reads-suffix",
             dest="reads_suffix",
             help="reads files suffix pattern",
             default=config.mapping.reads_suffix)
@@ -72,14 +72,15 @@ class MappingMixin(GenomeIndexMixin):
             "--mapping-bowtie-opts",
             dest="mapping_bowtie_opts",
             help="bowtie mapping options",
-            default=config.mapping.bowtie_opts
+            default=config.mapping.mapping_bowtie_opts
         )
 
     def mapping_updates(self, args):
         self.reads_dir_update(args, config=self.config)
         self.mapping_dir_update(args, config=self.config)
-        if args.bowtie_opts:
-            self.config.mapping.bowtie_opts = args.bowtie_opts
+        if args.mapping_bowtie_opts:
+            self.config.mapping.mapping_bowtie_opts = \
+                args.mapping_bowtie_opts
 
 
 class MappingCommand(

@@ -15,10 +15,10 @@ def test_mapping_long(
         "mapping",
         "--genome-index", "probaindex",
         "--genome-dir", "data/hg19_safe",
-        "--bowtie-opts", "-1 -2 -3",
-        "--data-dir", "data/test_study/raw",
-        "--glob", "*.fastq.gz",
-        "--work-dir", "data/proba/bams",
+        "--mapping-bowtie-opts", "-1 -2 -3",
+        "--reads-dir", "data/test_study/raw",
+        "--reads-suffix", ".fastq.gz",
+        "--mapping-dir", "data/proba/bams",
     ]
 
     args = argparser.parse_args(argv)
@@ -34,7 +34,7 @@ def test_mapping_long(
     assert config.genome.work_dir == "data/hg19_safe"
     assert config.genome.index == "probaindex"
 
-    assert config.mapping.work_dir == "data/proba/bams"
-    assert config.mapping.data_dir == "data/test_study/raw"
-    assert config.mapping.data_glob == "*.fastq.gz"
-    assert config.mapping.bowtie_opts == "-1 -2 -3"
+    assert config.mapping.mapping_dir == "data/proba/bams"
+    assert config.mapping.reads_dir == "data/test_study/raw"
+    assert config.mapping.reads_suffix == ".fastq.gz"
+    assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"
