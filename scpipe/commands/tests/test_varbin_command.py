@@ -14,10 +14,10 @@ def test_varbin_long(
         "varbin",
         "--bins-boundaries", "test_bins_boundaries.txt",
         "--bins-dir", "data/test_study/bins",
-        "--data-dir", "data/test_study/bam",
-        "--glob", "*.rmdup.bam",
-        "--work-dir", "data/proba/varbin",
-        "--suffix", "varbin.txt",
+        "--mapping-dir", "data/test_study/bam",
+        "--mapping-suffix", ".rmdup.bam",
+        "--varbin-dir", "data/proba/varbin",
+        "--varbin-suffix", "varbin.txt",
     ]
 
     args = argparser.parse_args(argv)
@@ -29,7 +29,7 @@ def test_varbin_long(
     assert config.force
     assert config.dry_run
 
-    assert config.bins.work_dir == "data/test_study/bins"
+    assert config.bins.bins_dir == "data/test_study/bins"
     assert config.bins.bins_boundaries == "test_bins_boundaries.txt"
-    assert config.varbin.data_dir == "data/test_study/bam"
-    assert config.varbin.data_glob == "*.rmdup.bam"
+    assert config.mapping.mapping_dir == "data/test_study/bam"
+    assert config.mapping.mapping_suffix == ".rmdup.bam"

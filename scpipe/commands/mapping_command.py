@@ -30,13 +30,13 @@ class MappingMixin(GenomeIndexMixin):
 
         return group
 
-    def reads_dir_update(self, args, config):
+    def reads_dir_updates(self, args):
         assert self.subparser is not None
 
         if args.reads_dir is not None:
-            config.mapping.reads_dir = args.reads_dir
+            self.config.mapping.reads_dir = args.reads_dir
         if args.reads_suffix is not None:
-            config.mapping.reads_suffix = args.reads_suffix
+            self.config.mapping.reads_suffix = args.reads_suffix
 
     def mapping_dir_options(self, config):
         assert self.subparser is not None
@@ -50,20 +50,20 @@ class MappingMixin(GenomeIndexMixin):
             default=config.mapping.mapping_dir
         )
         group.add_argument(
-            "--mapping-suffx",
+            "--mapping-suffix",
             dest="mapping_suffix",
             help="mapping files suffix pattern",
             default=config.mapping.reads_suffix)
 
         return group
 
-    def mapping_dir_update(self, args, config):
+    def mapping_dir_updates(self, args):
         assert self.subparser is not None
 
         if args.mapping_dir is not None:
-            config.mapping.mapping_dir = args.mapping_dir
+            self.config.mapping.mapping_dir = args.mapping_dir
         if args.mapping_suffix is not None:
-            config.mapping.mapping_suffix = args.mapping_suffix
+            self.config.mapping.mapping_suffix = args.mapping_suffix
 
     def mapping_options(self, config):
         self.reads_dir_options(config=config)
@@ -76,8 +76,8 @@ class MappingMixin(GenomeIndexMixin):
         )
 
     def mapping_updates(self, args):
-        self.reads_dir_update(args, config=self.config)
-        self.mapping_dir_update(args, config=self.config)
+        self.reads_dir_updates(args)
+        self.mapping_dir_updates(args)
         if args.mapping_bowtie_opts:
             self.config.mapping.mapping_bowtie_opts = \
                 args.mapping_bowtie_opts

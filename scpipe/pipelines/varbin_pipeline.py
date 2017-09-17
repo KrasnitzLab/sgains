@@ -107,7 +107,7 @@ class VarbinPipeline(object):
                 df.to_csv(outfile, index=False, sep='\t')
 
     def run(self):
-        varbin_filenames = self.config.varbin_data_filenames()
+        varbin_filenames = self.config.varbin_filenames()
         print(colored(
             "processing files: {}".format(varbin_filenames),
             "green"))

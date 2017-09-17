@@ -64,7 +64,7 @@ class VarbinCommand(
     def process_args(self, args):
         self.common_updates(args)
         self.mapping_dir_updates(args)
-        self.varbin_dir_updates(args, self.config)
+        self.varbin_dir_updates(args)
         self.bins_boundaries_updates(args, bins_count=False)
 
     def run(self, args):
