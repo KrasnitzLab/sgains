@@ -31,7 +31,7 @@ class SegmentMixin(object):
 
         return group
 
-    def segment_update(self, args):
+    def segment_updates(self, args):
         assert self.subparser is not None
 
         if args.segment_dir is not None:
@@ -63,7 +63,7 @@ class SegmentCommand(
 
     def process_args(self, args):
         self.common_updates(args)
-        self.varbin_dir_update(args)
+        self.varbin_dir_updates(args)
         self.segment_updates(args)
         self.bins_boundaries_updates(args, bins_count=False)
 

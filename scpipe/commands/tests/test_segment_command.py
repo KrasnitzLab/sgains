@@ -14,9 +14,9 @@ def test_segment_long(
         "segment",
         "--bins-boundaries", "test_bins_boundaries.txt",
         "--bins-dir", "data/test_study/bins",
-        "--data-dir", "data/test_study/results",
-        "--glob", "*.varbin.txt",
-        "--work-dir", "data/proba",
+        "--varbin-dir", "data/test_study/results",
+        "--varbin-suffix", ".varbin.txt",
+        "--segment-dir", "data/proba",
         "--study-name", "test_study",
     ]
 
@@ -29,10 +29,10 @@ def test_segment_long(
     assert config.force
     assert config.dry_run
 
-    assert config.bins.work_dir == "data/test_study/bins"
+    assert config.bins.bins_dir == "data/test_study/bins"
     assert config.bins.bins_boundaries == "test_bins_boundaries.txt"
 
-    assert config.segment.data_dir == "data/test_study/results"
-    assert config.segment.data_glob == "*.varbin.txt"
+    assert config.varbin.varbin_dir == "data/test_study/results"
+    assert config.varbin.varbin_suffix == ".varbin.txt"
     assert config.segment.study_name == "test_study"
-    assert config.segment.work_dir == "data/proba"
+    assert config.segment.segment_dir == "data/proba"

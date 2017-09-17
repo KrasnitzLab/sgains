@@ -17,15 +17,15 @@ class Rpipeline(object):
 
     def run(self):
         bin_boundaries_filename = self.config.bins_boundaries_filename()
-        varbin_filenames = self.config.varbin_work_filenames()
-        results_dirname = self.config.segment_work_dirname()
+        varbin_filenames = self.config.varbin_filenames()
+        results_dirname = self.config.segment_dirname()
         study_name = self.config.segment.study_name
 
         print(colored(
             "processing study {} from {} to {}".format(
                 study_name,
-                self.config.segment_data_dirname(),
-                self.config.segment_work_dirname()),
+                self.config.varbin_dirname(),
+                self.config.segment_dirname()),
             "green"))
         print(colored(
             "processing varbin files: {}".format(varbin_filenames)))

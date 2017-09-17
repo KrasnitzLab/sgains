@@ -202,7 +202,7 @@ class BinsBoundariesMixin(object):
         if args.bins_boundaries:
             self.config.bins.bins_boundaries = args.bins_boundaries
         if args.bins_dir:
-            self.config.bins.work_dir = args.bins_dir
+            self.config.bins.bins_dir = args.bins_dir
         if bins_count:
             if args.bins_count:
                 self.config.bins.bins_count = args.bins_count

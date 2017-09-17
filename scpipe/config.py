@@ -163,7 +163,7 @@ class Config(Box):
 
     def bins_boundaries_filename(self):
         filename = os.path.join(
-            self.bins.work_dir,
+            self.bins.bins_dir,
             self.bins.bins_boundaries
         )
         return self.abspath(filename)

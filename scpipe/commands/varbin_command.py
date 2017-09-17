@@ -25,13 +25,13 @@ class VarbinMixin(object):
         )
         group.add_argument(
             "--varbin-suffix",
-            dest="varbin_glob",
+            dest="varbin_suffix",
             help="varbin files suffix pattern",
             default=config.varbin.varbin_suffix)
 
         return group
 
-    def varbin_dir_update(self, args):
+    def varbin_dir_updates(self, args):
         assert self.subparser is not None
 
         if args.varbin_dir is not None:
@@ -64,7 +64,7 @@ class VarbinCommand(
     def process_args(self, args):
         self.common_updates(args)
         self.mapping_dir_updates(args)
-        self.varbin_dir_update(args, self.config)
+        self.varbin_dir_updates(args, self.config)
         self.bins_boundaries_updates(args, bins_count=False)
 
     def run(self, args):
