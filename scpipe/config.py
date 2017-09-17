@@ -162,6 +162,9 @@ class Config(Box):
         return filename
 
     def bins_boundaries_filename(self):
+        if os.path.exists(self.bins.bins_boundaries):
+            return os.path.abspath(self.bins.bins_boundaries)
+
         filename = os.path.join(
             self.bins.bins_dir,
             self.bins.bins_boundaries
