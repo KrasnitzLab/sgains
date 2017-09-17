@@ -8,6 +8,7 @@ import argparse
 from commands.common import OptionsBase, BinsBoundariesMixin
 from pipelines.varbin_pipeline import VarbinPipeline
 from commands.mapping_command import MappingMixin
+from termcolor import colored
 
 
 class VarbinMixin(object):
@@ -68,7 +69,10 @@ class VarbinCommand(
         self.bins_boundaries_updates(args, bins_count=False)
 
     def run(self, args):
-        print("varbin subcommand called with args: {}".format(args))
+        print(colored(
+            "varbin subcommand called with args: {}".format(args),
+            "yellow"))
+
         self.process_args(args)
         pipeline = VarbinPipeline(self.config)
         pipeline.run()

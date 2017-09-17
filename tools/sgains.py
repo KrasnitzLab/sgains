@@ -99,8 +99,6 @@ USAGE
         segment_command.add_options(defaults_config)
 
         args = argparser.parse_args(argv[1:])
-        print(args)
-
         args.func(args)
 
         return 0

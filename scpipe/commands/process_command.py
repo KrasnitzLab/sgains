@@ -12,6 +12,7 @@ from config import Config
 from pipelines.mapping_pipeline import MappingPipeline
 from pipelines.varbin_pipeline import VarbinPipeline
 from pipelines.r_pipeline import Rpipeline
+from termcolor import colored
 
 
 class ProcessCommand(
@@ -49,7 +50,9 @@ class ProcessCommand(
         self.bins_boundaries_updates(args, bins_count=False)
 
     def run(self, args):
-        print("process subcommand called with args: {}".format(args))
+        print(colored(
+            "process subcommand called with args: {}".format(args),
+            "yellow"))
         self.process_args(args)
 
         mapping_workdir = os.path.join(

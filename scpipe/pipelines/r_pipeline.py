@@ -28,7 +28,8 @@ class Rpipeline(object):
                 self.config.segment_dirname()),
             "green"))
         print(colored(
-            "processing varbin files: {}".format(varbin_filenames)))
+            "processing varbin files: {}".format(varbin_filenames),
+            "green"))
 
         if os.path.exists(results_dirname) and \
                 len(os.listdir(results_dirname)) > 0:

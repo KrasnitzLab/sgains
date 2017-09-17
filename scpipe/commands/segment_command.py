@@ -8,6 +8,7 @@ import argparse
 from commands.common import OptionsBase, BinsBoundariesMixin, SegmentMixin
 from pipelines.r_pipeline import Rpipeline
 from commands.varbin_command import VarbinMixin
+from termcolor import colored
 
 
 class SegmentCommand(
@@ -38,7 +39,9 @@ class SegmentCommand(
         self.bins_boundaries_updates(args, bins_count=False)
 
     def run(self, args):
-        print("segment subcommand called with args: {}".format(args))
+        print(colored(
+            "segment subcommand called with args: {}".format(args),
+            "yellow"))
         self.process_args(args)
         pipeline = Rpipeline(self.config)
         pipeline.run()

@@ -180,7 +180,6 @@ class Config(Box):
         return self.abspath(filename)
 
     def varbin_filenames(self):
-        print("processing varbin dir: {}".format(self.varbin.varbin_dir))
         if not os.path.exists(self.varbin.varbin_dir):
             return []
         dirname = self.abspath(self.varbin.varbin_dir)
@@ -233,14 +232,10 @@ class Config(Box):
         return dirname
 
     def mapping_filenames(self):
-        print("processing mapping dir: {}".format(
-            self.mapping.mapping_dir))
-        print(self.to_dict())
         pattern = os.path.join(
             self.mapping_dirname(),
             "*{}".format(self.mapping.mapping_suffix)
         )
-        print("processing mapping patter: {}".format(pattern))
         filenames = glob.glob(pattern)
         return filenames
 

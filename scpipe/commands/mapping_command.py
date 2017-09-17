@@ -7,6 +7,7 @@ import argparse
 
 from commands.common import GenomeIndexMixin, OptionsBase, MappingMixin
 from pipelines.mapping_pipeline import MappingPipeline
+from termcolor import colored
 
 
 class MappingCommand(
@@ -34,7 +35,9 @@ class MappingCommand(
         self.genome_index_updates(args, input_dir=False)
 
     def run(self, args):
-        print("mapping subcommand called with args: {}".format(args))
+        print(colored(
+            "mapping subcommand called with args: {}".format(args),
+            "yellow"))
         self.process_args(args)
         pipeline = MappingPipeline(self.config)
         pipeline.run()
