@@ -180,7 +180,8 @@ class Config(Box):
         return self.abspath(filename)
 
     def varbin_filenames(self):
-        assert os.path.exists(self.varbin.varbin_dir)
+        if not os.path.exists(self.varbin.varbin_dir):
+            return []
         dirname = self.abspath(self.varbin.varbin_dir)
         pattern = os.path.join(
             dirname,

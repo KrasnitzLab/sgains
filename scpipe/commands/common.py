@@ -158,7 +158,7 @@ class GenomeIndexMixin(object):
                 default=config.genome.data_dir)
         return group
 
-    def genome_index_update(self, args, input_dir=False):
+    def genome_index_updates(self, args, input_dir=False):
         if args.genome_index is not None:
             self.config.genome.index = args.genome_index
         if args.genome_dir is not None:
@@ -242,7 +242,7 @@ class MappableRegionsMixin(object):
             )
         return group
 
-    def mappable_regions_update(self, args, read_length=False):
+    def mappable_regions_updates(self, args, read_length=False):
         if args.mappable_dir is not None:
             self.config.mappable_regions.work_dir = args.mappable_dir
         if args.mappable_regions:
@@ -253,3 +253,114 @@ class MappableRegionsMixin(object):
                 self.config.mappable_regions.bowtie_opts = args.bowtie_opts
             if args.length:
                 self.config.mappable_regions.length = args.length
+
+
+class MappingMixin(object):
+    __slots__ = ()
+
+    def reads_dir_options(self, config):
+        assert self.subparser is not None
+
+        group = self.subparser.add_argument_group(
+            "sequencing reads options")
+        group.add_argument(
+            "--reads-dir", "-R",
+            dest="reads_dir",
+            help="data directory where sequencing reads are located",
+            default=config.mapping.reads_dir
+        )
+        group.add_argument(
+            "--reads-suffix",
+            dest="reads_suffix",
+            help="reads files suffix pattern",
+            default=config.mapping.reads_suffix)
+
+        return group
+
+    def reads_dir_updates(self, args):
+        assert self.subparser is not None
+
+        if args.reads_dir is not None:
+            self.config.mapping.reads_dir = args.reads_dir
+        if args.reads_suffix is not None:
+            self.config.mapping.reads_suffix = args.reads_suffix
+
+    def mapping_dir_options(self, config):
+        assert self.subparser is not None
+
+        group = self.subparser.add_argument_group(
+            "mapping files options")
+        group.add_argument(
+            "--mapping-dir", "-M",
+            dest="mapping_dir",
+            help="data directory where mapping files are located",
+            default=config.mapping.mapping_dir
+        )
+        group.add_argument(
+            "--mapping-suffix",
+            dest="mapping_suffix",
+            help="mapping files suffix pattern",
+            default=config.mapping.reads_suffix)
+        return group
+
+    def mapping_dir_updates(self, args):
+        assert self.subparser is not None
+
+        if args.mapping_dir is not None:
+            self.config.mapping.mapping_dir = args.mapping_dir
+        if args.mapping_suffix is not None:
+            self.config.mapping.mapping_suffix = args.mapping_suffix
+
+    def mapping_bowtie_opts(self, config):
+        self.subparser.add_argument(
+            "--mapping-bowtie-opts",
+            dest="mapping_bowtie_opts",
+            help="bowtie mapping options",
+            default=config.mapping.mapping_bowtie_opts
+        )
+
+    def mapping_bowtie_updates(self, args):
+        if args.mapping_bowtie_opts:
+            self.config.mapping.mapping_bowtie_opts = \
+                args.mapping_bowtie_opts
+
+    def mapping_options(self, config):
+        self.reads_dir_options(config=config)
+        self.mapping_dir_options(config=config)
+        self.mapping_bowtie_opts(config=config)
+
+    def mapping_updates(self, args):
+        self.reads_dir_updates(args)
+        self.mapping_dir_updates(args)
+        self.mapping_bowtie_updates(args)
+
+
+class SegmentMixin(object):
+    __slots__ = ()
+
+    def segment_options(self, config):
+        assert self.subparser is not None
+
+        group = self.subparser.add_argument_group(
+            "segment options")
+        group.add_argument(
+            "--segment-dir", "-S",
+            dest="segment_dir",
+            help="segment directory",
+            default=config.segment.segment_dir
+        )
+        group.add_argument(
+            "--study-name",
+            dest="study_name",
+            help="study name",
+            default=config.segment.study_name)
+
+        return group
+
+    def segment_updates(self, args):
+        assert self.subparser is not None
+
+        if args.segment_dir is not None:
+            self.config.segment.segment_dir = args.segment_dir
+        if args.study_name is not None:
+            self.config.segment.study_name = args.study_name
