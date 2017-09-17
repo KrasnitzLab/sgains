@@ -37,24 +37,22 @@ class Config(Box):
         },
         "bins": {
             "bins_count": 10000,
-            "work_dir": "data/R100_B10k",
+            "bins_dir": "data/R100_B10k",
             "bins_boundaries": "bins_boundaries.tst",
         },
         "mapping": {
-            "data_dir": "",
-            "work_dir": "",
-            "bowtie_opts": "",
+            "reads_dir": "",
+            "reads_suffix": "",
+            "mapping_dir": "",
+            "mapping_suffix": ".rmdup.bam",
+            "mapping_bowtie_opts": "",
         },
         "varbin": {
-            "data_dir": "",
-            "data_glob": "*.rmdup.bam",
-            "work_dir": "",
-            "suffix": ".varbin.txt",
+            "varbin_dir": "",
+            "varbin_suffix": ".varbin.txt",
         },
         "segment": {
-            "data_dir": ".",
-            "data_glob": "*.varbin.txt",
-            "work_dir": ".",
+            "segment_dir": ".",
             "study_name": "test",
         }
     }
@@ -181,59 +179,61 @@ class Config(Box):
         )
         return self.abspath(filename)
 
-    def varbin_data_filenames(self):
-        assert os.path.exists(self.varbin.data_dir)
-        dirname = self.abspath(self.varbin.data_dir)
+    def varbin_filenames(self):
+        assert os.path.exists(self.varbin.varbin_dir)
+        dirname = self.abspath(self.varbin.varbin_dir)
         pattern = os.path.join(
             dirname,
-            self.varbin.data_glob
+            "*{}".format(self.varbin.varbin_suffix)
         )
         filenames = glob.glob(pattern)
         return filenames
 
-    def varbin_work_dirname(self):
-        dirname = self.abspath(self.varbin.work_dir)
+    def varbin_filename(self, cellname):
+        outfile = os.path.join(
+            self.varbin_dirname(),
+            "{}.{}".format(cellname, self.varbin.suffix)
+        )
+        outfile = self.abspath(outfile)
+        return outfile
+
+    def varbin_dirname(self):
+        dirname = self.abspath(self.varbin.varbin_dir)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         return dirname
 
-    def segment_data_dirname(self):
-        dirname = self.abspath(self.segment.data_dir)
-        return self.abspath(dirname)
-
-    def segment_work_dirname(self):
-        dirname = self.abspath(self.segment.work_dir)
+    def segment_dirname(self):
+        dirname = self.abspath(self.segment.segment_dir)
         dirname = os.path.join(dirname, self.segment.study_name)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 
         return dirname
 
-    def varbin_work_filename(self, cellname):
-        outfile = os.path.join(
-            self.varbin_work_dirname(),
-            "{}.{}".format(cellname, self.varbin.suffix)
-        )
-        outfile = self.abspath(outfile)
-        return outfile
-
-    def varbin_work_filenames(self):
-        dirname = self.varbin_work_dirname()
-        pattern = os.path.join(
-            dirname,
-            "*.{}".format(self.varbin.suffix)
-        )
-        return glob.glob(pattern)
-
-    def mapping_data_dirname(self):
-        assert os.path.exists(self.mapping.data_dir)
-        dirname = self.abspath(self.mapping.data_dir)
+    def mapping_reads_dirname(self):
+        assert os.path.exists(self.mapping.reads_dir)
+        dirname = self.abspath(self.mapping.reads_dir)
         return dirname
 
-    def mapping_fastq_filenames(self):
+    def mapping_reads_filenames(self):
         pattern = os.path.join(
-            self.mapping_data_dirname(),
-            "*{}".format(self.mapping.data_glob)
+            self.mapping_reads_dirname(),
+            "*{}".format(self.mapping.reads_suffix)
+        )
+        filenames = glob.glob(pattern)
+        return filenames
+
+    def mapping_dirname(self):
+        dirname = self.abspath(self.mapping.mapping_dir)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        return dirname
+
+    def mapping_filenames(self):
+        pattern = os.path.join(
+            self.mapping_dirname(),
+            "*{}".format(self.mapping.mapping_suffix)
         )
         filenames = glob.glob(pattern)
         return filenames
@@ -245,12 +245,6 @@ class Config(Box):
                 "ERROR: non-empty output directory and no --force option",
                 "red"))
             raise NonEmptyWorkDirectory(dirname)
-
-    def mapping_work_dirname(self):
-        dirname = self.abspath(self.mapping.work_dir)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
-        return dirname
 
     def __getstate__(self):
         state = self.to_dict()

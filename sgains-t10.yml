@@ -16,14 +16,14 @@ bins:
 
 mapping:
     data_dir: data/safe/Navin2011/T10
-    data_glob: "*.fastq.gz"
+    data_suffix: ".fastq.gz"
     work_dir: data/Navin2011/T10
+    suffix: "*.rmdup.bam"
     bowtie_opts: "-S -t -m 1 --best --strata"
     
 
 varbin:
     data_dir: data/Navin2011/T10
-    data_glob: "*.rmdup.bam"
     work_dir: data/Navin2011/T10_varbin
     suffix: "varbin.10k.txt"
 

@@ -5,40 +5,45 @@ Created on Aug 2, 2017
 '''
 import argparse
 
-from commands.common import OptionsBase, DataDirMixin,\
-    WorkDirMixin, BinsBoundariesMixin
+from commands.common import OptionsBase, BinsBoundariesMixin
 from pipelines.r_pipeline import Rpipeline
+from commands.varbin_command import VarbinMixin
 
 
-class SegmentMixin(DataDirMixin, WorkDirMixin, BinsBoundariesMixin):
+class SegmentMixin(object):
 
     def segment_options(self, config):
-        self.data_dir_options(config=config.segment, glob=True)
-        group = self.work_dir_options(config=config.segment)
+        assert self.subparser is not None
+
+        group = self.subparser.add_argument_group(
+            "segment options")
         group.add_argument(
-            "--study-name", "-s",
-            help="study name",
-            dest="study_name",
-            default=config.segment.study_name
+            "--segment-dir", "-S",
+            dest="segment_dir",
+            help="segment directory",
+            default=config.segment.segment_dir
         )
-        self.bins_boundaries_options(config=config, bins_count=False)
+        group.add_argument(
+            "--study-name",
+            dest="study_name",
+            help="study name",
+            default=config.segment.study_name)
 
-    def segment_updates(self, args):
-        self.common_updates(args)
-        self.work_dir_update(args, config=self.config.segment)
-        self.data_dir_update(args, config=self.config.segment, glob=True)
-        if args.data_dir:
-            self.config.varbin.work_dir = args.data_dir
-        if args.data_glob:
-            self.config.varbin.suffix = args.data_glob
+        return group
 
-        self.bins_boundaries_updates(args, bins_count=False)
+    def segment_update(self, args):
+        assert self.subparser is not None
+
+        if args.segment_dir is not None:
+            self.config.segment.segment_dir = args.segment_dir
         if args.study_name is not None:
             self.config.segment.study_name = args.study_name
 
 
 class SegmentCommand(
+        VarbinMixin,
         SegmentMixin,
+        BinsBoundariesMixin,
         OptionsBase):
 
     def __init__(self, parser, subparsers):
@@ -52,11 +57,15 @@ class SegmentCommand(
         self.subparser.set_defaults(func=self.run)
 
     def add_options(self, config):
+        self.varbin_dir_options(config)
         self.segment_options(config)
+        self.bins_boundaries_options(config, bins_count=False)
 
     def process_args(self, args):
         self.common_updates(args)
+        self.varbin_dir_update(args)
         self.segment_updates(args)
+        self.bins_boundaries_updates(args, bins_count=False)
 
     def run(self, args):
         print("segment subcommand called with args: {}".format(args))
