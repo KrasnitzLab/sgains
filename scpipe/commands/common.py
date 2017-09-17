@@ -187,7 +187,7 @@ class BinsBoundariesMixin(object):
             "--bins-dir",
             dest="bins_dir",
             help="bins working directory",
-            default=config.bins.work_dir
+            default=config.bins.bins_dir
         )
         if bins_count:
             group.add_argument(
