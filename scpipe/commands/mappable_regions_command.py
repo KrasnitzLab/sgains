@@ -30,8 +30,8 @@ class MappableRegionsCommand(
 
     def process_args(self, args):
         self.common_updates(args)
-        self.genome_index_update(args, input_dir=False)
-        self.mappable_regions_update(args, read_length=True)
+        self.genome_index_updates(args, input_dir=False)
+        self.mappable_regions_updates(args, read_length=True)
 
     def run(self, args):
         print("mappable-regions subcommand called with args: {}".format(args))

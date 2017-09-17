@@ -37,7 +37,7 @@ class PrepareCommand(
     def process_args(self, args):
         self.common_updates(args)
         self.genome_index_updates(args, input_dir=True)
-        self.mappable_regions_update(args, read_length=True)
+        self.mappable_regions_updates(args, read_length=True)
         self.bins_boundaries_updates(args, bins_count=True)
 
         return self.config

@@ -28,7 +28,7 @@ class GenomeIndexCommand(
 
     def process_args(self, args):
         self.common_updates(args)
-        self.genome_index_update(args, input_dir=True)
+        self.genome_index_updates(args, input_dir=True)
 
         return self.config
 

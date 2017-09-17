@@ -32,6 +32,6 @@ def test_bins_long(
     assert config.mappable_regions.mappable_regions == \
         "mappable_regions.tsv"
 
-    assert config.bins.work_dir == "data/proba"
+    assert config.bins.bins_dir == "data/proba"
     assert config.bins.bins_boundaries == "test_bins_boundaries.txt"
     assert config.bins.bins_count == 33

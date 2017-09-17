@@ -32,7 +32,7 @@ class BinsCommand(
 
     def process_args(self, args):
         self.common_updates(args)
-        self.mappable_regions_update(args, read_length=False)
+        self.mappable_regions_updates(args, read_length=False)
         self.bins_boundaries_updates(args, bins_count=True)
 
     def run(self, args):
