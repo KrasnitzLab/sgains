@@ -44,11 +44,22 @@ class Rpipeline(object):
                     "red"))
                 raise NonEmptyWorkDirectory(results_dirname)
 
+        basedir = os.path.dirname(__file__)
+        rscript = os.path.abspath(
+            os.path.join(
+                basedir,
+                '../../'
+                'scripts/pipeline.R'
+            ))
+        print(rscript)
+
         if not self.config.dry_run:
             with open(os.devnull, 'w') as shutup:
+
+                assert os.path.exists(rscript)
                 subprocess.check_call(
                     [
-                        'Rscript', 'scripts/pipeline.R',
+                        'Rscript', rscript,
                         study_name,
                         results_dirname,
                         bin_boundaries_filename,
