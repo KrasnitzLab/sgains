@@ -4,7 +4,7 @@ Created on Aug 3, 2017
 @author: lubo
 '''
 from commands.common import OptionsBase, \
-    GenomeIndexMixin, BinsBoundariesMixin, MappingMixin, SegmentMixin
+    GenomeIndexMixin, BinsBoundariesMixin, MappingMixin
 
 import argparse
 import os
@@ -19,8 +19,34 @@ class ProcessCommand(
         GenomeIndexMixin,
         BinsBoundariesMixin,
         MappingMixin,
-        SegmentMixin,
         OptionsBase):
+
+    def output_options(self, config):
+        assert self.subparser is not None
+
+        group = self.subparser.add_argument_group(
+            "process output options")
+        group.add_argument(
+            "--output-dir", "-o",
+            dest="output_dir",
+            help="output directory",
+            default=config.segment.segment_dir
+        )
+        group.add_argument(
+            "--study-name",
+            dest="study_name",
+            help="study name",
+            default=config.segment.study_name)
+
+        return group
+
+    def output_updates(self, args):
+        assert self.subparser is not None
+
+        if args.output_dir is not None:
+            self.config.segment.segment_dir = args.output_dir
+        if args.study_name is not None:
+            self.config.segment.study_name = args.study_name
 
     def __init__(self, parser, subparsers):
         super(ProcessCommand, self).__init__()
@@ -36,7 +62,7 @@ class ProcessCommand(
     def add_options(self, config):
         self.reads_dir_options(config=config)
         self.mapping_bowtie_opts(config=config)
-        self.segment_options(config=config)
+        self.output_options(config=config)
 
         self.genome_index_options(config=config, input_dir=False)
         self.bins_boundaries_options(config=config, bins_count=False)
@@ -45,7 +71,8 @@ class ProcessCommand(
         self.common_updates(args)
         self.reads_dir_updates(args)
         self.mapping_bowtie_updates(args)
-        self.segment_updates(args)
+
+        self.output_updates(args)
         self.genome_index_updates(args, input_dir=False)
         self.bins_boundaries_updates(args, bins_count=False)
 
