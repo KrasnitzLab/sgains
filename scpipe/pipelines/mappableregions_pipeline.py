@@ -9,8 +9,18 @@ from termcolor import colored
 import os
 from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 
-from utils import LOG, MappableState, Mapping, MappableRegion
+from utils import MappableState, Mapping, MappableRegion, LOG
 import sys
+import multiprocessing
+import shutil
+# import logging
+
+# logging.basicConfig(
+#     level=logging.DEBUG,
+#     format='%(levelname)7s: %(message)s',
+#     stream=sys.stderr,
+# )
+# LOG = logging.getLogger('')
 
 
 class MappableRegionsPipeline(object):
@@ -158,6 +168,42 @@ class MappableRegionsPipeline(object):
         if state == MappableState.IN:
             yield prev
 
+    def run_once(self, chrom):
+        event_loop = asyncio.get_event_loop()
+
+        # LOG.info('enabling debugging')
+        # Enable debugging
+        # event_loop.set_debug(True)
+
+        outfilename = self.config.mappable_regions_filename(chrom)
+        with open(outfilename, "w") as outfile:
+            event_loop.run_until_complete(
+                self.async_generate_mappable_regions(
+                    [chrom],
+                    self.config.mappable_regions.length,
+                    outfile=outfile,
+                    bowtie_opts=self.config.mappable_regions.bowtie_opts)
+            )
+
+    def concatenate_all_chroms(self):
+        dst = self.config.mappable_regions_filename()
+        if os.path.exists(dst) and not self.config.force:
+            print(colored(
+                "destination mappable regions file already exists"
+                "use --force to overwrite", "red"))
+            raise ValueError("destination file exists... use --force")
+
+        if not self.config.dry_run:
+            with open(dst, 'wb') as output:
+                for chrom in self.hg.CHROMS:
+                    src = self.config.mappable_regions_filename(chrom)
+                    print(colored(
+                        "appending {} to {}".format(src, dst),
+                        "green"))
+                    with open(src, 'rb') as src:
+                        if not self.config.dry_run:
+                            shutil.copyfileobj(src, output, 1024 * 1024 * 10)
+
     def run(self):
         outfilename = self.config.mappable_regions_filename()
         print(colored(
@@ -171,9 +217,17 @@ class MappableRegionsPipeline(object):
 
         if os.path.exists(outfilename) and not self.config.force:
             print(colored(
-                "output file {} already exists; use --force to overwrite",
+                "output file {} already exists; "
+                "use --force to overwrite".format(outfilename),
                 "red"))
             raise ValueError("output file already exists")
+
+        if not self.config.genome_index_filename_exists():
+            print(colored(
+                "genome index file {} not found".format(
+                    self.config.genome_index_filename()),
+                "red"))
+            raise ValueError("genome index file not found")
 
         if self.config.dry_run:
             return
@@ -181,16 +235,7 @@ class MappableRegionsPipeline(object):
         if not os.path.exists(self.config.mappable_regions.work_dir):
             os.makedirs(self.config.mappable_regions.work_dir)
 
-        event_loop = asyncio.get_event_loop()
-        try:
-            with open(self.config.mappable_regions_filename(), "w") as outfile:
-                event_loop.run_until_complete(
-                    self.async_generate_mappable_regions(
-                        self.hg.CHROMS,
-                        self.config.mappable_regions.length,
-                        outfile=outfile,
-                        bowtie_opts=self.config.mappable_regions.bowtie_opts
-                    )
-                )
-        finally:
-            event_loop.close()
+        pool = multiprocessing.Pool(processes=self.config.parallel)
+        pool.map(self.run_once, self.hg.CHROMS)
+
+        self.concatenate_all_chroms()

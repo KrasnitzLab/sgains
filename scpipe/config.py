@@ -3,7 +3,7 @@ Created on Jun 10, 2017
 
 @author: lubo
 '''
-from box import Box, _get_box_config
+from box import Box
 import os
 import glob
 from termcolor import colored
@@ -56,15 +56,6 @@ class Config(Box):
             "study_name": "test",
         }
     }
-
-    def __new__(cls, *args, **kwargs):
-        """
-        Due to the way pickling works in python 3, we need to make sure
-        the box config is created as early as possible.
-        """
-        obj = super(Box, cls).__new__(cls, *args, **kwargs)
-        obj._box_config = _get_box_config(cls, kwargs)
-        return obj
 
     def __init__(self, *args, **kwargs):
         super(Config, self).__init__(
@@ -139,10 +130,21 @@ class Config(Box):
         )
         return self.abspath(filename)
 
-    def mappable_regions_filename(self):
+    def genome_index_filename_exists(self):
+        filename = os.path.join(
+            self.genome.work_dir,
+            "{}.1.ebwt".format(self.genome.index)
+        )
+        return os.path.exists(filename)
+
+    def mappable_regions_filename(self, chrom=None):
+        mname = self.mappable_regions.mappable_regions
+        if chrom:
+            mname = "{}_{}".format(
+                chrom, self.mappable_regions.mappable_regions)
         filename = os.path.join(
             self.mappable_regions.work_dir,
-            self.mappable_regions.mappable_regions
+            mname
         )
         return self.abspath(filename)
 
