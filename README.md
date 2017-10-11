@@ -86,12 +86,14 @@ The last two lines setup paths so that *s-GAINS* tools be accessible in your
 environment.
 
 
-## Usage of sgains docker containser
+## Usage of sgains docker container
 
 Instead of seting up `sgains` environment you can use `krasnitzlab/sgains`
 docker container image to run the pipeline. To this end you need to have *Docker*
 tools installed and configured on your computer (please look for instructions
 in official *Docker* documentation https://docs.docker.com).
+
+### Download *s-GAINS* container image
 
 Once you have Docker installed and configured you can pull `krasnitzlab/sgains`
 docker container image by using docker pull command:
@@ -99,6 +101,8 @@ docker container image by using docker pull command:
 ```
 docker pull krasnitzlab/sgains
 ```
+
+### Run *s-GAINS* container in interactive mode
 
 You can run the `sgains` container interactively by using:
 
@@ -108,6 +112,25 @@ docker run -i -v /data/pathname:/data -t krasnitzlab/sgains /bin/bash
 
 where `/data/pathname` is a full pathname to a folder on your local machine,
 where data you want to process is located.
+
+
+### Run *s-GAINS* commands
+
+You can use this docker container to run all subcommans of `sgains.py` using
+following sintax:
+
+```
+docker run -i -v /data/pathname:/data -t krasnitzlab/sgains sgains.py -h
+```
+
+or 
+
+```
+docker run -i -v /data/pathname:/data -t krasnitzlab/sgains sgains.py process -h
+```
+
+In this way you can run any `sgains.py` command with appropriate arguments 
+you need.
 
 ## Usage of `sgains.py` tool
 
