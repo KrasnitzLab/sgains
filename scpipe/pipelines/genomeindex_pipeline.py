@@ -20,7 +20,7 @@ class GenomeIndexPipeline(object):
     def copy_chromes_files(self):
         self.config.check_nonempty_workdir(self.config.genome.work_dir)
 
-        for chrom in self.hg.CHROMS:
+        for chrom in self.hg.CHROMS_ALL:
             if chrom == 'chrY':
                 continue
             src = os.path.join(
@@ -69,7 +69,7 @@ class GenomeIndexPipeline(object):
 
         if not self.config.dry_run:
             with open(dst, 'wb') as output:
-                for chrom in self.hg.CHROMS:
+                for chrom in self.hg.CHROMS_ALL:
                     src = self.config.chrom_filename(chrom, pristine=False)
                     print(colored(
                         "appending {} to {}".format(src, dst),
