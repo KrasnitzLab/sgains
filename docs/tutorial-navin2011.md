@@ -214,7 +214,8 @@ about 100Gb of data on disk (cache and actual reads).**
     ```
 
 * Note that your configuration file contains values for most of the 
-pipeline parameters. You can skip most of the parameters and use:
+pipeline parameters. So once you have a configuration file you can skip most 
+of the parameters and use:
 
     ```
     sgains.py -p 8 process -o Navin2011_T10_Results
