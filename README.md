@@ -120,16 +120,10 @@ You can use this docker container to run all subcommans of `sgains.py` using
 following sintax:
 
 ```
-docker run -i -v /data/pathname:/data -t krasnitzlab/sgains sgains.py -h
+docker run -i -v /data/pathname:/data -t krasnitzlab/sgains sgains.py <arg1> <arg2> ...
 ```
 
-or 
-
-```
-docker run -i -v /data/pathname:/data -t krasnitzlab/sgains sgains.py process -h
-```
-
-In this way you can run any `sgains.py` command with appropriate arguments 
+In this way you can run any `sgains.py` subcommand with appropriate arguments 
 you need.
 
 ## Usage of `sgains.py` tool
