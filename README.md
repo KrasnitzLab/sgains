@@ -269,6 +269,8 @@ usage: sgains.py bins [-h] [--mappable-dir MAPPABLE_DIR]
                       [--mappable-regions MAPPABLE_REGIONS]
                       [--bins-boundaries BINS_BOUNDARIES]
                       [--bins-dir BINS_DIR] [--bins-count BINS_COUNT]
+                      [--genome-index GENOME_INDEX] [--genome-dir GENOME_DIR]
+                      [--genome-version GENOME_VERSION]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -276,7 +278,7 @@ optional arguments:
 mappable regions options:
   --mappable-dir MAPPABLE_DIR, -m MAPPABLE_DIR
                         directory where mappable regions file is stroed
-                        (default: ../../R50_tool_run)
+                        (default: data/R100)
   --mappable-regions MAPPABLE_REGIONS, -M MAPPABLE_REGIONS
                         filename where mappable regions are stored (default:
                         hg19_R100_mappable_regions.txt)
@@ -284,10 +286,19 @@ mappable regions options:
 bins boundaries:
   --bins-boundaries BINS_BOUNDARIES, -B BINS_BOUNDARIES
                         bins boundaries filename (default:
-                        hg19_R50_B50k_bins_boundaries.txt)
-  --bins-dir BINS_DIR   bins working directory (default: ../../R50_B50k)
+                        bins_boundaries.tst)
+  --bins-dir BINS_DIR   bins working directory (default: data/R100_B10k)
   --bins-count BINS_COUNT, -C BINS_COUNT
-                        number of bins (default: 50000)
+                        number of bins (default: 10000)
+
+genome index options:
+  --genome-index GENOME_INDEX, -G GENOME_INDEX
+                        genome index name (default: genomeindex)
+  --genome-dir GENOME_DIR
+                        genome index directory (default: data/hg19)
+  --genome-version GENOME_VERSION
+                        version of reference genome in use (supports only
+                        hg19) (default: hg19)
 ```
 
 

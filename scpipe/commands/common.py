@@ -57,7 +57,10 @@ class OptionsBase(object):
         if args.config is not None:
             config = Config.load(args.config)
         else:
-            config = Config.load("sgains.yml")
+            try:
+                config = Config.load('./sgains.yml')
+            except AssertionError:
+                config = Config.default()
 
         self.config = config
 

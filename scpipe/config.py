@@ -88,8 +88,13 @@ class Config(Box):
         elif '--config' in argv:
             index = argv.index('--config')
         else:
-            config = Config.load('./sgains.yml')
-            return config
+            try:
+                config = Config.load('./sgains.yml')
+                return config
+            except AssertionError:
+                config = Config.default()
+                return config
+
         index += 1
         if index < 0 or index >= len(argv):
             raise ValueError('config filename not found')
@@ -150,7 +155,7 @@ class Config(Box):
 
     def mappable_positions_count_filename(self):
         filename = os.path.join(
-            self.bins.work_dir,
+            self.bins.bins_dir,
             "B{}_mappable_positions_count.yaml".format(self.bins.bins_count)
         )
         return self.abspath(filename)
