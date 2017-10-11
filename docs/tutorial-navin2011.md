@@ -91,7 +91,7 @@ reference genome from [https://github.com/KrasnitzLab/sgains/releases/download/1
 * Create a subdirectory where to store bins boundaries file:
 
     ```
-    mkdir R50_B50k
+    mkdir R50_50k
     ```
 
 * Run `bins` subcommand to calculate bins boundaries.
@@ -99,7 +99,8 @@ reference genome from [https://github.com/KrasnitzLab/sgains/releases/download/1
     ```
     sgains.py bins --mappable-dir R50 \
         --genome-dir hg19 \
-        --bins-dir R50_50k --bins-count 50000
+        --bins-dir R50_50k --bins-count 50000 \
+        --bins-boundaries hg19_R50_50k_bins_boundaries.txt
     ```
 
 * To run the command you need to specify:
@@ -136,7 +137,7 @@ mappable_regions:
 bins:
     bins_count: 50000
     bins_dir: R50_50k
-    bins_boundaries: hg19_R50_B50k_bins_boundaries.txt
+    bins_boundaries: hg19_R50_50k_bins_boundaries.txt
 
 mapping:
     reads_dir: Navin2011_T10
@@ -210,4 +211,11 @@ about 100Gb of data on disk (cache and actual reads).**
         --mapping-bowtie-opts "-S -t -m 1 --best --strata" \
         --reads-dir Navin2011_T10 \
         --study-name "navin2011_t10" -o Navin2011_T10_Results
+    ```
+
+* Note that your configuration file contains values for most of the 
+pipeline parameters. You can skip most of the parameters and use:
+
+    ```
+    sgains.py -p 8 process -o Navin2011_T10_Results
     ```
