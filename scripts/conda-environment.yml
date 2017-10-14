@@ -1,5 +1,6 @@
 name: sgains3
 channels:
+- conda-forge
 - r
 - bioconda
 - defaults
@@ -9,9 +10,13 @@ dependencies:
 - fastqc=0.11.5=1
 - htslib=1.5=0
 - java-jdk=8.0.92=1
+- perl-threaded=5.22.0=10
 - pysam=0.11.2.2=py36_1
 - samtools=1.5=2
+- sra-tools=2.8.2=0
+- tbb=4.4_20150728=0
 - trimmomatic=0.36=5
+- perl=5.22.0.1=0
 - biopython=1.69=np113py36_0
 - bzip2=1.0.6=3
 - cairo=1.14.8=0
@@ -233,6 +238,7 @@ dependencies:
   - pytest-asyncio==0.7.0
   - python-box==3.1.1
   - pyyaml==3.12
+  - setproctitle==1.1.10
   - termcolor==1.1.0
 prefix: /home/lubo/Local/anaconda3_4_4/envs/sgains3
 
