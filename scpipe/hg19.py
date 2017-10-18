@@ -139,7 +139,6 @@ class HumanGenome19(object):
 
     def load_chrom(self, chrom, pristine=False):
         infile = self.config.chrom_filename(chrom, pristine)
-        print("loading chrom file: {}".format(infile))
         assert os.path.exists(infile), infile
         seq_record = SeqIO.read(infile, 'fasta')
         seq_record.seq = seq_record.seq.upper()

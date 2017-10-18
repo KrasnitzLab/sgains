@@ -168,13 +168,14 @@ class Config(Box):
         filename = self.abspath(filename)
         return filename
 
-    def bins_boundaries_filename(self):
-        if os.path.exists(self.bins.bins_boundaries):
-            return os.path.abspath(self.bins.bins_boundaries)
-
+    def bins_boundaries_filename(self, chrom=None):
+        bname = self.bins.bins_boundaries
+        if chrom:
+            bname = "{}_{}".format(
+                chrom, self.bins.bins_boundaries)
         filename = os.path.join(
             self.bins.bins_dir,
-            self.bins.bins_boundaries
+            bname
         )
         return self.abspath(filename)
 

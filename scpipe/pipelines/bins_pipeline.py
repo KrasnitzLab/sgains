@@ -8,6 +8,8 @@ from termcolor import colored
 import os
 import pandas as pd
 from utils import BinParams, MappableBin
+import shutil
+import multiprocessing
 
 
 class BinsPipeline(object):
@@ -123,28 +125,56 @@ class BinsPipeline(object):
         df.sort_values(by=['bin.start.abspos'], inplace=True)
         return df
 
+    def run_once(self, chrom):
+        regions_df = self.hg.load_mappable_regions()
+        bins_df = self.calc_bins_boundaries(
+            [chrom],
+            regions_df
+        )
+        df = self.calc_bins_gc_content([chrom], bins_df)
+        outfilename = self.config.bins_boundaries_filename(chrom)
+        df.to_csv(outfilename, sep='\t', index=False)
+
+    def concatenate_all_chroms(self):
+        dst = self.config.bins_boundaries_filename()
+        if os.path.exists(dst) and not self.config.force:
+            print(colored(
+                "destination bins boundaries file already exists"
+                "use --force to overwrite", "red"))
+            raise ValueError("destination file exists... use --force")
+
+        if not self.config.dry_run:
+            with open(dst, 'wb') as output:
+                for chrom in self.hg.CHROMS:
+                    src = self.config.bins_boundaries_filename(chrom)
+                    print(colored(
+                        "appending {} to {}".format(src, dst),
+                        "green"))
+                    with open(src, 'rb') as src:
+                        if not self.config.dry_run:
+                            shutil.copyfileobj(src, output, 1024 * 1024 * 10)
+
     def run(self):
-        outfile = self.config.bins_boundaries_filename()
+        outfilename = self.config.bins_boundaries_filename()
         print(colored(
             "going to compute bin boundaries from mappable regions: {} "
             "into bins boundaries file {}".format(
                 self.config.mappable_regions_filename(),
-                self.config.bins_boundaries_filename()
+                outfilename
             ),
             "green"
         ))
-        if os.path.exists(outfile) and not self.config.force:
+        if os.path.exists(outfilename) and not self.config.force:
             print(colored(
                 "output file {} already exists; "
-                "use --force to overwrite".format(outfile),
+                "use --force to overwrite".format(outfilename),
                 "red"))
             raise ValueError("output file already exists")
 
-        if not self.config.dry_run:
-            regions_df = self.hg.load_mappable_regions()
-            bins_df = self.calc_bins_boundaries(
-                self.hg.CHROMS,
-                regions_df
-            )
-            df = self.calc_bins_gc_content(self.hg.CHROMS, bins_df)
-            df.to_csv(outfile, sep='\t', index=False)
+        if self.config.dry_run:
+            return
+
+        pool = multiprocessing.Pool(processes=self.config.parallel)
+        pool.map(self.run_once, self.hg.CHROMS)
+
+        self.concatenate_all_chroms()
