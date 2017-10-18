@@ -221,9 +221,11 @@ class HumanGenome19(object):
                 if not os.path.exists(directory):
                     os.makedirs(directory)
                 result.to_yaml(filename)
-            with open(filename, 'r') as infile:
-                result = Box.from_yaml(infile)
                 self._chrom_mappable_positions_count = result
+            else:
+                with open(filename, 'r') as infile:
+                    result = Box.from_yaml(infile)
+                    self._chrom_mappable_positions_count = result
         return self._chrom_mappable_positions_count
 
     def total_mappable_positions_count(self):

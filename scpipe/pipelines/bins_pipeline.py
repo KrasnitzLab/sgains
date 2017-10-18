@@ -8,7 +8,6 @@ from termcolor import colored
 import os
 import pandas as pd
 from utils import BinParams, MappableBin
-import shutil
 import multiprocessing
 
 
@@ -136,23 +135,26 @@ class BinsPipeline(object):
         df.to_csv(outfilename, sep='\t', index=False)
 
     def concatenate_all_chroms(self):
-        dst = self.config.bins_boundaries_filename()
-        if os.path.exists(dst) and not self.config.force:
+        outfilename = self.config.bins_boundaries_filename()
+        if os.path.exists(outfilename) and not self.config.force:
             print(colored(
                 "destination bins boundaries file already exists"
                 "use --force to overwrite", "red"))
             raise ValueError("destination file exists... use --force")
 
-        if not self.config.dry_run:
-            with open(dst, 'wb') as output:
-                for chrom in self.hg.CHROMS:
-                    src = self.config.bins_boundaries_filename(chrom)
-                    print(colored(
-                        "appending {} to {}".format(src, dst),
-                        "green"))
-                    with open(src, 'rb') as src:
-                        if not self.config.dry_run:
-                            shutil.copyfileobj(src, output, 1024 * 1024 * 10)
+        if self.config.dry_run:
+            return
+
+        dataframes = []
+        for chrom in self.hg.CHROMS:
+            srcfilename = self.config.bins_boundaries_filename(chrom)
+            df = pd.read_csv(srcfilename, sep='\t')
+            dataframes.append(df)
+        outdf = pd.concat(dataframes, ignore_index=True)
+        outdf.sort_values(
+            by=['bin.start.abspos', 'bin.start', 'bin.end'], inplace=True)
+
+        outdf.to_csv(outfilename, sep='\t', index=False)
 
     def run(self):
         outfilename = self.config.bins_boundaries_filename()
