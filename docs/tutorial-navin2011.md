@@ -17,7 +17,7 @@ it you can go to [UCSC Genome Browser](https://genome.ucsc.edu/), locate the
 downloads section and find full data set for *GRCh37/hg19* version of human 
 reference genome. 
 
-* Download archive file `chromFa.tar.gz` and untar it into separate directory:
+* Download archive file `chromFa.tar.gz` and untar it into a separate directory:
 
     ```
     mkdir hg19_pristine
@@ -25,7 +25,7 @@ reference genome.
     wget -c http://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz
     tar zxvf chromFa.tar.gz
     ```
-* Go back to data directory and create a `hg19` subdirectory where the 
+* Go back to the data directory and create a `hg19` subdirectory where the 
 pipeline will place a modified version of `hg19` reference genome:
 
     ```
@@ -40,38 +40,37 @@ your `hg19_pristine` copy into working `hg19` subdirectory:
     ```
 
 * This step will use `bowtie-build` command produce bowtie index of the *hg19* 
-reference genome. Building this index is computationally intesive process and
+reference genome. Building this index is computationally intensive process and
 could take several hours of CPU time.
 
 ### Preparation of uniquely mappable regions
 
-* The next step is to generate uniquely mappable regions with given lenght. To 
-this end you can use `mappalbe-regions` subcommand of `s-GAINS` pipeline. You
-need to specify the directory, where working copy of reference genome is located
-and the length of mappalbe regions you need.
+* The next step is to generate uniquely mappable regions, i.e. contiguous regions wherein 
+all reads of a given length are unique in the genome. To this end you can use 
+`mappalbe-regions` subcommand of `s-GAINS` pipeline. You need to specify the directory, 
+where a working copy of reference genome is located and the read length to be used.
 
-* Create subdirectory where to save mappable regions file:
+* Create a subdirectory in which to save mappable regions file:
 
     ```
-    mkdir R50
+    mkdir R100
     ```
 
-* Example invocation of `mappalbe-regions` subcommand specifying mappable regions
-with length 100 base pairs is:
+* Here is an example of invoking the `mappalbe-regions` subcommand with reads of
+length 100:
 
     ```
     sgains.py mappable-regions --genome-dir hg19 \
-        --mappable-dir R50 --read-length 50
+        --mappable-dir R100 --read-length 100
     ````
 
 * This step is computationaly very intensive and could take days in CPU time.
 Consider using `--parallel` option of `sgains.py` command to parallelize the
-computations if your computer have suitable number of cores. For example, on a
-workstation with 10 cores you could for example use 8 cores for processing 
-mappable regions:
+computation if your computer has a suitable number of cores. For example, on a
+workstation with 10 cores you could use 8 cores to compute mappable regions:
     ```
     sgains.py -p 8 mappable-regions --genome-dir hg19 \
-        --mappable-dir R50 --read-length 50
+        --mappable-dir R100 --read-length 100
     ```
 
 * Alternatively you can download precomputed mappable regions file from `s-GAINS`
@@ -88,21 +87,21 @@ reference genome from [https://github.com/KrasnitzLab/sgains/releases/download/1
 
 ### Calculation of bins boundaries
 
-* Create a subdirectory where to store bins boundaries file:
+* Create a subdirectory for storing the bin boundaries file:
 
     ```
-    mkdir R50_50k
+    mkdir R100_50k
     ```
 
-* Run `bins` subcommand to calculate bins boundaries.
+* Run `bins` subcommand to calculate bin boundaries.
 
     ```
     sgains.py bins \
         --mappable-dir R50 \
-        --mappable-regions hg19_R50_mappable_regions.txt \
+        --mappable-regions hg19_R100_mappable_regions.txt \
         --genome-dir hg19 \
         --bins-count 50000 \
-        --bins-dir R50_50k \
+        --bins-dir R100_50k \
         --bins-boundaries hg19_R50_B50k_bins_boundaries.txt
     ```
     
@@ -118,9 +117,9 @@ reference genome from [https://github.com/KrasnitzLab/sgains/releases/download/1
 
 * To run the command you need to specify:
     * the number of bins you want to calculate
-    * directory where to store the bins file
-    * directory and file name where mappble regions file name is located
-    * directory where working copy of HG19 is located
+    * a directory for storing the bin boundary file
+    * a directory and file name where mappble regions file name is located
+    * a directory where a working copy of HG19 is located
 
 
 ## Processing data with `s-GAINS` pipeline
@@ -183,24 +182,24 @@ environment `sgains`:
     conda install sra-tools
     ```
 
-* Create a subdirectory `Navin2011_T10` where to store downloaded samples file:
+* Create a subdirectory `Navin2011_T10` for storing the downloaded read file:
 
     ```
     mkdir Navin2011_T10
     cd Navin2011_T10
     ```
 
-* To downalod samples reads for T10 Ductal Carcinoma you can use `fastq-tool`. If
-you need single sample read you can use:
+* To download read files for T10 Ductal Carcinoma you can use `fastq-tool`. If
+you need a read file for a single sample, you can use:
 
     ```
     fastq-dump --gzip SRR089402
     ```
-This command will download sample reads in `fastq` format for sample with 
+This command will download a read file in `fastq` format for a sample with 
 accession number *SRR089402*. 
 
-* If you want to download all samples from accession list `SRR_Acc_List.txt` you
-can use:
+* If you want to download read files for all samples from accession list 
+`SRR_Acc_List.txt`, you can use:
 
     ```
     cat SRR_Acc_List.txt | xargs fastq-dump --gzip
@@ -208,7 +207,7 @@ can use:
 
 ---
 
-**Please note, that last command will download about 50Gb of data and will store
+**Please note that the last command will download about 50Gb of data and will store
 about 100Gb of data on disk (cache and actual reads).**
 
 ---
@@ -216,7 +215,7 @@ about 100Gb of data on disk (cache and actual reads).**
 
 ### Process downloaded data
 
-* To process downloaded data you can use `process` subcommand:
+* To process downloaded data you can use the `process` subcommand:
 
     ```
     sgains.py -p 8 process --genome-dir hg19 \
@@ -227,7 +226,7 @@ about 100Gb of data on disk (cache and actual reads).**
     ```
 
 * Note that your configuration file contains values for most of the 
-pipeline parameters. So once you have a configuration file you can skip most 
+pipeline parameters. So, once you have a configuration file you can skip most 
 of the parameters and use:
 
     ```
