@@ -10,10 +10,10 @@ not ready for general use**
 [https://www.continuum.io/downloads](https://www.continuum.io/downloads)
 and download the latest anaconda installer for your operating system. 
 
-* *s-GAINS* supports *Python 3.6* so you need to choose appropriate installer.
+* *s-GAINS* supports *Python 3.6* so you need to choose an appropriate installer.
 Note also that since *s-GAINS* uses *bioconda* channel the supported 
 operating systems are only those supported for *bioconda* (at the time of
-this writing that are Linux and Mac OS X).
+this writing these are Linux and Mac OS X).
 
 * Install anaconda into suitable place on your local machine following
 instructions from 
@@ -82,7 +82,7 @@ to your local installation of *Anaconda 3*.
 
 The second line activates prevously created anaconda environment.
 
-The last two lines setup paths so that *s-GAINS* tools be accessible in your 
+The last two lines set up paths so that *s-GAINS* tools will be accessible in your 
 environment.
 
 
@@ -91,7 +91,7 @@ environment.
 Instead of seting up `sgains` environment you can use `krasnitzlab/sgains`
 docker container image to run the pipeline. To this end you need to have *Docker*
 tools installed and configured on your computer (please look for instructions
-in official *Docker* documentation https://docs.docker.com).
+in the official *Docker* documentation https://docs.docker.com).
 
 ### Download *s-GAINS* container image
 
@@ -171,13 +171,13 @@ subcommands:
 
 The `sgains.py` tool supports a list of common options:
 
-* `--dry-run`, `-n` - this options instructs `sgains.py` to perform a trail run 
+* `--dry-run`, `-n` - this option instructs `sgains.py` to perform a trail run 
 displaying information of commands that should be performed but without actualy 
-running this commands
+running these commands
 
 * `--force` - when `sgains.py` tool is run it checks if the result files or 
-directories exists and if they already exists `sgains.py` stops whitout
-performing any changes. To overwrite this behaivor you can use `--force` option
+directories already exist and, if they do, `sgains.py` stops whitout
+making any changes. To override this behaivor you can use the  `--force` option
 
 * `--config`, `-c` - instructs `sgains.py` which configuration file to use.
 
@@ -232,7 +232,7 @@ You can download and unzip some of these files and use them into following
 stages of the pipeline preparation.
 
 If you want to build your own mappable regions file you can use `mappable-regions`
-subcomman. To run this command you will need genome index build from `genomeindex`
+subcommand. To run this command you will need genome index build from `genomeindex`
 subommand.
 
 To list the options available for this subcommand use:
@@ -319,7 +319,7 @@ genome index options:
 ```
 
 
-## Processing data
+## Processing sequence data
 
 ### Use of `process` subcommand
 
@@ -380,19 +380,19 @@ bins boundaries:
   --bins-dir BINS_DIR   bins working directory (default: data/R100_B10k)
 ```
 
-* The data created by the `process` subcommand is grouped into a subdirectory, 
-that is named with `--output-dir` option. This name will be used when creating
-results directories structure.
+* The data created by the `process` subcommand are placed in a subdirectory, 
+whose name is specified with `--output-dir` option. This name will be used when creating
+the result directory structure.
 
 * The input for `process` subcommand are *FASTQ* files containing the reads for
 each individual cell. All *FASTQ* files for given study are expected to be located
 into single directory. You should specify this directory using `--reads-dir` option.
 
-* The results from `process` subcommand are stored into output data directory
-which you should specify using `--output-dir` option. The process subcommand will
-create directory and inside that directory will create three additional 
+* The results from `process` subcommand are stored in the output data directory,
+as specified using `--output-dir` option. The process subcommand will
+create a directory and inside that directory it will create three additional 
 subdirectories - `mapping`,
-`varbin` and `segment`, that will contain intermediate results from respective
+`varbin` and `segment`. These will contain intermediate results from the respective
 pipeline stages.
 
 * The first `mapping` stage of the pipeline invokes `bowtie` to map reads from
@@ -527,7 +527,7 @@ bins boundaries:
 
 ## Configure the *s-GAINS* pipeline
 
-Example *s-GAINS* pipeline configuration:
+An example *s-GAINS* pipeline configuration:
 
 ```
 genome:
@@ -563,4 +563,4 @@ segment:
     study_name: "navin2011_T10_small"
 ```
 
-Each section of this file configures different parts of ths *s-GAINS* pipeline.
+Each section of this file configures different parts of *s-GAINS* pipeline.
