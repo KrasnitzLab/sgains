@@ -125,3 +125,55 @@ def test_overfill_split(chr1_params):
     assert last_mb.bin_size == 10000
     assert last_mb.start_pos == 20000
     assert last_mb.end_pos == 20001
+
+
+def test_overfill_split2(chr1_params):
+    chr1_params.bin_size = 10000
+    chr1_params.bin_size_excess = 0.1
+
+    mb = MappableBin.from_start(chr1_params, 0)
+    mb.end_pos = 10001
+    mb.current_size = 10001
+
+    current_excess = 0.1
+
+    current_excess, mappable_bins = \
+        mb.overfill_split(current_excess)
+
+    assert len(mappable_bins) == 2
+    assert pytest.approx(current_excess) == 0.3
+
+    assert all([mb.is_full() for mb in mappable_bins[0:1]])
+    assert all([mb.current_size == 10000 for mb in mappable_bins[0:1]])
+
+    last_mb = mappable_bins[-1]
+    assert last_mb.current_size == 1
+    assert last_mb.bin_size == 10000
+    assert last_mb.start_pos == 10000
+    assert last_mb.end_pos == 10001
+
+
+def test_overfill_split_adapt_excess_overfill(chr1_params):
+    chr1_params.bin_size = 10000
+    chr1_params.bin_size_excess = 0.2
+
+    mb = MappableBin.from_start(chr1_params, 0)
+    mb.end_pos = 10001
+    mb.current_size = 10001
+
+    current_excess = 0.9
+
+    current_excess, mappable_bins = \
+        mb.overfill_split(current_excess)
+
+    assert len(mappable_bins) == 2
+    assert pytest.approx(current_excess) == 0.3
+
+    assert all([mb.is_full() for mb in mappable_bins[0:1]])
+    assert all([mb.current_size == 10001 for mb in mappable_bins[0:1]])
+
+    last_mb = mappable_bins[-1]
+    assert last_mb.current_size == 0
+    assert last_mb.bin_size == 10000
+    assert last_mb.start_pos == 10001
+    assert last_mb.end_pos == 10001

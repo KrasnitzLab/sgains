@@ -73,10 +73,15 @@ class BinsPipeline(object):
                     if bins_count == 0:
                         # last bin a chromosome
                         mappable_bin.end_pos = chrom_sizes[chrom].size
+                    # print(mappable_bin, "|", next_bin, ";",
+                    #       next_bin.is_overfill(), "(",
+                    #       next_bin.current_size - next_bin.bin_size, ")",
+                    #       current_excess)
                     yield mappable_bin
                     if next_bin.is_overfill():
                         current_excess, mappable_bins = \
                             next_bin.overfill_split(current_excess)
+
                         assert len(mappable_bins) > 1
                         for mb in mappable_bins[:-1]:
                             bins_count -= 1
@@ -90,7 +95,6 @@ class BinsPipeline(object):
             mappable_bin = None
 
     def calc_bins_boundaries(self, chroms=None, regions_df=None):
-
         if chroms is None:
             chroms = self.hg.CHROMS
         bin_rows = []

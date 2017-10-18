@@ -97,10 +97,23 @@ reference genome from [https://github.com/KrasnitzLab/sgains/releases/download/1
 * Run `bins` subcommand to calculate bins boundaries.
 
     ```
-    sgains.py bins --mappable-dir R50 \
+    sgains.py bins \
+        --mappable-dir R50 \
+        --mappable-regions hg19_R50_mappable_regions.txt \
         --genome-dir hg19 \
-        --bins-dir R50_50k --bins-count 50000 \
-        --bins-boundaries hg19_R50_50k_bins_boundaries.txt
+        --bins-count 50000 \
+        --bins-dir R50_50k \
+        --bins-boundaries hg19_R50_B50k_bins_boundaries.txt
+    ```
+    
+    ```
+    sgains.py bins \
+        --mappable-dir R100 \
+        --mappable-regions hg19_R100_mappable_regions.txt \
+        --genome-dir hg19 \
+        --bins-count 10000 \
+        --bins-dir R100_B10k \
+        --bins-boundaries hg19_R100_B10k_bins_boundaries.txt
     ```
 
 * To run the command you need to specify:

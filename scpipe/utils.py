@@ -155,7 +155,7 @@ class MappableBin(object):
         assert self.is_overfill()
 
         mappable_bins = []
-        while self.current_size > 0:
+        while self.current_size >= 0:
             # current_excess += self.params.bin_size_excess
             mb = MappableBin.from_prev(self, start_pos=self.start_pos)
             current_excess = mb.adapt_excess(current_excess)

@@ -178,6 +178,7 @@ class HumanGenome19(object):
             names=['chrom', 'start_pos', 'end_pos'],
             sep='\t')
         df.sort_values(by=['chrom', 'start_pos', 'end_pos'], inplace=True)
+        assert len(df) > 0
 
         return df
 
