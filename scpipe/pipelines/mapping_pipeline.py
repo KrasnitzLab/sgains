@@ -46,7 +46,6 @@ class MappingPipeline(object):
         return [
             'bowtie',
             *bowtie_opts,
-            '-m', '1', '--best', '--strata',
             self.config.genome_index_filename(),
             '-'
         ]
