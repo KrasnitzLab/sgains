@@ -12,6 +12,7 @@ from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 from box import Box
 
 import pandas as pd
+from termcolor import colored
 
 
 class HumanGenome19(object):
@@ -187,6 +188,9 @@ class HumanGenome19(object):
         if os.path.exists(bins_boundaries_filename):
             df = pd.read_csv(bins_boundaries_filename, sep='\t')
             return df.sort_values(by=['bin.start.abspos'])
+
+        print(colored("bins boundaries file not found: {}".format(
+            bins_boundaries_filename), "red"))
 
         return None
 
