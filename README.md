@@ -47,7 +47,14 @@ use with `sgains` pipeline. To this end you need to use:
     
     conda install r-essentials
 
-    pip install python-box termcolor PyYAML pytest pytest-asyncio setproctitle
+    pip install python-box termcolor PyYAML pytest pytest-asyncio
+    ```
+
+* Optionally you could install `setproctitle` package if it is available for
+your environment:
+
+    ```
+    pip install setproctitle
     ```
 
 ### Setup R environment
