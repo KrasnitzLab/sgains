@@ -8,7 +8,7 @@ from config import Config, NonEmptyWorkDirectory
 import os
 from termcolor import colored
 import shutil
-import sys
+# import sys
 
 
 class Rpipeline(object):
@@ -67,7 +67,9 @@ class Rpipeline(object):
                         *varbin_filenames
                     ],
                     shell=False,
-                    stdout=sys.stdout, stderr=sys.stdout)
+                    # stdout=sys.stdout, stderr=sys.stdout,
+                    stdout=shutup, stderr=shutup,
+                )
 
 
 if __name__ == "__main__":
