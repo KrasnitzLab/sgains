@@ -12,7 +12,6 @@ from argparse import ArgumentParser,\
 import os
 import sys
 import traceback
-import setproctitle  # @UnresolvedImport
 
 from commands.bins_command import BinsCommand
 from commands.genomeindex_command import GenomeIndexCommand
@@ -56,7 +55,12 @@ USAGE
 ''' % (program_shortdesc, )
 
     try:
+        import setproctitle  # @UnresolvedImport
         setproctitle.setproctitle('sgains')
+    except ImportError:
+        pass
+
+    try:
 
         defaults_config = Config.parse_args(argv)
 
