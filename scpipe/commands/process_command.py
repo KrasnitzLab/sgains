@@ -103,6 +103,13 @@ class ProcessCommand(
         segment_config.varbin.varbin_dir = varbin_workdir
         segment_config.segment.segment_dir = segment_workdir
 
+        if not os.path.exists(mapping_workdir):
+            os.makedirs(mapping_workdir)
+        if not os.path.exists(varbin_workdir):
+            os.makedirs(varbin_workdir)
+        if not os.path.exists(segment_workdir):
+            os.makedirs(segment_workdir)
+
         pipeline = MappingPipeline(mapping_config)
         pipeline.run()
 

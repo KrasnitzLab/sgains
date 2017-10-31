@@ -204,7 +204,7 @@ class Config(Box):
     def varbin_filename(self, cellname):
         outfile = os.path.join(
             self.varbin_dirname(),
-            "{}{}".format(cellname, self.varbin.varbin_suffix)
+            "{}.{}".format(cellname, self.varbin.varbin_suffix)
         )
         outfile = self.abspath(outfile)
         return outfile
