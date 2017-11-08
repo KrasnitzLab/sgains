@@ -73,7 +73,12 @@ The `s-GAINS` pipeline depends on `DNAcopy` and `TBEST`. Additionally you should
 install `SCclust` clust package.
 
 Directory `sgains/scripts` contains and `R` script, that installs all required
-*R* packages.
+*R* packages. Enter into this directory and execute following command:
+
+```
+cd sgains/scripts
+Rscript setup.R
+```
 
 ## Update your local environment
 
