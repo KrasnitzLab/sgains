@@ -67,7 +67,7 @@ Directory structure is as follows:
     └── tools
 ```
 
-## Install required R packages
+## Install additional R packages
 
 The `s-GAINS` pipeline depends on `DNAcopy` and `TBEST`. Additionally you should
 install `SCclust` clust package.
@@ -80,7 +80,7 @@ cd sgains/scripts
 Rscript setup.R
 ```
 
-## Update your local environment
+## Update your shell environment
 
 To work with `s-GAINS` command line tool `sgains.py` you need to make some changes
 in your shell environment. 
