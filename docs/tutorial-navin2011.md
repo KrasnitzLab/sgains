@@ -205,12 +205,10 @@ accession number *SRR089402*.
     cat SRR_Acc_List.txt | xargs fastq-dump --gzip
     ```
 
----
-
-**Please note that the last command will download about 50Gb of data and will store
-about 100Gb of data on disk (cache and actual reads).**
-
----
+    ---
+    **Please note that the last command will download about 50Gb of data and will store
+    about 100Gb of data on disk (cache and actual reads).**
+    ---
 
 
 ### Process downloaded data
