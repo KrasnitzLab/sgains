@@ -41,13 +41,22 @@ class MappingPipeline(object):
             '-'
         ]
 
-    def bowtie_stage(self, _filename):
+    def bowtie_stage(self, filename):
+        cellname = Config.cellname((filename))
+        reportfile = os.path.join(
+            self.config.mapping_dirname(),
+            "{}.bowtie_report.log".format(cellname)
+        )
+        reportfile = self.config.abspath(reportfile)
+
         bowtie_opts = self.config.mapping.mapping_bowtie_opts.split(' ')
         return [
             'bowtie',
             *bowtie_opts,
             self.config.genome_index_filename(),
-            '-'
+            '-',
+            '2>',
+            reportfile,
         ]
 
     @staticmethod
