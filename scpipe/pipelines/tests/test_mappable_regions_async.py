@@ -9,6 +9,11 @@ import logging
 import sys
 from pipelines.mappableregions_pipeline import MappableRegionsPipeline
 from utils import Mapping
+import io
+import pandas as pd
+import os
+import numpy as np
+
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -60,13 +65,15 @@ async def test_generate_reads(tests_config):
     generator.close()
 
 
-async def test_bowtie_mappings(tests_config, event_loop):
+# @pytest.mark.parametrize("chrom", ['chrM', 'chr21'])
+@pytest.mark.parametrize("chrom", ['chrM'])
+async def test_bowtie_mappings(tests_config, event_loop, chrom):
     event_loop.set_debug(True)
     pipeline = MappableRegionsPipeline(tests_config)
 
     bowtie = await pipeline.async_start_bowtie()
 
-    reads_generator = pipeline.generate_reads(['chrM'], 100)
+    reads_generator = pipeline.generate_reads([chrom], 100)
     writer = asyncio.Task(
         pipeline.async_write_reads_generator(bowtie.stdin, reads_generator)
     )
@@ -84,8 +91,36 @@ async def test_bowtie_mappings(tests_config, event_loop):
         mapping = Mapping.parse_sam(line)
         if mapping.flag == 0:
             # print(mapping)
-            chrom, pos = mapping.name.split('.')
+            chromosome, pos = mapping.name.split('.')
             assert int(pos) == mapping.start
-            assert chrom == 'chrM'
+            assert chrom == chromosome
 
     await writer
+
+
+# @pytest.mark.parametrize("chrom", ['chrM', 'chr21'])
+@pytest.mark.parametrize("chrom", ['chrM'])
+async def test_async_mappable_regions_50(tests_config, event_loop, chrom):
+    event_loop.set_debug(True)
+    pipeline = MappableRegionsPipeline(tests_config)
+
+    filename = os.path.join(
+        'scpipe/tests/data',
+        "{}.50mer.mappable.regions.txt.gz".format(chrom)
+    )
+    gold_df = pd.read_csv(
+        filename, sep='\t', compression='gzip',
+        header=None,
+        names=['chrom', 'start', 'end'])
+    with io.StringIO() as outfile:
+        await pipeline.async_generate_mappable_regions(
+            [chrom], 50, outfile=outfile)
+        infile = io.StringIO(outfile.getvalue())
+        df = pd.read_csv(
+            infile, sep='\t', header=None,
+            names=['chrom', 'start', 'end'])
+        print(df.head())
+
+    assert np.all(df.columns == gold_df.columns)
+    assert np.all(df.start == gold_df.start)
+    assert np.all(df.end == gold_df.end)
