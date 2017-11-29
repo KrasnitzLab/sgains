@@ -13,8 +13,8 @@ def test_prepare_long(
         "--dry-run", "--force",
         "prepare",
         "--mappable-dir", "data/proba",
-        "--genome-index", "probaindex",
-        "--genome-dir", "data/hg19_safe/",
+        "--genome-index", "genomeindex",
+        "--genome-dir", "data/hg19/",
         "--read-length", "200",
         "--bowtie-opts", "-1 -2 -3",
     ]
@@ -28,8 +28,8 @@ def test_prepare_long(
     assert config.force
     assert config.dry_run
 
-    assert config.genome.work_dir == "data/hg19_safe/"
-    assert config.genome.index == "probaindex"
+    assert config.genome.work_dir == "data/hg19/"
+    assert config.genome.index == "genomeindex"
 
     assert config.mappable_regions.length == 200
     assert config.mappable_regions.work_dir == "data/proba"

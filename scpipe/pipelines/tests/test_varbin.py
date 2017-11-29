@@ -6,8 +6,10 @@ Created on Jul 6, 2017
 import numpy as np
 
 from pipelines.varbin_pipeline import VarbinPipeline
+import pytest
 
 
+@pytest.mark.skip(reason="no such file available. Need new way of testing")
 def test_bin_counts_0918(tests_config, varbin0918):
     pipeline = VarbinPipeline(tests_config)
 

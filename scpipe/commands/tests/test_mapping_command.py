@@ -13,12 +13,14 @@ def test_mapping_long(
         "--dry-run", "--force",
         "--parallel", "10",
         "mapping",
-        "--genome-index", "probaindex",
-        "--genome-dir", "data/hg19_safe",
+        "--genome-index", "genomeindex",
+        "--genome-dir", "data/hg19",
         "--mapping-bowtie-opts", "-1 -2 -3",
-        "--reads-dir", "data/test_study/raw",
+        "--reads-dir",
+        "data/Navin2011/T10_small/reads/",
         "--reads-suffix", ".fastq.gz",
-        "--mapping-dir", "data/proba/bams",
+        "--mapping-dir",
+        "data/Navin2011/T10_small/navin2011_T10_test/mapping/",
     ]
 
     args = argparser.parse_args(argv)
@@ -31,10 +33,11 @@ def test_mapping_long(
     assert config.dry_run
     assert config.parallel == 10
 
-    assert config.genome.work_dir == "data/hg19_safe"
-    assert config.genome.index == "probaindex"
+    assert config.genome.work_dir == "data/hg19"
+    assert config.genome.index == "genomeindex"
 
-    assert config.mapping.mapping_dir == "data/proba/bams"
-    assert config.mapping.reads_dir == "data/test_study/raw"
+    assert config.mapping.mapping_dir == \
+        "data/Navin2011/T10_small/navin2011_T10_test/mapping/"
+    assert config.mapping.reads_dir == "data/Navin2011/T10_small/reads/"
     assert config.mapping.reads_suffix == ".fastq.gz"
     assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"

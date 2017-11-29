@@ -15,14 +15,14 @@ def test_process_long(
         "--bins-boundaries", "test_bins_boundaries.txt",
         "--bins-dir", "data/test_study/bins",
 
-        "--reads-dir", "data/test_study/raw",
+        "--reads-dir",
+        "data/Navin2011/T10_small/reads/",
         "--reads-suffix", ".fastq.gz",
         "--mapping-bowtie-opts", "-1 -2 -3",
 
-        "--genome-index", "probaindex",
-        "--genome-dir", "data/hg19_safe",
+        "--genome-index", "genomeindex",
+        "--genome-dir", "data/hg19",
 
-        "--segment-dir", "data/proba",
         "--study-name", "test_study",
     ]
 
@@ -38,12 +38,11 @@ def test_process_long(
     assert config.bins.bins_dir == "data/test_study/bins"
     assert config.bins.bins_boundaries == "test_bins_boundaries.txt"
 
-    assert config.genome.work_dir == "data/hg19_safe"
-    assert config.genome.index == "probaindex"
+    assert config.genome.work_dir == "data/hg19"
+    assert config.genome.index == "genomeindex"
 
-    assert config.mapping.reads_dir == "data/test_study/raw"
+    assert config.mapping.reads_dir == "data/Navin2011/T10_small/reads/"
     assert config.mapping.reads_suffix == ".fastq.gz"
     assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"
 
     assert config.segment.study_name == "test_study"
-    assert config.segment.segment_dir == "data/proba"

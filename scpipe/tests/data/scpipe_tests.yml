@@ -3,27 +3,29 @@ genome:
   data_dir: data/hg19_safe
   work_dir: data/hg19
   index: genomeindex
+
 mappable_regions:
   length: 100
   work_dir: data/R100
   bowtie: ''
   mappable_regions: hg19_R100_mappable_regions.txt
+
 bins:
   bins_count: 10000
   work_dir: data/R100_B10k
   bins_boundaries: hg19_R100_B10k_bins_boundaries.txt
+
 mapping:
-  data_dir: data/kendall/raw
-  data_glob: '*.fastq.gz'
-  work_dir: data/kendall/bam
-  bowtie_ops: -S -t -n 2 -e 70 -3 18 -5 8
+    reads_dir: reads
+    reads_suffix: ".fastq.gz"
+    mapping_dir: mapped
+    mapping_suffix: ".rmdup.bam"
+    mapping_bowtie_opts: "-S -t -n 2 -e 70 -3 0 -5 38 -m 1 --best --strata"
+
 varbin:
-  data_dir: data/kendall/bam
-  data_glob: '*.rmdup.bam'
-  work_dir: data/kendall/try2
-  suffix: varbin.10k.txt
+    varbin_dir: varbin
+    varbin_suffix: ".varbin.20k.txt"
+
 segment:
-  data_dir: data/kendall/try2
-  data_glob: '*.varbin.10k.txt'
-  work_dir: data/kendall/results
-  study_name: test_run
+    segment_dir: segment
+    study_name: "test_study"
