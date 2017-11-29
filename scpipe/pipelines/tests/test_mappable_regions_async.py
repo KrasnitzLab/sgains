@@ -8,6 +8,7 @@ import pytest
 import logging
 import sys
 from pipelines.mappableregions_pipeline import MappableRegionsPipeline
+from utils import Mapping
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -57,3 +58,34 @@ async def test_generate_reads(tests_config):
         if num >= 10:
             break
     generator.close()
+
+
+async def test_bowtie_mappings(tests_config, event_loop):
+    event_loop.set_debug(True)
+    pipeline = MappableRegionsPipeline(tests_config)
+
+    bowtie = await pipeline.async_start_bowtie()
+
+    reads_generator = pipeline.generate_reads(['chrM'], 100)
+    writer = asyncio.Task(
+        pipeline.async_write_reads_generator(bowtie.stdin, reads_generator)
+    )
+
+    infile = bowtie.stdout
+
+    while True:
+        line = await infile.readline()
+        if not line:
+            break
+        line = line.decode()
+        if line[0] == '@':
+            # comment
+            continue
+        mapping = Mapping.parse_sam(line)
+        if mapping.flag == 0:
+            # print(mapping)
+            chrom, pos = mapping.name.split('.')
+            assert int(pos) == mapping.start
+            assert chrom == 'chrM'
+
+    await writer

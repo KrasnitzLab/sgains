@@ -49,7 +49,7 @@ class MappableRegionsPipeline(object):
                 for i in range(len(seq_record) - read_length + 1):
                     out_record = SeqRecord(
                         seq_record.seq[i: i + read_length],
-                        id="{}.{}".format(chrom, i),
+                        id="{}.{}".format(chrom, i + 1),
                         description="generated_read"
                     )
                     yield out_record

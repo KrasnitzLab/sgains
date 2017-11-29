@@ -31,6 +31,10 @@ class Mapping(object):
         start = int(row[3])
         return Mapping(name=name, flag=flag, chrom=chrom, start=start)
 
+    def __repr__(self):
+        return "{}: {}, {}:{}".format(
+            self.name, self.flag, self.chrom, self.start)
+
 
 class MappableRegion(object):
     def __init__(self, mapping=None):
