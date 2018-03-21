@@ -52,7 +52,6 @@ class VarbinPipeline(object):
             infile = pysam.AlignmentFile(filename, 'rb')  # @UndefinedVariable
             bins_df = self.hg.bins_boundaries()
             assert bins_df is not None
-
             chrom_sizes = self.hg.chrom_sizes()
             chroms = set(self.hg.CHROMS)
 
@@ -82,7 +81,6 @@ class VarbinPipeline(object):
 
                 bin_counts[index] += 1
                 prev_pos = abspos
-            print(total_reads, dups, count)
         except Exception:
             traceback.print_exc()
 

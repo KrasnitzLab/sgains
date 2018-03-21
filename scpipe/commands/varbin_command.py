@@ -74,5 +74,7 @@ class VarbinCommand(
             "yellow"))
 
         self.process_args(args)
+        self.config.varbin_dirname()
+
         pipeline = VarbinPipeline(self.config)
         pipeline.run()
