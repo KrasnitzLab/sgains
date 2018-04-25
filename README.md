@@ -3,6 +3,8 @@
 **Please note that this software is still under construction and
 not ready for general use**
 
+[![DOI](https://zenodo.org/badge/98500084.svg)](https://zenodo.org/badge/latestdoi/98500084)
+
 ## Anaconda environment setup
 
 ### Install Anaconda 
