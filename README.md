@@ -175,8 +175,8 @@ subcommands:
     mapping             performs mapping of cell reads to reference genome
     varbin              applies varbin algorithm to count read mappings in
                         each bin
-    segment             segments bin counts and prepares the SCGV input data
-```
+    scclust             segmentation and clustering based bin counts and
+                        preparation of the SCGV input data```
 
 The `sgains.py` tool supports a list of common options:
 
@@ -233,8 +233,8 @@ This step is computationally expesive and could take days in CPU time.
 To save this step you can use files with precomputed mappable regions that
 could be found at:
 
-* For Human Reference Genome **HG19** with read length **100bp**: 
-[hg19_R100_mappable_regions.txt.gz](https://github.com/KrasnitzLab/sgains/releases/download/1.0/hg19_R100_mappable_regions.txt.gz)
+* For Human Reference Genome **HG19** with read length **50bp**: 
+[hg19_R50_mappable_regions.txt.gz](https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_mappable_regions.txt.gz)
 
 
 You can download and unzip some of these files and use them into following
@@ -335,7 +335,7 @@ genome index options:
 ---
 
 **Please note, that to use `process` subcommands 
-(`mapping`, `varbin`, `segment` and `process`)
+(`mapping`, `varbin`, `scclust` and `process`)
 you need go through preparation steps.**
 
 ---
@@ -498,15 +498,15 @@ bins boundaries:
 ```
 
 
-### Use of `segment` subcommand
+### Use of `scclust` subcommand
 
-To list options available for `segment` subcommand use:
+To list options available for `scclust` subcommand use:
 
 ```
-sgains.py segment -h
-usage: sgains.py segment [-h] [--varbin-dir VARBIN_DIR]
-                         [--varbin-suffix VARBIN_SUFFIX]
-                         [--segment-dir SEGMENT_DIR] [--study-name STUDY_NAME]
+sgains.py scclust -h
+usage: sgains.py scclust [-h] [--varbin-dir VARBIN_DIR]
+                         [--varbin-suffix VARBIN_SUFFIX] [--scgv-dir SCGV_DIR]
+                         [--case-name CASE_NAME]
                          [--bins-boundaries BINS_BOUNDARIES]
                          [--bins-dir BINS_DIR]
 
@@ -517,19 +517,19 @@ varbin options:
   --varbin-dir VARBIN_DIR, -V VARBIN_DIR
                         varbin directory (default: varbin)
   --varbin-suffix VARBIN_SUFFIX
-                        varbin files suffix pattern (default: .varbin.10k.txt)
+                        varbin files suffix pattern (default: .varbin.20k.txt)
 
-segment options:
-  --segment-dir SEGMENT_DIR, -S SEGMENT_DIR
-                        segment directory (default: segment)
-  --study-name STUDY_NAME
-                        study name (default: navin2011_T10_small)
+SCclust options:
+  --scgv-dir SCGV_DIR, -S SCGV_DIR
+                        SCGV directory (default: scgv)
+  --case-name CASE_NAME
+                        case name (default: navin_T10)
 
 bins boundaries:
   --bins-boundaries BINS_BOUNDARIES, -B BINS_BOUNDARIES
                         bins boundaries filename (default:
-                        hg19_R50_B50k_bins_boundaries.txt)
-  --bins-dir BINS_DIR   bins working directory (default: ../../R50_B50k)
+                        hg19_R50_B20k_bins_boundaries.txt)
+  --bins-dir BINS_DIR   bins working directory (default: R50_B20k)
 ```
 
 
@@ -541,35 +541,38 @@ An example *s-GAINS* pipeline configuration:
 ```
 genome:
     version: hg19
-    data_dir: ../../hg19_safe
-    work_dir: ../../hg19
+    data_dir: hg19_pristine
+    work_dir: hg19
     genome_index: genomeindex
 
 mappable_regions:
     length: 50
-    work_dir: ../../R50_tool_run
-    bowtie_opts: "-p 1"
+    work_dir: R50
+    bowtie_opts: ""
   
 bins:
-    bins_count: 50000
-    bins_dir: ../../R50_B50k
-    bins_boundaries: hg19_R50_B50k_bins_boundaries.txt
+    bins_count: 20000
+    bins_dir: R50_B20k
+    bins_boundaries: hg19_R50_B20k_bins_boundaries.txt
 
 mapping:
     reads_dir: reads
     reads_suffix: ".fastq.gz"
-    mapping_dir: mappings
+    mapping_dir: mapping
     mapping_suffix: ".rmdup.bam"
-    mapping_bowtie_opts: "-S -t -m 1 --best --strata"
-    
+    mapping_bowtie_opts: "-S -t -m 1 --best --strata --chunkmbs 256"
+#     mapping_bowtie_opts: "-S -t -n 2 -e 70 -3 0 -5 38 -m 1 --best --strata --chunkmbs 256"
 
 varbin:
     varbin_dir: varbin
-    varbin_suffix: ".varbin.10k.txt"
+    varbin_suffix: ".varbin.20k.txt"
 
-segment:
-    segment_dir: segment
-    study_name: "navin2011_T10_small"
+scclust:
+    case_name: "navin_T10"
+    scgv_dir: scgv
+    cytoband: hg19/cytoBand.txt
+    nsim: 150
+    sharemin: 0.85
 ```
 
 Each section of this file configures different parts of *s-GAINS* pipeline.
