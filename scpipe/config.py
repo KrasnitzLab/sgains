@@ -51,9 +51,12 @@ class Config(Box):
             "varbin_dir": "",
             "varbin_suffix": ".varbin.txt",
         },
-        "segment": {
-            "segment_dir": ".",
-            "study_name": "test",
+        "scclust": {
+            "scgv_dir": ".",
+            "case_name": "test",
+            "cytoband": "hg19/cytoBand.txt",
+            "nsim": 150,
+            "sharemin": 0.85
         }
     }
 
@@ -73,7 +76,8 @@ class Config(Box):
 
     @staticmethod
     def default():
-        config = Box(Config.DEFAULT_CONFIG, default_box=True)
+        data = copy.deepcopy(Config.DEFAULT_CONFIG)
+        config = Box(data, default_box=True)
         config.filename = None
         config.dirname = os.getcwd()
         return Config(
@@ -117,6 +121,7 @@ class Config(Box):
             config.dirname = os.curdir
 
             default.update(config.to_dict())
+
             return Config(
                 default.to_dict(),
                 default_box=True,
@@ -215,9 +220,9 @@ class Config(Box):
             os.makedirs(dirname)
         return dirname
 
-    def segment_dirname(self):
-        dirname = self.abspath(self.segment.segment_dir)
-        dirname = os.path.join(dirname, self.segment.study_name)
+    def scgv_dirname(self):
+        dirname = self.abspath(self.scclust.scgv_dir)
+        dirname = os.path.join(dirname, self.scclust.case_name)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 

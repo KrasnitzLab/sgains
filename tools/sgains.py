@@ -19,7 +19,7 @@ from commands.mappable_regions_command import MappableRegionsCommand
 from commands.mapping_command import MappingCommand
 from commands.prepare_command import PrepareCommand
 from commands.process_command import ProcessCommand
-from commands.segment_command import SegmentCommand
+from commands.sc_clust_command import SCclustCommand
 from commands.varbin_command import VarbinCommand
 from config import Config
 from commands.common import OptionsBase
@@ -102,9 +102,9 @@ USAGE
             argparser, subparsers)
         varbin_command.add_options(defaults_config)
 
-        segment_command = SegmentCommand(
+        scclust_command = SCclustCommand(
             argparser, subparsers)
-        segment_command.add_options(defaults_config)
+        scclust_command.add_options(defaults_config)
 
         args = argparser.parse_args(argv[1:])
         args.func(args)

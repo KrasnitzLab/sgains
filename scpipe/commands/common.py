@@ -338,32 +338,32 @@ class MappingMixin(object):
         self.mapping_bowtie_updates(args)
 
 
-class SegmentMixin(object):
+class SCclustMixin(object):
     __slots__ = ()
 
-    def segment_options(self, config):
+    def scclust_options(self, config):
         assert self.subparser is not None
 
         group = self.subparser.add_argument_group(
-            "segment options")
+            "SCclust options")
         group.add_argument(
-            "--segment-dir", "-S",
-            dest="segment_dir",
-            help="segment directory",
-            default=config.segment.segment_dir
+            "--scgv-dir", "-S",
+            dest="scgv_dir",
+            help="SCGV directory",
+            default=config.scclust.scgv_dir
         )
         group.add_argument(
-            "--study-name",
-            dest="study_name",
-            help="study name",
-            default=config.segment.study_name)
+            "--case-name",
+            dest="case_name",
+            help="case name",
+            default=config.scclust.case_name)
 
         return group
 
-    def segment_updates(self, args):
+    def scclust_updates(self, args):
         assert self.subparser is not None
 
-        if args.segment_dir is not None:
-            self.config.segment.segment_dir = args.segment_dir
-        if args.study_name is not None:
-            self.config.segment.study_name = args.study_name
+        if args.scgv_dir is not None:
+            self.config.scclust.scgv_dir = args.scgv_dir
+        if args.case_name is not None:
+            self.config.scclust.case_name = args.case_name
