@@ -30,13 +30,13 @@ class ProcessCommand(
             "--output-dir", "-o",
             dest="output_dir",
             help="output directory",
-            default=config.segment.segment_dir
+            default=config.scclust.scgv_dir
         )
         group.add_argument(
-            "--study-name",
-            dest="study_name",
-            help="study name",
-            default=config.segment.study_name)
+            "--case-name",
+            dest="case_name",
+            help="case name",
+            default=config.scclust.case_name)
 
         return group
 
@@ -44,9 +44,9 @@ class ProcessCommand(
         assert self.subparser is not None
 
         if args.output_dir is not None:
-            self.config.segment.segment_dir = args.output_dir
-        if args.study_name is not None:
-            self.config.segment.study_name = args.study_name
+            self.config.scclust.scgv_dir = args.output_dir
+        if args.case_name is not None:
+            self.config.scclust.case_name = args.case_name
 
     def __init__(self, parser, subparsers):
         super(ProcessCommand, self).__init__()
@@ -83,14 +83,14 @@ class ProcessCommand(
         self.process_args(args)
 
         mapping_workdir = os.path.join(
-            self.config.segment_dirname(),
+            self.config.scgv_dirname(),
             'mapping')
         varbin_workdir = os.path.join(
-            self.config.segment_dirname(),
+            self.config.scgv_dirname(),
             'varbin')
         segment_workdir = os.path.join(
-            self.config.segment_dirname(),
-            'segment')
+            self.config.scgv_dirname(),
+            'scgv')
 
         mapping_config = Config.copy(self.config)
         mapping_config.mapping.mapping_dir = mapping_workdir
@@ -101,7 +101,7 @@ class ProcessCommand(
 
         segment_config = Config.copy(self.config)
         segment_config.varbin.varbin_dir = varbin_workdir
-        segment_config.segment.segment_dir = segment_workdir
+        segment_config.scclust.scgv_dir = segment_workdir
 
         if not os.path.exists(mapping_workdir):
             os.makedirs(mapping_workdir)

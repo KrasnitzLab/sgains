@@ -1,4 +1,92 @@
-## `s-GAINS` pipeline prepration
+# Example usage of `sGAINS` pipeline
+
+
+The `s-GAINS` pipeline has two groups of steps:
+
+* **prepare** that prepares the binning scheme used for further analysis and
+* **process** that does the actual analysis of the experimental data.
+
+
+## Download data for polygenomic breast tumor T10
+
+In this tutorial we will use data from the paper:
+
+[Navin N, Kendall J, Troge J, et al. Tumor Evolution Inferred by Single 
+Cell Sequencing. 
+Nature. 2011;472(7341):90-94. doi:10.1038/nature09807.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/)
+
+In particular we will use the data for polygenomic breast tumor T10 case available from SRA.
+
+Description of samples for T10 could be found in
+[Supplementary Table 1 | Summary of 100 Single Cells in the Polygenomic Tumor 
+T10](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/bin/NIHMS706545-supplement-Supplement_Table_1.xls)
+
+
+Let us create a directory `navinT10` where all the data, configuration and results 
+from running the pipeline will be stored:
+
+```
+mkdir navinT10
+cd navinT10
+```
+* Create a subdirectory `SRA` for storing the downloaded read file:
+
+    ```
+    mkdir SRA
+    cd SRA
+    ```
+
+* Go to [https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736) 
+and use *Accession List* button to download file `SRR_Acc_List.txt` containing
+all samples accession numbers for this experiment. The downloaded `SRR_Acc_List.txt`
+should contain SRA identifiers for 100 samples:
+
+    ```
+    head SRR_Acc_List.txt 
+    SRR052047
+    SRR052148
+    SRR053437
+    SRR053600
+    SRR053602
+    SRR053604
+    SRR053605
+    SRR053606
+    SRR053607
+    SRR053608
+    ```
+
+* To download the sample reads you need to use *SRA Toolkit*. SRA Toolkit is
+available in Anaconda `bioconda` channel. You can install it using your Anaconda 
+`sgains` environment:
+
+    ```
+    conda install sra-tools
+    ```
+
+
+* To download read files for T10 Ductal Carcinoma you can use `fastq-tool`. If
+you need a read file for a single sample, you can use:
+
+    ```
+    fastq-dump --gzip SRR089402
+    ```
+This command will download a read file in `fastq` format for a sample with 
+accession number *SRR089402*. 
+
+* If you want to download read files for all samples from accession list 
+`SRR_Acc_List.txt`, you can use (**please note that the this command will download 
+about 50Gb of data and will store about 100Gb of data on disk - cache and actual 
+reads**):
+
+    ```
+    cat SRR_Acc_List.txt | xargs fastq-dump --gzip
+    ```
+
+
+
+
+
+## PREPARE: `s-GAINS` pipeline prepration
 
 Create a directory where to place all data files you plan to process with 
 `s-GAINS` pipeline:
@@ -39,9 +127,19 @@ your `hg19_pristine` copy into working `hg19` subdirectory:
     sgains.py genomeindex --genome-pristine hg19_pristine --genome-dir hg19
     ```
 
-* This step will use `bowtie-build` command produce bowtie index of the *hg19* 
+* This step will use `bowtie-build` command to produce bowtie index of the *hg19* 
 reference genome. Building this index is computationally intensive process and
 could take several hours of CPU time.
+
+* Download `cytoBand.txt` for HG19 and store it inside `hg19` subdirectory. This
+file will be needed for last step in last step of the pipeline - `scclust`.
+
+```
+cd hg19
+wget -c http://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/cytoBand.txt.gz
+gunzip cytoBand.txt.gz
+```
+
 
 ### Preparation of uniquely mappable regions
 
@@ -53,7 +151,7 @@ where a working copy of reference genome is located and the read length to be us
 * Create a subdirectory in which to save mappable regions file:
 
     ```
-    mkdir R100
+    mkdir R50
     ```
 
 * Here is an example of invoking the `mappalbe-regions` subcommand with reads of
@@ -61,7 +159,7 @@ length 100:
 
     ```
     sgains.py mappable-regions --genome-dir hg19 \
-        --mappable-dir R100 --read-length 100
+        --mappable-dir R50 --read-length 50
     ````
 
 * This step is computationaly very intensive and could take days in CPU time.
@@ -70,19 +168,19 @@ computation if your computer has a suitable number of cores. For example, on a
 workstation with 10 cores you could use 8 cores to compute mappable regions:
     ```
     sgains.py -p 8 mappable-regions --genome-dir hg19 \
-        --mappable-dir R100 --read-length 100
+        --mappable-dir R50 --read-length 50
     ```
 
 * Alternatively you can download precomputed mappable regions file from `s-GAINS`
 pipeline releases at [https://github.com/KrasnitzLab/sgains/releases](https://github.com/KrasnitzLab/sgains/releases). 
-For example you can download mappable regions with length 100 base pairs for HG19
-reference genome from [https://github.com/KrasnitzLab/sgains/releases/download/1.0_beta1/hg19_R100_mappable_regions.txt.gz].
+For this tutorial you should download mappable regions with length 50 base pairs for HG19
+reference genome from [https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_mappable_regions.txt.gz](https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_mappable_regions.txt.gz).
 
     ```
-    mkdir R100d
-    cd R100d/
-    wget -c https://github.com/KrasnitzLab/sgains/releases/download/1.0_beta1/hg19_R100_mappable_regions.txt.gz
-    gunzip hg19_R100_mappable_regions.txt.gz
+    mkdir R50
+    cd R50/
+    wget -c https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_mappable_regions.txt.gz
+    gunzip hg19_R50_mappable_regions.txt.gz
     ```
 
 ### Calculation of bins boundaries
@@ -90,44 +188,40 @@ reference genome from [https://github.com/KrasnitzLab/sgains/releases/download/1
 * Create a subdirectory for storing the bin boundaries file:
 
     ```
-    mkdir R100_50k
+    mkdir R50_B20k
     ```
 
-* Run `bins` subcommand to calculate bin boundaries.
+* Run `bins` subcommand to calculate bin boundaries. To run the command you need to specify:
+    * the number of bins you want to calculate
+    * a directory for storing the bin boundary file
+    * a directory and file name for mappble regions
+    * a directory where a working copy of HG19 is located
 
     ```
     sgains.py bins \
         --mappable-dir R50 \
-        --mappable-regions hg19_R100_mappable_regions.txt \
+        --mappable-regions hg19_R50_mappable_regions.txt \
         --genome-dir hg19 \
-        --bins-count 50000 \
-        --bins-dir R100_50k \
-        --bins-boundaries hg19_R50_B50k_bins_boundaries.txt
+        --bins-count 20000 \
+        --bins-dir R50_B20k \
+        --bins-boundaries hg19_R50_B20k_bins_boundaries.txt
     ```
-    
+* Alternatively you can download bins boundaries file from `s-GAINS` pipeline
+releases at [https://github.com/KrasnitzLab/sgains/releases](https://github.com/KrasnitzLab/sgains/releases).
+For this tutorial you should download bins boundaries file for 20000 bins with read
+length 50bp for HG19 reference genome from 
+[https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_B20k_bins_boundaries.txt.gz](https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_B20k_bins_boundaries.txt.gz)
+
+
     ```
-    sgains.py bins \
-        --mappable-dir R100 \
-        --mappable-regions hg19_R100_mappable_regions.txt \
-        --genome-dir hg19 \
-        --bins-count 10000 \
-        --bins-dir R100_B10k \
-        --bins-boundaries hg19_R100_B10k_bins_boundaries.txt
+    mkdir R50_B20k
+    cd R50_B20k/
+    wget -c https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_B20k_bins_boundaries.txt.gz
+    gunzip hg19_R50_B20k_bins_boundaries.txt.gz
     ```
 
-* To run the command you need to specify:
-    * the number of bins you want to calculate
-    * a directory for storing the bin boundary file
-    * a directory and file name where mappble regions file name is located
-    * a directory where a working copy of HG19 is located
 
-
-## Processing data with `s-GAINS` pipeline
-
-To demonstrate the usage of `s-GAINS` pipeline we are going to use data from
-*Tumour evolution inferred by single-cell sequencing* paper ([https://www.ncbi.nlm.nih.gov/pubmed/21399628](https://www.ncbi.nlm.nih.gov/pubmed/21399628))
-
-### Configure the pipeline
+## Configure the pipeline
 
 Since the pipeline has many parameters you can create a configuration file, that
 sets values for most of parameters used by the pipeline.
@@ -147,86 +241,69 @@ mappable_regions:
     bowtie_opts: ""
   
 bins:
-    bins_count: 50000
-    bins_dir: R50_50k
-    bins_boundaries: hg19_R50_50k_bins_boundaries.txt
+    bins_count: 20000
+    bins_dir: R50_B20k
+    bins_boundaries: hg19_R50_B20k_bins_boundaries.txt
 
 mapping:
-    reads_dir: Navin2011_T10
+    reads_dir: SRA
     reads_suffix: ".fastq.gz"
-    mapping_dir: mappings
+    mapping_dir: mapping
     mapping_suffix: ".rmdup.bam"
-    mapping_bowtie_opts: "-S -t -m 1 --best --strata"
+    mapping_bowtie_opts: "-S -t -m 1 --best --strata --chunkmbs 256"
 
 varbin:
     varbin_dir: varbin
-    varbin_suffix: ".varbin.50k.txt"
+    varbin_suffix: ".varbin.20k.txt"
 
-segment:
-    segment_dir: segment
-    study_name: "navin2011_T10"
+scclust:
+    case_name: "navin_T10"
+    scgv_dir: scgv/
+    cytoband: hg19/cytoBand.txt
+    nsim: 150
+    sharemin: 0.85
 
 ```
 
-### Download data for T10 Ductal Carcinoma
+Store this file as `sgains.yml` that is the default configuration file for
+`s-GAINS` pipeline. For this tutorail the configuration file should be stored 
+inside `navinT10` working directory.
 
-* Go to [https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736) 
-and use *Accession List* button to download file `SRR_Acc_List.txt` containing
-all samples accession numbers for this experiment.
 
-* To download the sample reads you need to use *SRA Toolkit*. SRA Toolkit is
-available in Anaconda `bioconda` channel. You can install it using your Anaconda 
-environment `sgains`:
+## Processing data with `s-GAINS` pipeline
 
-    ```
-    conda install sra-tools
-    ```
+To demonstrate the usage of `s-GAINS` pipeline we are going to use data from
 
-* Create a subdirectory `Navin2011_T10` for storing the downloaded read file:
-
-    ```
-    mkdir Navin2011_T10
-    cd Navin2011_T10
-    ```
-
-* To download read files for T10 Ductal Carcinoma you can use `fastq-tool`. If
-you need a read file for a single sample, you can use:
-
-    ```
-    fastq-dump --gzip SRR089402
-    ```
-This command will download a read file in `fastq` format for a sample with 
-accession number *SRR089402*. 
-
-* If you want to download read files for all samples from accession list 
-`SRR_Acc_List.txt`, you can use:
-
-    ```
-    cat SRR_Acc_List.txt | xargs fastq-dump --gzip
-    ```
-
-    ---
-    **Please note that the last command will download about 50Gb of data and will store
-    about 100Gb of data on disk (cache and actual reads).**
-    ---
+[Navin N, Kendall J, Troge J, et al. Tumor Evolution Inferred by Single 
+Cell Sequencing. 
+Nature. 2011;472(7341):90-94. doi:10.1038/nature09807.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/)
 
 
 ### Process downloaded data
 
-* To process downloaded data you can use the `process` subcommand:
+Once we have `s-GAINS` configuration file setup we can run `sgains.py` command
+to process the downloaded data (**please note that this command in computationally 
+intensive and could take long time to finish**):
 
     ```
-    sgains.py -p 8 process --genome-dir hg19 \
-        --bins-dir R50_50k \
-        --mapping-bowtie-opts "-S -t -m 1 --best --strata" \
-        --reads-dir Navin2011_T10 \
-        --study-name "navin2011_t10" -o Navin2011_T10_Results
+    sgains.py -p 10 process -o T10_Results
     ```
 
-* Note that your configuration file contains values for most of the 
-pipeline parameters. So, once you have a configuration file you can skip most 
-of the parameters and use:
+This command will run the last three steps of the pipeline:
 
-    ```
-    sgains.py -p 8 process -o Navin2011_T10_Results
-    ```
+* `mapping` step that maps reads to uniquely mappable regions produced in step
+`mappable_regions`
+
+* `varbin` step that transforms the mappings into bin counts for the binning
+scheme we have produced in step `bins`
+
+* `scclust` step that segments the bins counts and builds the
+clonal structure of the samples using hierarchical clustering.
+
+
+Each of these steps has its own subcommand and you can run the steps individually.
+For example to run the `mapping` step you can use:
+
+```
+sgains.py -p 10 mapping
+```
