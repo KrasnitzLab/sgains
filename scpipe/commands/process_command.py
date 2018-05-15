@@ -53,7 +53,7 @@ class ProcessCommand(
         self.parser = parser
         self.subparser = subparsers.add_parser(
             name="process",
-            help="combines mapping, varbin and segment subcommands into "
+            help="combines mapping, varbin and scclust subcommands into "
             "single command",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter
         )

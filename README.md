@@ -144,7 +144,7 @@ parameters and subcommands. You can list available options of `sgains.py` using
 ```
 sgains.py -h
 usage: sgains.py [-h] [-v] [-c path] [-n] [--force] [--parallel PARALLEL]
-                 {process,prepare,genomeindex,mappable-regions,bins,mapping,varbin,segment}
+                 {process,prepare,genomeindex,mappable-regions,bins,mapping,varbin,scclust}
                  ...
 
 sgains - sparse genomic analysis of individual nuclei by sequencing pipeline
@@ -162,8 +162,8 @@ optional arguments:
                         number of task to run in parallel
 
 subcommands:
-  {process,prepare,genomeindex,mappable-regions,bins,mapping,varbin,segment}
-    process             combines mapping, varbin and segment subcommands into
+  {process,prepare,genomeindex,mappable-regions,bins,mapping,varbin,scclust}
+    process             combines mapping, varbin and scclust subcommands into
                         single command
     prepare             combines all preparation steps (genomeindex,
                         mappable_regions, bins) into single command
@@ -214,13 +214,13 @@ genome index options:
   --genome-index GENOME_INDEX, -G GENOME_INDEX
                         genome index name (default: genomeindex)
   --genome-dir GENOME_DIR
-                        genome index directory (default: ../../hg19)
+                        genome index directory (default: hg19)
   --genome-version GENOME_VERSION
                         version of reference genome in use (supports only
                         hg19) (default: hg19)
   --genome-pristine GENOME_PRISTINE
                         directory where clean copy of reference genome is
-                        located (default: ../../hg19_safe)
+                        located (default: hg19_pristine)
 ```
 
 ### Usage of `mappable-regions` subcommand
@@ -247,7 +247,7 @@ subommand.
 To list the options available for this subcommand use:
 
 ```
-ssgains.py mappable-regions -h
+sgains.py mappable-regions -h                                                                                                           
 usage: sgains.py mappable-regions [-h] [--mappable-dir MAPPABLE_DIR]
                                   [--mappable-regions MAPPABLE_REGIONS]
                                   [--read-length LENGTH]
@@ -262,7 +262,7 @@ optional arguments:
 mappable regions options:
   --mappable-dir MAPPABLE_DIR, -m MAPPABLE_DIR
                         directory where mappable regions file is stroed
-                        (default: ../../R50_tool_run)
+                        (default: R50)
   --mappable-regions MAPPABLE_REGIONS, -M MAPPABLE_REGIONS
                         filename where mappable regions are stored (default:
                         hg19_R100_mappable_regions.txt)
@@ -270,13 +270,13 @@ mappable regions options:
                         read length to use for generation of mappable regions
                         (default: 50)
   --bowtie-opts BOWTIE_OPTS
-                        additional bowtie options (default: -p 1)
+                        additional bowtie options (default: )
 
 genome index options:
   --genome-index GENOME_INDEX, -G GENOME_INDEX
                         genome index name (default: genomeindex)
   --genome-dir GENOME_DIR
-                        genome index directory (default: ../../hg19)
+                        genome index directory (default: hg19)
   --genome-version GENOME_VERSION
                         version of reference genome in use (supports only
                         hg19) (default: hg19)
@@ -347,7 +347,7 @@ sgains.py process -h
 usage: sgains.py process [-h] [--reads-dir READS_DIR]
                          [--reads-suffix READS_SUFFIX]
                          [--mapping-bowtie-opts MAPPING_BOWTIE_OPTS]
-                         [--output-dir OUTPUT_DIR] [--study-name STUDY_NAME]
+                         [--output-dir OUTPUT_DIR] [--case-name CASE_NAME]
                          [--genome-index GENOME_INDEX]
                          [--genome-dir GENOME_DIR]
                          [--genome-version GENOME_VERSION]
@@ -357,27 +357,27 @@ usage: sgains.py process [-h] [--reads-dir READS_DIR]
 optional arguments:
   -h, --help            show this help message and exit
   --mapping-bowtie-opts MAPPING_BOWTIE_OPTS
-                        bowtie mapping options (default: -S -t -n 2 -e 70 -3
-                        18 -5 8 --solexa-quals)
+                        bowtie mapping options (default: -S -t -m 1 --best
+                        --strata --chunkmbs 256)
 
 sequencing reads options:
   --reads-dir READS_DIR, -R READS_DIR
                         data directory where sequencing reads are located
-                        (default: data/test_study/raw)
+                        (default: SRA)
   --reads-suffix READS_SUFFIX
                         reads files suffix pattern (default: .fastq.gz)
 
 process output options:
   --output-dir OUTPUT_DIR, -o OUTPUT_DIR
-                        output directory (default: data/test_study/segment)
-  --study-name STUDY_NAME
-                        study name (default: test_study)
+                        output directory (default: scgv)
+  --case-name CASE_NAME
+                        case name (default: navin_T10)
 
 genome index options:
   --genome-index GENOME_INDEX, -G GENOME_INDEX
                         genome index name (default: genomeindex)
   --genome-dir GENOME_DIR
-                        genome index directory (default: data/hg19)
+                        genome index directory (default: hg19)
   --genome-version GENOME_VERSION
                         version of reference genome in use (supports only
                         hg19) (default: hg19)
@@ -385,8 +385,8 @@ genome index options:
 bins boundaries:
   --bins-boundaries BINS_BOUNDARIES, -B BINS_BOUNDARIES
                         bins boundaries filename (default:
-                        hg19_R100_B10k_bins_boundaries.txt)
-  --bins-dir BINS_DIR   bins working directory (default: data/R100_B10k)
+                        hg19_R50_B20k_bins_boundaries.txt)
+  --bins-dir BINS_DIR   bins working directory (default: R50_B20k)
 ```
 
 * The data created by the `process` subcommand are placed in a subdirectory, 
@@ -401,7 +401,7 @@ into single directory. You should specify this directory using `--reads-dir` opt
 as specified using `--output-dir` option. The process subcommand will
 create a directory and inside that directory it will create three additional 
 subdirectories - `mapping`,
-`varbin` and `segment`. These will contain intermediate results from the respective
+`varbin` and `scclust`. These will contain intermediate results from the respective
 pipeline stages.
 
 * The first `mapping` stage of the pipeline invokes `bowtie` to map reads from
@@ -556,12 +556,11 @@ bins:
     bins_boundaries: hg19_R50_B20k_bins_boundaries.txt
 
 mapping:
-    reads_dir: reads
+    reads_dir: SRA
     reads_suffix: ".fastq.gz"
     mapping_dir: mapping
     mapping_suffix: ".rmdup.bam"
     mapping_bowtie_opts: "-S -t -m 1 --best --strata --chunkmbs 256"
-#     mapping_bowtie_opts: "-S -t -n 2 -e 70 -3 0 -5 38 -m 1 --best --strata --chunkmbs 256"
 
 varbin:
     varbin_dir: varbin
@@ -575,4 +574,9 @@ scclust:
     sharemin: 0.85
 ```
 
-Each section of this file configures different parts of *s-GAINS* pipeline.
+Each section of this configuration file corresponds to the relevant `s-GAINS` tool
+subcommand and sets values for the options of the subcomman.
+
+The options passed from the command line override the options specified in the
+configuration file.
+
