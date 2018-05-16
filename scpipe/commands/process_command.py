@@ -30,7 +30,7 @@ class ProcessCommand(
             "--output-dir", "-o",
             dest="output_dir",
             help="output directory",
-            default=config.scclust.scgv_dir
+            default=config.scclust.scclust_dir
         )
         group.add_argument(
             "--case-name",
@@ -44,7 +44,7 @@ class ProcessCommand(
         assert self.subparser is not None
 
         if args.output_dir is not None:
-            self.config.scclust.scgv_dir = args.output_dir
+            self.config.scclust.scclust_dir = args.output_dir
         if args.case_name is not None:
             self.config.scclust.case_name = args.case_name
 
@@ -83,14 +83,14 @@ class ProcessCommand(
         self.process_args(args)
 
         mapping_workdir = os.path.join(
-            self.config.scgv_dirname(),
+            self.config.scclust_dirname(),
             'mapping')
         varbin_workdir = os.path.join(
-            self.config.scgv_dirname(),
+            self.config.scclust_dirname(),
             'varbin')
-        segment_workdir = os.path.join(
-            self.config.scgv_dirname(),
-            'scgv')
+        scclust_workdir = os.path.join(
+            self.config.scclust_dirname(),
+            'scclust')
 
         mapping_config = Config.copy(self.config)
         mapping_config.mapping.mapping_dir = mapping_workdir
@@ -101,20 +101,20 @@ class ProcessCommand(
 
         segment_config = Config.copy(self.config)
         segment_config.varbin.varbin_dir = varbin_workdir
-        segment_config.scclust.scgv_dir = segment_workdir
+        segment_config.scclust.scclust_dir = scclust_workdir
 
         if not os.path.exists(mapping_workdir):
             os.makedirs(mapping_workdir)
         if not os.path.exists(varbin_workdir):
             os.makedirs(varbin_workdir)
-        if not os.path.exists(segment_workdir):
-            os.makedirs(segment_workdir)
+        if not os.path.exists(scclust_workdir):
+            os.makedirs(scclust_workdir)
 
         pipeline = MappingPipeline(mapping_config)
-        pipeline.run()
+        # pipeline.run()
 
         pipeline = VarbinPipeline(varbin_config)
-        pipeline.run()
+        # pipeline.run()
 
         pipeline = Rpipeline(segment_config)
-        pipeline.run()
+        # pipeline.run()

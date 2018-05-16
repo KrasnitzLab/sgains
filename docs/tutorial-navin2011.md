@@ -258,7 +258,7 @@ varbin:
 
 scclust:
     case_name: "navin_T10"
-    scgv_dir: scgv/
+    scclust_dir: scclust
     cytoband: hg19/cytoBand.txt
     nsim: 150
     sharemin: 0.85
@@ -307,3 +307,21 @@ For example to run the `mapping` step you can use:
 ```
 sgains.py -p 10 mapping
 ```
+
+The result from `process` is written in directory passed to `-o` option of 
+the command. Inside `T10_Results` directory the `sgains.py` will create
+named after the `case_name` with subdirectories for the results of each of the
+steps of `process` command:
+
+```
+.
+└── navin_T10
+    ├── mapping
+    ├── scclust
+    └── varbin
+```
+
+You can visualize results from segmentation and clustering using `SCGV` viewer.
+
+![Navin's T10](figs/navin-t10-guide.png)
+

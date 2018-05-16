@@ -347,10 +347,10 @@ class SCclustMixin(object):
         group = self.subparser.add_argument_group(
             "SCclust options")
         group.add_argument(
-            "--scgv-dir", "-S",
-            dest="scgv_dir",
+            "--scclust-dir", "-S",
+            dest="scclust_dir",
             help="SCGV directory",
-            default=config.scclust.scgv_dir
+            default=config.scclust.scclust_dir
         )
         group.add_argument(
             "--case-name",
@@ -363,7 +363,7 @@ class SCclustMixin(object):
     def scclust_updates(self, args):
         assert self.subparser is not None
 
-        if args.scgv_dir is not None:
-            self.config.scclust.scgv_dir = args.scgv_dir
+        if args.scclust_dir is not None:
+            self.config.scclust.scclust_dir = args.scclust_dir
         if args.case_name is not None:
             self.config.scclust.case_name = args.case_name

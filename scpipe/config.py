@@ -52,7 +52,7 @@ class Config(Box):
             "varbin_suffix": ".varbin.txt",
         },
         "scclust": {
-            "scgv_dir": ".",
+            "scclust_dir": ".",
             "case_name": "test",
             "cytoband": "hg19/cytoBand.txt",
             "nsim": 150,
@@ -220,8 +220,8 @@ class Config(Box):
             os.makedirs(dirname)
         return dirname
 
-    def scgv_dirname(self):
-        dirname = self.abspath(self.scclust.scgv_dir)
+    def scclust_dirname(self):
+        dirname = self.abspath(self.scclust.scclust_dir)
         dirname = os.path.join(dirname, self.scclust.case_name)
         if not os.path.exists(dirname):
             os.makedirs(dirname)

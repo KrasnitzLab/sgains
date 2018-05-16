@@ -5,6 +5,12 @@ not ready for general use**
 
 [![DOI](https://zenodo.org/badge/98500084.svg)](https://zenodo.org/badge/latestdoi/98500084)
 
+This document describes how to setup `s-GAINS` pipeline tool and its basic command.
+
+Short tutorial how to use this tool could found in
+[Example usage of `sGAINS` pipeline](docs/tutorial-navin2011.md)
+
+
 ## Anaconda environment setup
 
 ### Install Anaconda 
