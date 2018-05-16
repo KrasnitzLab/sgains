@@ -223,10 +223,10 @@ reads**):
     ```
 
 
+## PROCESS: Processing data with `s-GAINS` pipeline
 
 
-
-## Configure the pipeline
+### Configure the pipeline
 
 Since the pipeline has many parameters you can create a configuration file, that
 sets values for most of parameters used by the pipeline.
@@ -275,15 +275,6 @@ Store this file as `sgains.yml` that is the default configuration file for
 inside `navinT10` working directory.
 
 
-## Processing data with `s-GAINS` pipeline
-
-To demonstrate the usage of `s-GAINS` pipeline we are going to use data from
-
-[Navin N, Kendall J, Troge J, et al. Tumor Evolution Inferred by Single 
-Cell Sequencing. 
-Nature. 2011;472(7341):90-94. doi:10.1038/nature09807.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/)
-
-
 ### Process downloaded data
 
 Once we have `s-GAINS` configuration file setup we can run `sgains.py` command
@@ -305,13 +296,6 @@ scheme we have produced in step `bins`
 * `scclust` step that segments the bins counts and builds the
 clonal structure of the samples using hierarchical clustering.
 
-
-Each of these steps has its own subcommand and you can run the steps individually.
-For example to run the `mapping` step you can use:
-
-```
-sgains.py -p 10 mapping
-```
 
 The result from `process` is written in directory passed to `-o` option of 
 the command. Inside `T10_Results` directory the `sgains.py` will create
