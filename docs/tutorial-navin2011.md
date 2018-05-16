@@ -1,88 +1,14 @@
 # Example usage of `sGAINS` pipeline
 
 
-The `s-GAINS` pipeline has two groups of steps:
+The `s-GAINS` pipeline has two major groups of commands:
 
 * **prepare** that prepares the binning scheme used for further analysis and
 * **process** that does the actual analysis of the experimental data.
 
-
-## Download data for polygenomic breast tumor T10
-
-In this tutorial we will use data from the paper:
-
-[Navin N, Kendall J, Troge J, et al. Tumor Evolution Inferred by Single 
-Cell Sequencing. 
-Nature. 2011;472(7341):90-94. doi:10.1038/nature09807.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/)
-
-In particular we will use the data for polygenomic breast tumor T10 case available from SRA.
-
-Description of samples for T10 could be found in
-[Supplementary Table 1 | Summary of 100 Single Cells in the Polygenomic Tumor 
-T10](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/bin/NIHMS706545-supplement-Supplement_Table_1.xls)
-
-
-Let us create a directory `navinT10` where all the data, configuration and results 
-from running the pipeline will be stored:
-
-```
-mkdir navinT10
-cd navinT10
-```
-* Create a subdirectory `SRA` for storing the downloaded read file:
-
-    ```
-    mkdir SRA
-    cd SRA
-    ```
-
-* Go to [https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736) 
-and use *Accession List* button to download file `SRR_Acc_List.txt` containing
-all samples accession numbers for this experiment. The downloaded `SRR_Acc_List.txt`
-should contain SRA identifiers for 100 samples:
-
-    ```
-    head SRR_Acc_List.txt 
-    SRR052047
-    SRR052148
-    SRR053437
-    SRR053600
-    SRR053602
-    SRR053604
-    SRR053605
-    SRR053606
-    SRR053607
-    SRR053608
-    ```
-
-* To download the sample reads you need to use *SRA Toolkit*. SRA Toolkit is
-available in Anaconda `bioconda` channel. You can install it using your Anaconda 
-`sgains` environment:
-
-    ```
-    conda install sra-tools
-    ```
-
-
-* To download read files for T10 Ductal Carcinoma you can use `fastq-tool`. If
-you need a read file for a single sample, you can use:
-
-    ```
-    fastq-dump --gzip SRR089402
-    ```
-This command will download a read file in `fastq` format for a sample with 
-accession number *SRR089402*. 
-
-* If you want to download read files for all samples from accession list 
-`SRR_Acc_List.txt`, you can use (**please note that the this command will download 
-about 50Gb of data and will store about 100Gb of data on disk - cache and actual 
-reads**):
-
-    ```
-    cat SRR_Acc_List.txt | xargs fastq-dump --gzip
-    ```
-
-
+We are going to start with `s-GAINS` pipeline preparation,  then we are going to
+download the data we want to analyse and as a last step we will show the actual
+analysis of the downloaded data.
 
 
 
@@ -219,6 +145,85 @@ length 50bp for HG19 reference genome from
     wget -c https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_B20k_bins_boundaries.txt.gz
     gunzip hg19_R50_B20k_bins_boundaries.txt.gz
     ```
+
+
+## Download data for polygenomic breast tumor T10
+
+In this tutorial we will use data from the paper:
+
+[Navin N, Kendall J, Troge J, et al. Tumor Evolution Inferred by Single 
+Cell Sequencing. 
+Nature. 2011;472(7341):90-94. doi:10.1038/nature09807.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/)
+
+In particular we will use the data for polygenomic breast tumor T10 case available from SRA.
+
+Description of samples for T10 could be found in
+[Supplementary Table 1 | Summary of 100 Single Cells in the Polygenomic Tumor 
+T10](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/bin/NIHMS706545-supplement-Supplement_Table_1.xls)
+
+
+Let us create a directory `navinT10` where all the data, configuration and results 
+from running the pipeline will be stored:
+
+```
+mkdir navinT10
+cd navinT10
+```
+* Create a subdirectory `SRA` for storing the downloaded read file:
+
+    ```
+    mkdir SRA
+    cd SRA
+    ```
+
+* Go to [https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736) 
+and use *Accession List* button to download file `SRR_Acc_List.txt` containing
+all samples accession numbers for this experiment. The downloaded `SRR_Acc_List.txt`
+should contain SRA identifiers for 100 samples:
+
+    ```
+    head SRR_Acc_List.txt 
+    SRR052047
+    SRR052148
+    SRR053437
+    SRR053600
+    SRR053602
+    SRR053604
+    SRR053605
+    SRR053606
+    SRR053607
+    SRR053608
+    ```
+
+* To download the sample reads you need to use *SRA Toolkit*. SRA Toolkit is
+available in Anaconda `bioconda` channel. You can install it using your Anaconda 
+`sgains` environment:
+
+    ```
+    conda install sra-tools
+    ```
+
+
+* To download read files for T10 Ductal Carcinoma you can use `fastq-tool`. If
+you need a read file for a single sample, you can use:
+
+    ```
+    fastq-dump --gzip SRR089402
+    ```
+This command will download a read file in `fastq` format for a sample with 
+accession number *SRR089402*. 
+
+* If you want to download read files for all samples from accession list 
+`SRR_Acc_List.txt`, you can use (**please note that the this command will download 
+about 50Gb of data and will store about 100Gb of data on disk - cache and actual 
+reads**):
+
+    ```
+    cat SRR_Acc_List.txt | xargs fastq-dump --gzip
+    ```
+
+
+
 
 
 ## Configure the pipeline

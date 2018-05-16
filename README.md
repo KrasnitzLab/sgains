@@ -511,8 +511,8 @@ To list options available for `scclust` subcommand use:
 ```
 sgains.py scclust -h
 usage: sgains.py scclust [-h] [--varbin-dir VARBIN_DIR]
-                         [--varbin-suffix VARBIN_SUFFIX] [--scgv-dir SCGV_DIR]
-                         [--case-name CASE_NAME]
+                         [--varbin-suffix VARBIN_SUFFIX]
+                         [--scclust-dir SCCLUST_DIR] [--case-name CASE_NAME]
                          [--bins-boundaries BINS_BOUNDARIES]
                          [--bins-dir BINS_DIR]
 
@@ -526,8 +526,8 @@ varbin options:
                         varbin files suffix pattern (default: .varbin.20k.txt)
 
 SCclust options:
-  --scgv-dir SCGV_DIR, -S SCGV_DIR
-                        SCGV directory (default: scgv)
+  --scclust-dir SCCLUST_DIR, -S SCCLUST_DIR
+                        SCGV directory (default: scclust)
   --case-name CASE_NAME
                         case name (default: navin_T10)
 
