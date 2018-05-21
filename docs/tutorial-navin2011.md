@@ -111,6 +111,9 @@ reference genome from [https://github.com/KrasnitzLab/sgains/releases/download/1
 
 ### Calculation of bins boundaries
 
+In this step we will partition the genome into bins with an expected equal 
+number of uniquely mappable positions.
+
 * Create a subdirectory for storing the bin boundaries file:
 
     ```
@@ -225,12 +228,11 @@ available in Anaconda `bioconda` channel. You can install it using your Anaconda
 
 * To download read files for T10 Ductal Carcinoma you can use `fastq-tool`. If
 you need a read file for a single sample, you can use:
-
     ```
     fastq-dump --gzip SRR053668
     ```
-This command will download a read file in `fastq` format for a sample with 
-accession number *SRR053668*. 
+    This command will download a read file in `fastq` format for sample with 
+    accession number *SRR053668*. 
 
 * If you want to download read files for all samples from 
 `navin_T10_list.csv`, you can use (**please note that the this command will download 
@@ -296,6 +298,58 @@ inside `navinT10` working directory.
 
 ### Process downloaded data
 
+
+#### `mapping` step
+
+First step in processing samples is to map them on the reference genome. For the
+mapping we are using `bowtie`. By default `sgains.py` uses unique mapping of reads, 
+i.e. if the read could be mapped on more than one place on reference genome it 
+is discarded.
+
+This step is CPU intensive and could take hours in CPU time.
+
+To start the mapping step you can use:
+
+```
+sgains.py -p 8 mapping
+```
+
+Please note that `-p 8` in the previous command starts 8 `bowtie` processes for
+aligning samples on the reference genome. You need to adapt this number depending
+on the hardware resources in have in hand.
+
+In the aforementioned command most of the parameters would come from the 
+pipeline configuration.
+
+#### `varbin` step
+
+The `varbin` step counts the number of reads aligned in each uniquely mappable
+region of reference genome. For each uniquely mapped read we take the starting 
+position of the read, find the bin in which it is contained and increment the read
+count for this bin.
+
+To start this step you should use:
+
+```
+sgains.py -p 8 varbin
+```
+
+#### `scclust` step
+
+This step performs segmentation and clustering of the read counts using `SCclust`
+package and prepares the results, that could be visualized using `SCGV` viewer.
+
+To run the step you could use:
+
+```
+sgains.py scslust
+```
+
+This command will read the results from `varbin` step and will store results
+in subdirectory as configured in `sgains.yml` configuration file.
+
+
+#### Run whole processing pipeline in single command
 Once we have `s-GAINS` configuration file setup we can run `sgains.py` command
 to process the downloaded data (**please note that this command in computationally 
 intensive and could take long time to finish**):
