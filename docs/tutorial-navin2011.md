@@ -186,16 +186,12 @@ The downloaded file should look like this:
     SRR053670
     SRR053671
     SRR052047
-    SRR052148
-    SRR053604
-    SRR053437
+    ...
     ```
-
-Please note that this list contains only 95 samples (out of 100 published in
-the paper). We have reduced the number of samples used because we do not know
-the correspondence between SRA identifiers and identifiers used in the paper for
-five of the samples. These are the following samples:
-
+    Please note that this list contains only 95 samples (out of 100 published in
+    the paper). We have reduced the number of samples used because we do not know
+    the correspondence between SRA identifiers and identifiers used in the paper for
+    five of the samples. These are the following samples:
     ```
     SRR053672
     SRR053673
@@ -203,13 +199,11 @@ five of the samples. These are the following samples:
     SRR053675
     SRR054607
     ```
-
-If you want to work with full set of SRA samples
-go to [https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736) 
-and use *Accession List* button to download file `SRR_Acc_List.txt` containing
-all samples accession numbers for this experiment. The downloaded `SRR_Acc_List.txt`
-should contain SRA identifiers for 100 samples:
-
+    If you want to work with full set of SRA samples
+    go to [https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736) 
+    and use *Accession List* button to download file `SRR_Acc_List.txt` containing
+    all samples accession numbers for this experiment. The downloaded `SRR_Acc_List.txt`
+    should contain SRA identifiers for 100 samples:
     ```
     head SRR_Acc_List.txt 
     SRR052047
@@ -217,11 +211,7 @@ should contain SRA identifiers for 100 samples:
     SRR053437
     SRR053600
     SRR053602
-    SRR053604
-    SRR053605
-    SRR053606
-    SRR053607
-    SRR053608
+    ...
     ```
 
 * To download the sample reads you need to use *SRA Toolkit*. SRA Toolkit is
