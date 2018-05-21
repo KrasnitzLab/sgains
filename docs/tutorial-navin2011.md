@@ -176,7 +176,36 @@ cd navinT10
     cd SRA
     ```
 
-* Go to [https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736) 
+* Download the list of SRA indentifiers of the samples T10 samples from:
+[https://github.com/KrasnitzLab/sgains/docs/navin_T10_list.csv](https://github.com/KrasnitzLab/sgains/docs/navin_T10_list.csv).
+The downloaded file should look like this:
+    ```
+    head navin_T10_list.csv 
+    SRR053668
+    SRR053669
+    SRR053670
+    SRR053671
+    SRR052047
+    SRR052148
+    SRR053604
+    SRR053437
+    ```
+
+Please note that this list contains only 95 samples (out of 100 published in
+the paper). We have reduced the number of samples used because we do not know
+the correspondence between SRA identifiers and identifiers used in the paper for
+five of the samples. These are the following samples:
+
+    ```
+    SRR053672
+    SRR053673
+    SRR053674
+    SRR053675
+    SRR054607
+    ```
+
+If you want to work with full set of SRA samples
+go to [https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SAMN00014736) 
 and use *Accession List* button to download file `SRR_Acc_List.txt` containing
 all samples accession numbers for this experiment. The downloaded `SRR_Acc_List.txt`
 should contain SRA identifiers for 100 samples:
@@ -208,18 +237,18 @@ available in Anaconda `bioconda` channel. You can install it using your Anaconda
 you need a read file for a single sample, you can use:
 
     ```
-    fastq-dump --gzip SRR089402
+    fastq-dump --gzip SRR053668
     ```
 This command will download a read file in `fastq` format for a sample with 
-accession number *SRR089402*. 
+accession number *SRR053668*. 
 
-* If you want to download read files for all samples from accession list 
-`SRR_Acc_List.txt`, you can use (**please note that the this command will download 
+* If you want to download read files for all samples from 
+`navin_T10_list.csv`, you can use (**please note that the this command will download 
 about 50Gb of data and will store about 100Gb of data on disk - cache and actual 
 reads**):
 
     ```
-    cat SRR_Acc_List.txt | xargs fastq-dump --gzip
+    cat navin_T10_list.csv | xargs fastq-dump --gzip
     ```
 
 
