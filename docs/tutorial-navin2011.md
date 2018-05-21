@@ -177,7 +177,7 @@ cd navinT10
     ```
 
 * Download the list of SRA indentifiers of the samples T10 samples from:
-[https://github.com/KrasnitzLab/sgains/docs/navin_T10_list.csv](https://github.com/KrasnitzLab/sgains/docs/navin_T10_list.csv).
+[navin_T10_list.csv](https://raw.githubusercontent.com/KrasnitzLab/sgains/master/docs/navin_T10_list.csv).
 The downloaded file should look like this:
     ```
     head navin_T10_list.csv 
