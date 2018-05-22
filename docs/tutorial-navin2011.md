@@ -308,7 +308,7 @@ sgains.py -p 8 mapping
 
 Please note that `-p 8` in the previous command starts 8 `bowtie` processes for
 aligning samples on the reference genome. You need to adapt this number depending
-on the hardware resources in have in hand.
+on the hardware resources you have in your hands.
 
 In the aforementioned command most of the parameters would come from the 
 pipeline configuration.
