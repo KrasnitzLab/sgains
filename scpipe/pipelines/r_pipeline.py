@@ -23,7 +23,7 @@ class Rpipeline(object):
         varbin_dir = self.config.varbin_dirname()
         varbin_suffix = self.config.varbin.varbin_suffix
 
-        scgv_dirname = self.config.scgv_dirname()
+        scclust_dirname = self.config.scclust_dirname()
         case_name = self.config.scclust.case_name
 
         cytoband = os.path.abspath(self.config.scclust.cytoband)
@@ -37,7 +37,7 @@ class Rpipeline(object):
                 case_name,
                 varbin_dir,
                 varbin_suffix,
-                scgv_dirname),
+                scclust_dirname),
             "green"))
         print(colored(
             "using: bin boundaries {}".format(
@@ -48,18 +48,18 @@ class Rpipeline(object):
                 cytoband, nsim, sharemin),
             "green"))
 
-        if os.path.exists(scgv_dirname) and \
-                len(os.listdir(scgv_dirname)) > 0:
+        if os.path.exists(scclust_dirname) and \
+                len(os.listdir(scclust_dirname)) > 0:
             if self.config.force:
                 if not self.config.dry_run:
-                    shutil.rmtree(scgv_dirname)
-                    os.makedirs(scgv_dirname)
+                    shutil.rmtree(scclust_dirname)
+                    os.makedirs(scclust_dirname)
             else:
                 print(colored(
                     "results directory {} is not empty; "
-                    "use --force to overwrite".format(scgv_dirname),
+                    "use --force to overwrite".format(scclust_dirname),
                     "red"))
-                raise NonEmptyWorkDirectory(scgv_dirname)
+                raise NonEmptyWorkDirectory(scclust_dirname)
 
         basedir = os.path.dirname(__file__)
         rscript = os.path.abspath(
@@ -77,7 +77,7 @@ class Rpipeline(object):
                 subprocess.check_call(
                     [
                         'Rscript', rscript,
-                        scgv_dirname,
+                        scclust_dirname,
                         case_name,
                         varbin_dir, varbin_suffix,
                         bin_boundaries_filename,
