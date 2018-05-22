@@ -18,8 +18,8 @@ Create a directory where to place all data files you plan to process with
 `s-GAINS` pipeline:
 
 ```
-mkdir data
-cd data
+mkdir navinT10
+cd navinT10
 ```
 
 All instructions bellow asume that you are working inside your data directory.
@@ -60,11 +60,11 @@ could take several hours of CPU time.
 * Download `cytoBand.txt` for HG19 and store it inside `hg19` subdirectory. This
 file will be needed for last step in last step of the pipeline - `scclust`.
 
-```
-cd hg19
-wget -c http://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/cytoBand.txt.gz
-gunzip cytoBand.txt.gz
-```
+    ```
+    cd hg19
+    wget -c http://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/cytoBand.txt.gz
+    gunzip cytoBand.txt.gz
+    ```
 
 
 ### Preparation of uniquely mappable regions
@@ -150,7 +150,7 @@ length 50bp for HG19 reference genome from
     ```
 
 
-## Download data for polygenomic breast tumor T10
+## Download data for the T10 case
 
 In this tutorial we will use data from the paper:
 
@@ -164,14 +164,6 @@ Description of samples for T10 could be found in
 [Supplementary Table 1 | Summary of 100 Single Cells in the Polygenomic Tumor 
 T10](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4504184/bin/NIHMS706545-supplement-Supplement_Table_1.xls)
 
-
-Let us create a directory `navinT10` where all the data, configuration and results 
-from running the pipeline will be stored:
-
-```
-mkdir navinT10
-cd navinT10
-```
 * Create a subdirectory `SRA` for storing the downloaded read file:
 
     ```
@@ -360,8 +352,7 @@ intensive and could take long time to finish**):
 
 This command will run the last three steps of the pipeline:
 
-* `mapping` step that maps reads to uniquely mappable regions produced in step
-`mappable_regions`
+* `mapping` step that maps reads to the reference genome
 
 * `varbin` step that transforms the mappings into bin counts for the binning
 scheme we have produced in step `bins`
@@ -389,7 +380,5 @@ You can visualize results from segmentation and clustering using
 [`SCGV` viewer](https://github.com/KrasnitzLab/SCGV).
 
 ![Navin's T10](figs/navin_T10.png)
-
-
 
 

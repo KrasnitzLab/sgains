@@ -7,7 +7,7 @@ not ready for general use**
 
 This document describes how to setup `s-GAINS` pipeline tool and its basic command.
 
-Short tutorial how to use this tool could found in
+Short tutorial on how to use this tool could be found in
 [Example usage of `sGAINS` pipeline](docs/tutorial-navin2011.md)
 
 
