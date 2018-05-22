@@ -383,7 +383,13 @@ steps of `process` command:
     └── varbin
 ```
 
-You can visualize results from segmentation and clustering using `SCGV` viewer.
+#### Visualization of results
 
-![Navin's T10](figs/navin-t10-guide.png)
+You can visualize results from segmentation and clustering using 
+[`SCGV` viewer](https://github.com/KrasnitzLab/SCGV).
+
+![Navin's T10](figs/navin_T10.png)
+
+
+
 
