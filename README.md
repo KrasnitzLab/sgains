@@ -183,6 +183,7 @@ subcommands:
                         each bin
     scclust             segmentation and clustering based bin counts and
                         preparation of the SCGV input data```
+```
 
 The `sgains.py` tool supports a list of common options:
 
