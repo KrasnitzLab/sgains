@@ -64,7 +64,7 @@ conda install -c krasnitzlab scgv
 
 #### Install sGAIN's dependencies
 
-* Now you have to insall additional packages required by `sgains.py` tool:
+* Now you have to install additional packages required by `sgains.py` tool:
 
     ```
     conda install samtools bcftools biopython pysam
