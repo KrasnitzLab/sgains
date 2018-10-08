@@ -50,7 +50,7 @@ use with `sgains` pipeline. To this end you need to use:
 You need to install it using using following command:
 
 ```
-conda install -c karsnitzlab -c bioconda scclust
+conda install -c krasnitzlab -c bioconda scclust
 ```
 
 #### Install SCGV viewer package
@@ -59,7 +59,7 @@ conda install -c karsnitzlab -c bioconda scclust
 You can to install it using using following command:
 
 ```
-conda install -c karsnitzlab scgv
+conda install -c krasnitzlab scgv
 ```
 
 #### Install sGAIN's dependencies
