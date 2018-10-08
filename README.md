@@ -44,6 +44,25 @@ use with `sgains` pipeline. To this end you need to use:
     conda config --add channels bioconda
     conda config --add channels r
     ```
+#### Install SCclust package
+
+`SCclust` package is available from `KrasnitzLab` Anaconda channel. 
+You need to install it using using following command:
+
+```
+conda install -c karsnitzlab -c bioconda scclust
+```
+
+#### Install SCGV viewer package
+
+`SCGV` package is available from `KrasnitzLab` Anaconda channel. 
+You can to install it using using following command:
+
+```
+conda install -c karsnitzlab scgv
+```
+
+#### Install sGAIN's dependencies
 
 * Now you have to insall additional packages required by `sgains.py` tool:
 
@@ -62,14 +81,6 @@ your environment:
     pip install setproctitle
     ```
 
-### Install SCclust package
-
-`SCclust` package is available from `KrasnitzLab` Anaconda channel. 
-You need to install it using using following command:
-
-```
-conda install -c karsnitzlab -c bioconda scclust
-```
 
 ### Configure *s-GAINS* environment
 
