@@ -12,7 +12,7 @@ analysis of the downloaded data.
 
 
 
-## PREPARE: `s-GAINS` pipeline prepration
+## PREPARE: `s-GAINS` pipeline preparation
 
 Create a directory where to place all data files you plan to process with 
 `s-GAINS` pipeline:
