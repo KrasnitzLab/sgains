@@ -48,7 +48,7 @@ use with `sgains` pipeline. To this end you need to use:
 * Now you have to insall additional packages required by `sgains.py` tool:
 
     ```
-    conda install -y samtools bcftools biopython pysam
+    conda install samtools bcftools biopython pysam
     conda install pandas numpy
     conda install bowtie=1.2
 
