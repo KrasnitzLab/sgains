@@ -596,7 +596,7 @@ scclust:
 ```
 
 Each section of this configuration file corresponds to the relevant `s-GAINS` tool
-subcommand and sets values for the options of the subcomman.
+subcommand and sets values for the options of the subcommand.
 
 The options passed from the command line override the options specified in the
 configuration file.
