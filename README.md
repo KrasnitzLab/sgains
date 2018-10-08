@@ -50,8 +50,7 @@ use with `sgains` pipeline. To this end you need to use:
     ```
     conda install -y samtools bcftools biopython pysam
     conda install pandas numpy
-    conda install -c conda-forge perl=5.22.0
-    conda install bowtie=1.2.1.1
+    conda install bowtie=1.2
     
     conda install r-essentials
 
@@ -65,16 +64,22 @@ your environment:
     pip install setproctitle
     ```
 
-### Setup R environment
+### Install SCclust package
 
-Go to `scripts` directory and invoke `setup.R` script:
+`SCclust` package is available from `KrasnitzLab` Anaconda channel. 
+You need to install it using using following command:
 
 ```
-cd scripts/
-Rscript setup.R
+conda install -c karsnitzlab -c conda-forge -c bioconda scclust
 ```
 
 ### Configure *s-GAINS* environment
+
+Clone the repository of the project:
+
+```
+git clone git@github.com:KrasnitzLab/sgains.git
+```
 
 In the root directory of the project there is a `setenv.sh` script. The purpose
 of this script is to setup working environment of *s-GAINS*:
