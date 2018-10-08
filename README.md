@@ -78,7 +78,7 @@ conda install -c karsnitzlab -c conda-forge -c bioconda scclust
 Clone the repository of the project:
 
 ```
-git clone git@github.com:KrasnitzLab/sgains.git
+git clone https://github.com/KrasnitzLab/sgains.git
 ```
 
 In the root directory of the project there is a `setenv.sh` script. The purpose
