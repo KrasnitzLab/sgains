@@ -51,8 +51,6 @@ use with `sgains` pipeline. To this end you need to use:
     conda install -y samtools bcftools biopython pysam
     conda install pandas numpy
     conda install bowtie=1.2
-    
-    conda install r-essentials
 
     pip install python-box termcolor PyYAML pytest pytest-asyncio
     ```
@@ -70,7 +68,7 @@ your environment:
 You need to install it using using following command:
 
 ```
-conda install -c karsnitzlab -c conda-forge -c bioconda scclust
+conda install -c karsnitzlab -c bioconda scclust
 ```
 
 ### Configure *s-GAINS* environment
