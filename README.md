@@ -42,7 +42,6 @@ use with `sgains` pipeline. To this end you need to use:
 
     ```
     conda config --add channels bioconda
-    conda config --add channels r
     ```
 #### Install SCclust package
 
@@ -50,7 +49,7 @@ use with `sgains` pipeline. To this end you need to use:
 You need to install it using using following command:
 
 ```
-conda install -c krasnitzlab -c bioconda scclust
+conda install -c krasnitzlab scclust
 ```
 
 #### Install SCGV viewer package
