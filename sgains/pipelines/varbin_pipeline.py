@@ -4,7 +4,7 @@ Created on Jul 31, 2017
 @author: lubo
 '''
 from collections import defaultdict
-from hg19 import HumanGenome19
+from sgains.hg19 import HumanGenome19
 from termcolor import colored
 import os
 import pandas as pd
@@ -49,7 +49,7 @@ class VarbinPipeline(object):
         try:
             assert os.path.exists(filename), os.path.abspath(filename)
 
-            infile = pysam.AlignmentFile(filename, 'rb')  # @UndefinedVariable
+            infile = pysam.AlignmentFile(filename, 'rb')
             bins_df = self.hg.bins_boundaries()
             assert bins_df is not None
             chrom_sizes = self.hg.chrom_sizes()

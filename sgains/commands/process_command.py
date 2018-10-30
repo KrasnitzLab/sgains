@@ -3,16 +3,17 @@ Created on Aug 3, 2017
 
 @author: lubo
 '''
-from commands.common import OptionsBase, \
+import os
+import argparse
+from termcolor import colored
+
+from sgains.commands.common import OptionsBase, \
     GenomeIndexMixin, BinsBoundariesMixin, MappingMixin
 
-import argparse
-import os
-from config import Config
-from pipelines.mapping_pipeline import MappingPipeline
-from pipelines.varbin_pipeline import VarbinPipeline
-from pipelines.r_pipeline import Rpipeline
-from termcolor import colored
+from sgains.config import Config
+from sgains.pipelines.mapping_pipeline import MappingPipeline
+from sgains.pipelines.varbin_pipeline import VarbinPipeline
+from sgains.pipelines.r_pipeline import Rpipeline
 
 
 class ProcessCommand(
@@ -111,10 +112,10 @@ class ProcessCommand(
             os.makedirs(scclust_workdir)
 
         pipeline = MappingPipeline(mapping_config)
-        # pipeline.run()
+        pipeline.run()
 
         pipeline = VarbinPipeline(varbin_config)
-        # pipeline.run()
+        pipeline.run()
 
         pipeline = Rpipeline(segment_config)
-        # pipeline.run()
+        pipeline.run()

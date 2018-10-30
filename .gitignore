@@ -13,3 +13,5 @@ __pycache__
 .Rproj.user
 /copy-data-*.sh
 setenv.sh
+build
+sgains.egg-info/

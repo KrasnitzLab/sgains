@@ -3,10 +3,11 @@ Created on Aug 2, 2017
 
 @author: lubo
 '''
-from commands.common import OptionsBase, GenomeIndexMixin,\
-    MappableRegionsMixin
 import argparse
-from pipelines.mappableregions_pipeline import MappableRegionsPipeline
+
+from sgains.commands.common import OptionsBase, GenomeIndexMixin,\
+    MappableRegionsMixin
+from sgains.pipelines.mappableregions_pipeline import MappableRegionsPipeline
 
 
 class MappableRegionsCommand(

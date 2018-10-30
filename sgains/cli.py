@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 '''
-sgains - sparse genomic analysis of individual nuclei by sequencing pipeline
 Created on Jul 20, 2017
 
 @author: lubo
@@ -13,16 +11,16 @@ import os
 import sys
 import traceback
 
-from commands.bins_command import BinsCommand
-from commands.genomeindex_command import GenomeIndexCommand
-from commands.mappable_regions_command import MappableRegionsCommand
-from commands.mapping_command import MappingCommand
-from commands.prepare_command import PrepareCommand
-from commands.process_command import ProcessCommand
-from commands.sc_clust_command import SCclustCommand
-from commands.varbin_command import VarbinCommand
-from config import Config
-from commands.common import OptionsBase
+from sgains.commands.bins_command import BinsCommand
+from sgains.commands.genomeindex_command import GenomeIndexCommand
+from sgains.commands.mappable_regions_command import MappableRegionsCommand
+from sgains.commands.mapping_command import MappingCommand
+from sgains.commands.prepare_command import PrepareCommand
+from sgains.commands.process_command import ProcessCommand
+from sgains.commands.sc_clust_command import SCclustCommand
+from sgains.commands.varbin_command import VarbinCommand
+from sgains.config import Config
+from sgains.commands.common import OptionsBase
 
 
 class CLIError(Exception):
@@ -48,7 +46,9 @@ def main(argv=None):
 
     # Setup argument parser
     program_name = os.path.basename(sys.argv[0])
-    program_shortdesc = __import__('__main__').__doc__.split("\n")[1]
+    program_shortdesc = \
+        'sgains - sparse genomic analysis of individual nuclei by ' \
+        'sequencing pipeline'
     program_description = '''%s
 
 USAGE

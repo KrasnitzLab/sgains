@@ -4,11 +4,11 @@ Created on Aug 2, 2017
 @author: lubo
 '''
 import argparse
-
-from commands.common import OptionsBase, BinsBoundariesMixin
-from pipelines.varbin_pipeline import VarbinPipeline
-from commands.mapping_command import MappingMixin
 from termcolor import colored
+
+from sgains.commands.common import OptionsBase, BinsBoundariesMixin
+from sgains.pipelines.varbin_pipeline import VarbinPipeline
+from sgains.commands.mapping_command import MappingMixin
 
 
 class VarbinMixin(object):

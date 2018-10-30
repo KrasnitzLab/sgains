@@ -4,7 +4,7 @@ Created on Jul 9, 2017
 @author: lubo
 '''
 import subprocess
-from config import Config, NonEmptyWorkDirectory
+from sgains.config import Config, NonEmptyWorkDirectory
 import os
 from termcolor import colored
 import shutil

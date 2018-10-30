@@ -3,7 +3,7 @@ Created on Aug 2, 2017
 
 @author: lubo
 '''
-from config import Config
+from sgains.config import Config
 
 
 class OptionsBase(object):

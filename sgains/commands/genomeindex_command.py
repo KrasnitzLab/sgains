@@ -4,9 +4,9 @@ Created on Aug 2, 2017
 @author: lubo
 '''
 import argparse
-from commands.common import OptionsBase,\
+from sgains.commands.common import OptionsBase,\
     GenomeIndexMixin
-from pipelines.genomeindex_pipeline import GenomeIndexPipeline
+from sgains.pipelines.genomeindex_pipeline import GenomeIndexPipeline
 
 
 class GenomeIndexCommand(

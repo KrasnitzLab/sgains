@@ -3,12 +3,13 @@ Created on Jul 31, 2017
 
 @author: lubo
 '''
-from hg19 import HumanGenome19
-from termcolor import colored
 import os
-import pandas as pd
-from utils import BinParams, MappableBin
 import multiprocessing
+import pandas as pd
+from termcolor import colored
+
+from sgains.hg19 import HumanGenome19
+from sgains.utils import BinParams, MappableBin
 
 
 class BinsPipeline(object):
@@ -44,12 +45,12 @@ class BinsPipeline(object):
         df = pd.concat(result)
         return df
 
-    def bins_boundaries_generator(self, chroms, mappable_regions_df=None):
+    def bins_boundaries_generator(self, chroms, mappable_regions_df):
         chrom_sizes = self.hg.chrom_sizes()
         chrom_bins = self.hg.calc_chrom_bins()
 
-        if mappable_regions_df is None:
-            mappable_regions_df = self.load_mappable_regions()
+        # if mappable_regions_df is None:
+        #     mappable_regions_df = self.load_mappable_regions()
 
         for chrom in chroms:
             chrom_df = mappable_regions_df[mappable_regions_df.chrom == chrom]

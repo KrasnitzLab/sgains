@@ -5,7 +5,7 @@ Created on Jul 13, 2017
 '''
 import os
 import subprocess
-from config import Config
+from sgains.config import Config
 from termcolor import colored
 import multiprocessing
 import functools

@@ -5,9 +5,10 @@ Created on Aug 2, 2017
 '''
 import argparse
 
-from commands.common import GenomeIndexMixin, OptionsBase, MappingMixin
-from pipelines.mapping_pipeline import MappingPipeline
 from termcolor import colored
+
+from sgains.commands.common import GenomeIndexMixin, OptionsBase, MappingMixin
+from sgains.pipelines.mapping_pipeline import MappingPipeline
 
 
 class MappingCommand(

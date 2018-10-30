@@ -3,24 +3,24 @@ Created on Jul 31, 2017
 
 @author: lubo
 '''
-from hg19 import HumanGenome19
+from sgains.hg19 import HumanGenome19
 import asyncio
 from termcolor import colored
 import os
 from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 
-from utils import MappableState, Mapping, MappableRegion, LOG
+from sgains.utils import MappableState, Mapping, MappableRegion, LOG
 import sys
 import multiprocessing
 import shutil
-# import logging
+import logging
 
-# logging.basicConfig(
-#     level=logging.DEBUG,
-#     format='%(levelname)7s: %(message)s',
-#     stream=sys.stderr,
-# )
-# LOG = logging.getLogger('')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(levelname)7s: %(message)s',
+    stream=sys.stderr,
+)
+LOG = logging.getLogger('')
 
 
 class MappableRegionsPipeline(object):
@@ -30,9 +30,9 @@ class MappableRegionsPipeline(object):
         assert self.config.genome.version == 'hg19'
         self.hg = HumanGenome19(self.config)
 
-    def mappable_regions_check(self, chroms, mappable_regions_df=None):
-        if mappable_regions_df is None:
-            mappable_regions_df = self.load_mappable_regions()
+    def mappable_regions_check(self, chroms, mappable_regions_df):
+        # if mappable_regions_df is None:
+        #     mappable_regions_df = self.load_mappable_regions()
 
         for chrom in chroms:
             chrom_df = mappable_regions_df[mappable_regions_df.chrom == chrom]
@@ -40,7 +40,8 @@ class MappableRegionsPipeline(object):
                 by=['chrom', 'start_pos', 'end_pos'])
             start_pos_count = len(chrom_df.start_pos.unique())
             if start_pos_count < len(chrom_df):
-                LOG.error("chrom {} has duplicate mappable regions", chrom)
+                LOG.error(
+                    "chrom {} has duplicate mappable regions".format(chrom))
 
     def generate_reads(self, chroms, read_length):
         try:

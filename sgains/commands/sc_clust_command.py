@@ -4,11 +4,11 @@ Created on Aug 2, 2017
 @author: lubo
 '''
 import argparse
-
-from commands.common import OptionsBase, BinsBoundariesMixin, SCclustMixin
-from pipelines.r_pipeline import Rpipeline
-from commands.varbin_command import VarbinMixin
 from termcolor import colored
+
+from sgains.commands.common import OptionsBase, BinsBoundariesMixin, SCclustMixin
+from sgains.pipelines.r_pipeline import Rpipeline
+from sgains.commands.varbin_command import VarbinMixin
 
 
 class SCclustCommand(

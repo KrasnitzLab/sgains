@@ -3,7 +3,7 @@ Created on Jul 31, 2017
 
 @author: lubo
 '''
-from hg19 import HumanGenome19
+from sgains.hg19 import HumanGenome19
 import os
 import shutil
 from termcolor import colored

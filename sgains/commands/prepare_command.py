@@ -3,13 +3,14 @@ Created on Aug 2, 2017
 
 @author: lubo
 '''
-from commands.common import GenomeIndexMixin, OptionsBase, \
+import argparse
+
+from sgains.commands.common import GenomeIndexMixin, OptionsBase, \
     MappableRegionsMixin,\
     BinsBoundariesMixin
-import argparse
-from pipelines.genomeindex_pipeline import GenomeIndexPipeline
-from pipelines.mappableregions_pipeline import MappableRegionsPipeline
-from pipelines.bins_pipeline import BinsPipeline
+from sgains.pipelines.genomeindex_pipeline import GenomeIndexPipeline
+from sgains.pipelines.mappableregions_pipeline import MappableRegionsPipeline
+from sgains.pipelines.bins_pipeline import BinsPipeline
 
 
 class PrepareCommand(

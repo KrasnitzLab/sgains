@@ -5,8 +5,8 @@ Created on Aug 2, 2017
 '''
 import argparse
 
-from pipelines.bins_pipeline import BinsPipeline
-from commands.common import OptionsBase,\
+from sgains.pipelines.bins_pipeline import BinsPipeline
+from sgains.commands.common import OptionsBase,\
     MappableRegionsMixin, BinsBoundariesMixin, GenomeIndexMixin
 
 
