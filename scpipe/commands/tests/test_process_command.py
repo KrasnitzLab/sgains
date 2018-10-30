@@ -6,7 +6,7 @@ Created on Aug 2, 2017
 
 
 def test_process_long(
-        argparser, tests_config, process_command):
+        argparser, tests_config, process_command, mocker):
     process_command.add_options(tests_config)
 
     argv = [
@@ -23,7 +23,7 @@ def test_process_long(
         "--genome-index", "genomeindex",
         "--genome-dir", "data/hg19",
 
-        "--study-name", "test_study",
+        "--case-name", "test_study",
     ]
 
     args = argparser.parse_args(argv)
@@ -45,4 +45,4 @@ def test_process_long(
     assert config.mapping.reads_suffix == ".fastq.gz"
     assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"
 
-    assert config.segment.study_name == "test_study"
+    assert config.scclust.case_name == "test_study"

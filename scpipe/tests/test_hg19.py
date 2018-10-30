@@ -3,6 +3,10 @@ Created on Jun 10, 2017
 
 @author: lubo
 '''
+import pytest
+
+pytestmark = pytest.mark.xfail
+
 
 
 def test_hg19_simple(hg):

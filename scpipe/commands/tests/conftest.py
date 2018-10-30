@@ -12,14 +12,14 @@ from commands.bins_command import BinsCommand
 from commands.prepare_command import PrepareCommand
 from commands.mapping_command import MappingCommand
 from commands.varbin_command import VarbinCommand
-from commands.segment_command import SegmentCommand
+from commands.sc_clust_command import SCclustCommand
 from commands.process_command import ProcessCommand
 from commands.common import OptionsBase
 
 
 @pytest.fixture
 def tests_config():
-    config = Config.load("scpipe/tests/data/scpipe_tests.yml")
+    config = Config.load("tests/data/scpipe_tests.yml")
     return config
 
 
@@ -89,8 +89,8 @@ def varbin_command(argparser, argsubparser):
 
 
 @pytest.fixture
-def segment_command(argparser, argsubparser):
-    command = SegmentCommand(argparser, argsubparser)
+def sc_clust_command(argparser, argsubparser):
+    command = SCclustCommand(argparser, argsubparser)
     assert command is not None
 
     return command

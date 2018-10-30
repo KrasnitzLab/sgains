@@ -6,11 +6,12 @@ Created on Aug 2, 2017
 
 
 def test_mappable_regions_long(
-        argparser, tests_config, mappable_regions_command):
+        argparser, tests_config, mappable_regions_command, mocker):
     mappable_regions_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",
+        "--config", "tests/data/scpipe_tests.yml",
         "mappable-regions",
         "--mappable-dir", "data/proba",
         "--genome-index", "genomeindex",
@@ -19,29 +20,34 @@ def test_mappable_regions_long(
         "--bowtie-opts", "-1 -2 -3",
     ]
 
-    args = argparser.parse_args(argv)
-    args.func(args)
+    with mocker.patch("os.path.exists"), \
+            mocker.patch("config.Config.mapping_reads_filenames"), \
+            mocker.patch("os.listdir"):
 
-    config = mappable_regions_command.config
-    assert config is not None
+        args = argparser.parse_args(argv)
+        args.func(args)
 
-    assert config.force
-    assert config.dry_run
+        config = mappable_regions_command.config
+        assert config is not None
 
-    assert config.genome.work_dir == "data/hg19/"
-    assert config.genome.index == "genomeindex"
+        assert config.force
+        assert config.dry_run
 
-    assert config.mappable_regions.length == 200
-    assert config.mappable_regions.work_dir == "data/proba"
-    assert config.mappable_regions.bowtie_opts == "-1 -2 -3"
+        assert config.genome.work_dir == "data/hg19/"
+        assert config.genome.index == "genomeindex"
+
+        assert config.mappable_regions.length == 200
+        assert config.mappable_regions.work_dir == "data/proba"
+        assert config.mappable_regions.bowtie_opts == "-1 -2 -3"
 
 
 def test_mappable_regions_short(
-        argparser, tests_config, mappable_regions_command):
+        argparser, tests_config, mappable_regions_command, mocker):
     mappable_regions_command.add_options(tests_config)
 
     argv = [
         "-n", "-F",
+        "--config", "tests/data/scpipe_tests.yml",
         "mappable-regions",
         "-m", "data/proba",
         "-G", "genomeindex",
@@ -50,18 +56,21 @@ def test_mappable_regions_short(
         "--bowtie-opts", "-1 -2 -3",
     ]
 
-    args = argparser.parse_args(argv)
-    args.func(args)
+    with mocker.patch("os.path.exists"), \
+            mocker.patch("config.Config.mapping_reads_filenames"), \
+            mocker.patch("os.listdir"):
+        args = argparser.parse_args(argv)
+        args.func(args)
 
-    config = mappable_regions_command.config
-    assert config is not None
+        config = mappable_regions_command.config
+        assert config is not None
 
-    assert config.force
-    assert config.dry_run
+        assert config.force
+        assert config.dry_run
 
-    assert config.genome.work_dir == "data/hg19/"
-    assert config.genome.index == "genomeindex"
+        assert config.genome.work_dir == "data/hg19/"
+        assert config.genome.index == "genomeindex"
 
-    assert config.mappable_regions.length == 200
-    assert config.mappable_regions.work_dir == "data/proba"
-    assert config.mappable_regions.bowtie_opts == "-1 -2 -3"
+        assert config.mappable_regions.length == 200
+        assert config.mappable_regions.work_dir == "data/proba"
+        assert config.mappable_regions.bowtie_opts == "-1 -2 -3"

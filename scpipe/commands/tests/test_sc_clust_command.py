@@ -5,25 +5,26 @@ Created on Aug 2, 2017
 '''
 
 
-def test_segment_long(
-        argparser, tests_config, segment_command):
-    segment_command.add_options(tests_config)
+def test_sc_clust_long(
+        argparser, tests_config, sc_clust_command):
+    sc_clust_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",
-        "segment",
+        "--config", "tests/data/scpipe_tests.yml",
+        "scclust",
         "--bins-boundaries", "test_bins_boundaries.txt",
         "--bins-dir", "data/test_study/bins",
         "--varbin-dir", "data/test_study/results",
         "--varbin-suffix", ".varbin.txt",
-        "--segment-dir", "data/proba",
-        "--study-name", "test_study",
+        "--scclust-dir", "data/proba",
+        "--case-name", "test_study",
     ]
 
     args = argparser.parse_args(argv)
     args.func(args)
 
-    config = segment_command.config
+    config = sc_clust_command.config
     assert config is not None
 
     assert config.force
@@ -34,5 +35,5 @@ def test_segment_long(
 
     assert config.varbin.varbin_dir == "data/test_study/results"
     assert config.varbin.varbin_suffix == ".varbin.txt"
-    assert config.segment.study_name == "test_study"
-    assert config.segment.segment_dir == "data/proba"
+    assert config.scclust.case_name == "test_study"
+    assert config.scclust.scclust_dir == "data/proba"

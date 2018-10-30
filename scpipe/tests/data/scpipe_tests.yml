@@ -1,31 +1,33 @@
 genome:
-  version: hg19
-  data_dir: data/hg19_safe
-  work_dir: data/hg19
-  index: genomeindex
+    version: hg19
+    data_dir: hg19_pristine
+    work_dir: hg19
+    genome_index: genomeindex
 
 mappable_regions:
-  length: 100
-  work_dir: data/R100
-  bowtie: ''
-  mappable_regions: hg19_R100_mappable_regions.txt
-
+    length: 100
+    work_dir: R100
+    bowtie_opts: ""
+  
 bins:
-  bins_count: 10000
-  work_dir: data/R100_B10k
-  bins_boundaries: hg19_R100_B10k_bins_boundaries.txt
+    bins_count: 10000
+    bins_dir: data/R100_B10k
+    bins_boundaries: hg19_R100_B10k_bins_boundaries.txt
 
 mapping:
-    reads_dir: reads
+    reads_dir: SRA
     reads_suffix: ".fastq.gz"
-    mapping_dir: mapped
+    mapping_dir: mapping
     mapping_suffix: ".rmdup.bam"
-    mapping_bowtie_opts: "-S -t -n 2 -e 70 -3 0 -5 38 -m 1 --best --strata"
+    mapping_bowtie_opts: "-S -t -m 1 --best --strata --chunkmbs 256"
 
 varbin:
     varbin_dir: varbin
     varbin_suffix: ".varbin.20k.txt"
 
-segment:
-    segment_dir: segment
-    study_name: "test_study"
+scclust:
+    case_name: "navin_T10"
+    scclust_dir: scclust
+    cytoband: tests/data/cytoBand.txt
+    nsim: 150
+    sharemin: 0.85

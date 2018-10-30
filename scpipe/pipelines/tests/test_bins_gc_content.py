@@ -8,6 +8,9 @@ import pytest
 from pipelines.bins_pipeline import BinsPipeline
 
 
+pytestmark = pytest.mark.xfail
+
+
 @pytest.mark.parametrize("chromosome", ['chr1'])  # HumanGenome19.CHROMS)
 def test_bin_gc_content(
         tests_config, chromosome, bin_boundaries, gc_bin_boundaries):

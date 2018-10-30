@@ -27,7 +27,7 @@ class Rpipeline(object):
         case_name = self.config.scclust.case_name
 
         cytoband = os.path.abspath(self.config.scclust.cytoband)
-        assert os.path.exists(cytoband)
+        assert os.path.exists(cytoband), cytoband
 
         nsim = self.config.scclust.nsim
         sharemin = self.config.scclust.sharemin
