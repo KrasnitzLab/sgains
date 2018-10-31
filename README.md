@@ -42,18 +42,33 @@ use with `sgains` pipeline. To this end you need to use:
 
     ```
     conda config --add channels bioconda
-    conda config --add channels r
     ```
+#### Install SCclust package
 
-* Now you have to insall additional packages required by `sgains.py` tool:
+`SCclust` package is available from `KrasnitzLab` Anaconda channel. 
+You need to install it using using following command:
+
+```
+conda install -c krasnitzlab scclust
+```
+
+#### Install SCGV viewer package
+
+`SCGV` package is available from `KrasnitzLab` Anaconda channel. 
+You can to install it using using following command:
+
+```
+conda install -c krasnitzlab scgv
+```
+
+#### Install sGAIN's dependencies
+
+* Now you have to install additional packages required by `sgains.py` tool:
 
     ```
-    conda install -y samtools bcftools biopython pysam
+    conda install samtools bcftools biopython pysam
     conda install pandas numpy
-    conda install -c conda-forge perl=5.22.0
-    conda install bowtie=1.2.1.1
-    
-    conda install r-essentials
+    conda install bowtie=1.2
 
     pip install python-box termcolor PyYAML pytest pytest-asyncio
     ```
@@ -65,16 +80,14 @@ your environment:
     pip install setproctitle
     ```
 
-### Setup R environment
-
-Go to `scripts` directory and invoke `setup.R` script:
-
-```
-cd scripts/
-Rscript setup.R
-```
 
 ### Configure *s-GAINS* environment
+
+Clone the repository of the project:
+
+```
+git clone https://github.com/KrasnitzLab/sgains.git
+```
 
 In the root directory of the project there is a `setenv.sh` script. The purpose
 of this script is to setup working environment of *s-GAINS*:
@@ -582,7 +595,7 @@ scclust:
 ```
 
 Each section of this configuration file corresponds to the relevant `s-GAINS` tool
-subcommand and sets values for the options of the subcomman.
+subcommand and sets values for the options of the subcommand.
 
 The options passed from the command line override the options specified in the
 configuration file.

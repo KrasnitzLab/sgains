@@ -12,7 +12,7 @@ analysis of the downloaded data.
 
 
 
-## PREPARE: `s-GAINS` pipeline prepration
+## PREPARE: `s-GAINS` pipeline preparation
 
 Create a directory where to place all data files you plan to process with 
 `s-GAINS` pipeline:
@@ -109,7 +109,7 @@ reference genome from [https://github.com/KrasnitzLab/sgains/releases/download/1
     gunzip hg19_R50_mappable_regions.txt.gz
     ```
 
-### Calculation of bins boundaries
+### Calculation of bin boundaries
 
 In this step we will partition the genome into bins with an expected equal 
 number of uniquely mappable positions.
@@ -123,7 +123,7 @@ number of uniquely mappable positions.
 * Run `bins` subcommand to calculate bin boundaries. To run the command you need to specify:
     * the number of bins you want to calculate
     * a directory for storing the bin boundary file
-    * a directory and file name for mappble regions
+    * a directory and file name for mappable regions
     * a directory where a working copy of HG19 is located
 
     ```
@@ -135,9 +135,9 @@ number of uniquely mappable positions.
         --bins-dir R50_B20k \
         --bins-boundaries hg19_R50_B20k_bins_boundaries.txt
     ```
-* Alternatively you can download bins boundaries file from `s-GAINS` pipeline
+* Alternatively you can download bin boundaries file from `s-GAINS` pipeline
 releases at [https://github.com/KrasnitzLab/sgains/releases](https://github.com/KrasnitzLab/sgains/releases).
-For this tutorial you should download bins boundaries file for 20000 bins with read
+For this tutorial you should download bin boundaries file for 20000 bins with read
 length 50bp for HG19 reference genome from 
 [https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_B20k_bins_boundaries.txt.gz](https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_B20k_bins_boundaries.txt.gz)
 
