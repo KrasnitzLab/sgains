@@ -1,10 +1,10 @@
 library("SCclust")
-library("futile.logger")
+# library("futile.logger")
 
 options(echo=TRUE)
 
-flog.threshold(DEBUG)
-flog.info("running sgains scclust pipeline script")
+# flog.threshold(DEBUG)
+# flog.info("running sgains scclust pipeline script")
 
 args <- commandArgs(trailingOnly = TRUE)
 
@@ -23,7 +23,7 @@ nsim <- as.integer(args[7])
 sharemin <- as.double(args[8])
 
 
-flog.debug("varbin_dir:", varbin_dir)
+# flog.debug("varbin_dir:", varbin_dir)
 
 sgains_pipeline(
     scgv_dir, case_name,

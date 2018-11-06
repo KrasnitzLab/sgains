@@ -3,11 +3,15 @@ Created on Jul 9, 2017
 
 @author: lubo
 '''
-import subprocess
-from sgains.config import Config, NonEmptyWorkDirectory
 import os
-from termcolor import colored
+import sys
+
 import shutil
+import subprocess
+
+from termcolor import colored
+
+from sgains.config import Config, NonEmptyWorkDirectory
 
 
 class Rpipeline(object):
@@ -65,7 +69,7 @@ class Rpipeline(object):
         rscript = os.path.abspath(
             os.path.join(
                 basedir,
-                '../../'
+                '../'
                 'scripts/pipeline.R'
             ))
         print(colored("executing Rscript with: {}".format(rscript), "yellow"))
@@ -73,7 +77,7 @@ class Rpipeline(object):
         if not self.config.dry_run:
             with open(os.devnull, 'w') as shutup:
 
-                assert os.path.exists(rscript)
+                assert os.path.exists(rscript), rscript
                 subprocess.check_call(
                     [
                         'Rscript', rscript,
@@ -86,8 +90,8 @@ class Rpipeline(object):
                         str(sharemin)
                     ],
                     shell=False,
-                    # stdout=sys.stdout, stderr=sys.stdout,
-                    stdout=shutup, stderr=shutup,
+                    stdout=sys.stdout, stderr=sys.stdout,
+                    # stdout=shutup, stderr=shutup,
                 )
 
 

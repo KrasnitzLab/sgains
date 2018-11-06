@@ -13,14 +13,22 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/KrasnitzLab/sgains",
-    packages=setuptools.find_packages(
-        # 'sgains',
-        exclude=[
-            'docs', 'tests', 
-            'commands.tests',
-            'pipeline.tests',
-        ]
-    ),
+    # packages=setuptools.find_packages(
+    #     # 'sgains',
+    #     exclude=[
+    #         'docs', 'tests', 
+    #         'commands.tests',
+    #         'pipeline.tests',
+    #     ]
+    # ),
+    packages=['sgains', 'sgains.commands', 'sgains.pipelines'],
+    package_dir={
+        'sgains': 'sgains',
+    },
+    package_data={
+        'sgains': ['scripts/*.R'],
+    },
+    include_package_data=True,
     entry_points={
         'console_scripts': [
             'sgains-tools=sgains.cli:main',
