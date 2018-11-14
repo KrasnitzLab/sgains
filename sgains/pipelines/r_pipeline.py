@@ -75,7 +75,7 @@ class Rpipeline(object):
         print(colored("executing Rscript with: {}".format(rscript), "yellow"))
 
         if not self.config.dry_run:
-            with open(os.devnull, 'w') as shutup:
+            with open(os.devnull, 'w') as shutup:  # noqa
 
                 assert os.path.exists(rscript), rscript
                 subprocess.check_call(

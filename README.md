@@ -10,123 +10,76 @@ This document describes how to setup `s-GAINS` pipeline tool and its basic comma
 Short tutorial on how to use this tool could be found in
 [Example usage of `sGAINS` pipeline](docs/tutorial-navin2011.md)
 
-
 ## Anaconda environment setup
 
-### Install Anaconda 
-* Go to anaconda web site 
-[https://www.continuum.io/downloads](https://www.continuum.io/downloads)
-and download the latest anaconda installer for your operating system. 
+### Install Anaconda
 
-* *s-GAINS* supports *Python 3.6* so you need to choose an appropriate installer.
-Note also that since *s-GAINS* uses *bioconda* channel the supported 
-operating systems are only those supported for *bioconda* (at the time of
-this writing these are Linux and Mac OS X).
+* Go to anaconda web site
+    [https://www.continuum.io/downloads](https://www.continuum.io/downloads)
+    and download the latest anaconda installer for your operating system.
+
+* *s-GAINS* supports *Python 3.6* or greater so you need to choose an
+    appropriate installer. Note also that since *s-GAINS* uses *bioconda*
+    channel the supported operating systems are only those supported for
+    *bioconda* (at the time of this writing these are Linux and Mac OS X).
 
 * Install anaconda into suitable place on your local machine following
-instructions from 
-[https://docs.continuum.io/anaconda/install](https://docs.continuum.io/anaconda/install)
-
+    instructions from
+    [https://docs.continuum.io/anaconda/install](https://docs.continuum.io/anaconda/install)
 
 ### Create `sgains` Anaconda environment
 
 * After installing and activating *Anaconda* you need to create an environment to
-use with `sgains` pipeline. To this end you need to use:
+    use with `sgains` pipeline. To this end you need to use:
 
-    ```
+    ```bash
     conda create -n sgains3
     source activate sgains3
     ```
 
-* After creating `sgains3` environment you need to add *bioconda* and *r* channels:
+### Install `sgains` anaconda package
 
+* *sGAINS* tools are distributed as a conda package through `krasnitzlab`
+    Annaconda channel. So to install *sGAINS* tools use:
+
+    ```bash
+    conda install -c krasnitzlab -c bioconda sgains
     ```
-    conda config --add channels bioconda
+
+    This command should install all the packages and tools need for
+    proper functioning of `sgains-tools`.
+
+* After this command finishes, you should be able to use
+    `sgains-tools` command:
+
+    ```bash
+    sgains-tools --help
     ```
-#### Install SCclust package
 
-`SCclust` package is available from `KrasnitzLab` Anaconda channel. 
-You need to install it using using following command:
+### Install SCGV viewer package
 
-```
-conda install -c krasnitzlab scclust
-```
+To visualize results of `sgains-tools` you may need `SCGV` viewer.
 
-#### Install SCGV viewer package
-
-`SCGV` package is available from `KrasnitzLab` Anaconda channel. 
+`SCGV` package is available from `KrasnitzLab` Anaconda channel.
 You can to install it using using following command:
 
-```
+```bash
 conda install -c krasnitzlab scgv
 ```
-
-#### Install sGAIN's dependencies
-
-* Now you have to install additional packages required by `sgains.py` tool:
-
-    ```
-    conda install samtools bcftools biopython pysam
-    conda install pandas numpy
-    conda install bowtie=1.2
-
-    pip install python-box termcolor PyYAML pytest pytest-asyncio
-    ```
-
-* Optionally you could install `setproctitle` package if it is available for
-your environment:
-
-    ```
-    pip install setproctitle
-    ```
-
-
-### Configure *s-GAINS* environment
-
-Clone the repository of the project:
-
-```
-git clone https://github.com/KrasnitzLab/sgains.git
-```
-
-In the root directory of the project there is a `setenv.sh` script. The purpose
-of this script is to setup working environment of *s-GAINS*:
-
-```
-
-export PATH=$HOME/Local/anaconda3/bin:$PATH
-source activate sgains3
-
-export PATH=$(pwd)/tools:$PATH
-export PYTHONPATH=$(pwd)/scpipe:$PYTHONPATH
-
-
-```
-
-The first line adds *Anaconda 3* `bin` directory to the `PATH` variable,
-so when you are using any program the *Anaconda's* `bin` directory whould be the
-first directory to look for the tool. You may need to edit this line to point
-to your local installation of *Anaconda 3*.
-
-The second line activates prevously created anaconda environment.
-
-The last two lines set up paths so that *s-GAINS* tools will be accessible in your 
-environment.
-
 
 ## Usage of sgains docker container
 
 Instead of seting up `sgains` environment you can use `krasnitzlab/sgains`
 docker container image to run the pipeline. To this end you need to have *Docker*
 tools installed and configured on your computer (please look for instructions
-in the official *Docker* documentation https://docs.docker.com).
+in the official [*Docker* documentation](https://docs.docker.com).
 
 ### Download *s-GAINS* container image
 
 Once you have Docker installed and configured you can pull `krasnitzlab/sgains`
 docker container image by using docker pull command:
 
-```
+```bash
 docker pull krasnitzlab/sgains
 ```
 
@@ -134,35 +87,35 @@ docker pull krasnitzlab/sgains
 
 You can run the `sgains` container interactively by using:
 
-```
+```bash
 docker run -i -v /data/pathname:/data -t krasnitzlab/sgains /bin/bash
 ```
 
 where `/data/pathname` is a full pathname to a folder on your local machine,
 where data you want to process is located.
 
-
 ### Run *s-GAINS* commands
 
-You can use this docker container to run all subcommans of `sgains.py` using
+You can use this docker container to run all subcommans of
+`sgains-tools` using
 following sintax:
 
-```
-docker run -i -v /data/pathname:/data -t krasnitzlab/sgains sgains.py <arg1> <arg2> ...
+```bash
+docker run -i -v /data/pathname:/data -t krasnitzlab/sgains sgains-tools <arg1> <arg2> ...
 ```
 
-In this way you can run any `sgains.py` subcommand with appropriate arguments 
+In this way you can run any `sgains-tools` subcommand with appropriate arguments
 you need.
 
-## Usage of `sgains.py` tool
+## Usage of `sgains-tools` tool
 
-To interact with *s-GAINS* pipeline you invoke `sgains.py` command with different
-parameters and subcommands. You can list available options of `sgains.py` using
+To interact with *s-GAINS* pipeline you invoke `sgains-tools` command with different
+parameters and subcommands. You can list available options of `sgains-tools` using
 `-h` option:
 
-```
-sgains.py -h
-usage: sgains.py [-h] [-v] [-c path] [-n] [--force] [--parallel PARALLEL]
+```bash
+sgains-tools -h
+usage: sgains-tools [-h] [-v] [-c path] [-n] [--force] [--parallel PARALLEL]
                  {process,prepare,genomeindex,mappable-regions,bins,mapping,varbin,scclust}
                  ...
 
@@ -198,31 +151,31 @@ subcommands:
                         preparation of the SCGV input data```
 ```
 
-The `sgains.py` tool supports a list of common options:
+The `sgains-tools` tool supports a list of common options:
 
-* `--dry-run`, `-n` - this option instructs `sgains.py` to perform a trail run 
-displaying information of commands that should be performed but without actualy 
-running these commands
+* `--dry-run`, `-n` - this option instructs `sgains-tools` to perform a trail run
+    displaying information of commands that should be performed but without actualy
+    running these commands
 
-* `--force` - when `sgains.py` tool is run it checks if the result files or 
-directories already exist and, if they do, `sgains.py` stops whitout
-making any changes. To override this behaivor you can use the  `--force` option
+* `--force` - when `sgains-tools` tool is run it checks if the result files or
+    directories already exist and, if they do, `sgains-tools` stops whitout
+    making any changes. To override this behaivor you can use the  `--force` option
 
-* `--config`, `-c` - instructs `sgains.py` which configuration file to use.
+* `--config`, `-c` - instructs `sgains-tools` which configuration file to use.
 
-* `--parallel`, `-p` - instructs `sgains.py` to parallelize work on subcommands
-called.
-
+* `--parallel`, `-p` - instructs `sgains-tools` to parallelize work on subcommands
+    called.
 
 ## Pipeline preparation
 
 ### Usage of `genomeindex` subcommand
+
 The `genomeindex` subcommand builds the bowtie index for the reference genome. To
 list the available options use:
 
-```
-sgains.py genomeindex -h
-usage: sgains.py genomeindex [-h] [--genome-index GENOME_INDEX]
+```bash
+sgains-tools genomeindex -h
+usage: sgains-tools genomeindex [-h] [--genome-index GENOME_INDEX]
                              [--genome-dir GENOME_DIR]
                              [--genome-version GENOME_VERSION]
                              [--genome-pristine GENOME_PRISTINE]
@@ -248,14 +201,13 @@ genome index options:
 This command find all uniquely mappable regions of the reference genome with
 given length.
 
-This step is computationally expesive and could take days in CPU time. 
+This step is computationally expesive and could take days in CPU time.
 
 To save this step you can use files with precomputed mappable regions that
 could be found at:
 
-* For Human Reference Genome **HG19** with read length **50bp**: 
-[hg19_R50_mappable_regions.txt.gz](https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_mappable_regions.txt.gz)
-
+* For Human Reference Genome **HG19** with read length **50bp**:
+    [hg19_R50_mappable_regions.txt.gz](https://github.com/KrasnitzLab/sgains/releases/download/1.0.0RC1/hg19_R50_mappable_regions.txt.gz)
 
 You can download and unzip some of these files and use them into following
 stages of the pipeline preparation.
@@ -266,9 +218,9 @@ subommand.
 
 To list the options available for this subcommand use:
 
-```
-sgains.py mappable-regions -h                                                                                                           
-usage: sgains.py mappable-regions [-h] [--mappable-dir MAPPABLE_DIR]
+```bash
+sgains-tools mappable-regions -h
+usage: sgains-tools mappable-regions [-h] [--mappable-dir MAPPABLE_DIR]
                                   [--mappable-regions MAPPABLE_REGIONS]
                                   [--read-length LENGTH]
                                   [--bowtie-opts BOWTIE_OPTS]
@@ -302,16 +254,15 @@ genome index options:
                         hg19) (default: hg19)
 ```
 
-
 ### Usage of `bins` subcommand
 
 The `bins` subcommand computes the bins boudaries.
 
 To list options available for `bins` subcommand use:
 
-```
-sgains.py bins -h
-usage: sgains.py bins [-h] [--mappable-dir MAPPABLE_DIR]
+```bash
+sgains-tools bins -h
+usage: sgains-tools bins [-h] [--mappable-dir MAPPABLE_DIR]
                       [--mappable-regions MAPPABLE_REGIONS]
                       [--bins-boundaries BINS_BOUNDARIES]
                       [--bins-dir BINS_DIR] [--bins-count BINS_COUNT]
@@ -347,14 +298,13 @@ genome index options:
                         hg19) (default: hg19)
 ```
 
-
 ## Processing sequence data
 
 ### Use of `process` subcommand
 
 ---
 
-**Please note, that to use `process` subcommands 
+**Please note, that to use `process` subcommands
 (`mapping`, `varbin`, `scclust` and `process`)
 you need go through preparation steps.**
 
@@ -362,9 +312,9 @@ you need go through preparation steps.**
 
 To list the options available for `process` subcommand use:
 
-```
-sgains.py process -h
-usage: sgains.py process [-h] [--reads-dir READS_DIR]
+```bash
+sgains-tools process -h
+usage: sgains-tools process [-h] [--reads-dir READS_DIR]
                          [--reads-suffix READS_SUFFIX]
                          [--mapping-bowtie-opts MAPPING_BOWTIE_OPTS]
                          [--output-dir OUTPUT_DIR] [--case-name CASE_NAME]
@@ -409,40 +359,41 @@ bins boundaries:
   --bins-dir BINS_DIR   bins working directory (default: R50_B20k)
 ```
 
-* The data created by the `process` subcommand are placed in a subdirectory, 
-whose name is specified with `--output-dir` option. This name will be used when creating
-the result directory structure.
+* The data created by the `process` subcommand are placed in a subdirectory,
+    whose name is specified with `--output-dir` option. This name will be used
+    when creating
+    the result directory structure.
 
 * The input for `process` subcommand are *FASTQ* files containing the reads for
-each individual cell. All *FASTQ* files for given study are expected to be located
-into single directory. You should specify this directory using `--reads-dir` option.
+    each individual cell. All *FASTQ* files for given study are expected to be
+    located into single directory. You should specify this directory using
+    `--reads-dir` option.
 
 * The results from `process` subcommand are stored in the output data directory,
-as specified using `--output-dir` option. The process subcommand will
-create a directory and inside that directory it will create three additional 
-subdirectories - `mapping`,
-`varbin` and `scclust`. These will contain intermediate results from the respective
-pipeline stages.
+    as specified using `--output-dir` option. The process subcommand will
+    create a directory and inside that directory it will create three additional
+    subdirectories - `mapping`,
+    `varbin` and `scclust`. These will contain intermediate results from the
+    respective pipeline stages.
 
 * The first `mapping` stage of the pipeline invokes `bowtie` to map reads from
-*FASTQ* files. This stage needs a name of the bowtie index (user 
-`--genome-index` option to specify bowtie index name) and a directory, 
-where this index is located (use `--genome-dir` to pass this parameter). 
+    *FASTQ* files. This stage needs a name of the bowtie index (user
+    `--genome-index` option to specify bowtie index name) and a directory,
+    where this index is located (use `--genome-dir` to pass this parameter).
 
-* If you need to pass additional options to `bowtie` to control mapping reads 
-you can use `--mapping-bowtie-opts` option.
+* If you need to pass additional options to `bowtie` to control mapping reads
+    you can use `--mapping-bowtie-opts` option.
 
 * The `varbin` stage of the pipeline needs a bins boundaries file prepared in
-advance. You can pass bins boundaries file using `--bins-boundaries` option.
-
+    advance. You can pass bins boundaries file using `--bins-boundaries` option.
 
 ### Usage of `mapping` subcommand
 
 To list the options available for `mapping` subcommand use:
 
-```
-sgains.py mapping -h
-usage: sgains.py mapping [-h] [--reads-dir READS_DIR]
+```bash
+sgains-tools mapping -h
+usage: sgains-tools mapping [-h] [--reads-dir READS_DIR]
                          [--reads-suffix READS_SUFFIX]
                          [--mapping-dir MAPPING_DIR]
                          [--mapping-suffix MAPPING_SUFFIX]
@@ -485,9 +436,9 @@ genome index options:
 
 To list the options available for `varbin` subcommand use:
 
-```
-sgains.py varbin -h
-usage: sgains.py varbin [-h] [--mapping-dir MAPPING_DIR]
+```bash
+sgains-tools varbin -h
+usage: sgains-tools varbin [-h] [--mapping-dir MAPPING_DIR]
                         [--mapping-suffix MAPPING_SUFFIX]
                         [--varbin-dir VARBIN_DIR]
                         [--varbin-suffix VARBIN_SUFFIX]
@@ -517,14 +468,13 @@ bins boundaries:
   --bins-dir BINS_DIR   bins working directory (default: ../../R50_B50k)
 ```
 
-
 ### Use of `scclust` subcommand
 
 To list options available for `scclust` subcommand use:
 
-```
-sgains.py scclust -h
-usage: sgains.py scclust [-h] [--varbin-dir VARBIN_DIR]
+```bash
+sgains-tools scclust -h
+usage: sgains-tools scclust [-h] [--varbin-dir VARBIN_DIR]
                          [--varbin-suffix VARBIN_SUFFIX]
                          [--scclust-dir SCCLUST_DIR] [--case-name CASE_NAME]
                          [--bins-boundaries BINS_BOUNDARIES]
@@ -552,13 +502,11 @@ bins boundaries:
   --bins-dir BINS_DIR   bins working directory (default: R50_B20k)
 ```
 
-
-
 ## Configure the *s-GAINS* pipeline
 
 An example *s-GAINS* pipeline configuration:
 
-```
+```bash
 genome:
     version: hg19
     data_dir: hg19_pristine
@@ -599,4 +547,3 @@ subcommand and sets values for the options of the subcommand.
 
 The options passed from the command line override the options specified in the
 configuration file.
-
