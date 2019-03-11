@@ -3,10 +3,10 @@ Created on Jun 26, 2017
 
 @author: lubo
 '''
-from utils import MappableBin, BinParams
+from sgains.utils import MappableBin, BinParams
 import pytest
 
-pytestmark = pytest.mark.xfail
+# pytestmark = pytest.mark.xfail
 
 
 @pytest.fixture

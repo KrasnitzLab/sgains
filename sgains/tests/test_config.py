@@ -5,7 +5,7 @@ Created on Jun 10, 2017
 '''
 import os
 
-from config import Config
+from sgains.config import Config
 import pickle
 
 
@@ -26,7 +26,7 @@ def test_bins_config():
 
     assert conf.bins is not None
     assert conf.bins.bins_count == 10000
-    assert conf.bins.bins_dir == "data/R100_B10k"
+    assert conf.bins.bins_dir == "test_data/R100_B10k"
 
 
 def test_pickle_depickle():

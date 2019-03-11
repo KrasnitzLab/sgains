@@ -15,6 +15,10 @@ import pandas as pd
 from termcolor import colored
 
 
+class Genome(object):
+    pass
+
+
 class HumanGenome19(object):
     VERSION = "hg19"
 
@@ -140,7 +144,7 @@ class HumanGenome19(object):
 
     def load_chrom(self, chrom, pristine=False):
         infile = self.config.chrom_filename(chrom, pristine)
-        assert os.path.exists(infile), infile
+        assert os.path.exists(infile), os.path.abspath(infile)
         seq_record = SeqIO.read(infile, 'fasta')
         seq_record.seq = seq_record.seq.upper()
         return seq_record
@@ -173,6 +177,9 @@ class HumanGenome19(object):
         return self._chrom_sizes
 
     def load_mappable_regions(self):
+        filename = self.config.mappable_regions_filename()
+        print(filename)
+
         df = pd.read_csv(
             self.config.mappable_regions_filename(),
             names=['chrom', 'start_pos', 'end_pos'],

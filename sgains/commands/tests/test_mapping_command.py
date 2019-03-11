@@ -25,7 +25,7 @@ def test_mapping_long(
     ]
 
     with mocker.patch("os.path.exists"), \
-            mocker.patch("config.Config.mapping_reads_filenames"), \
+            mocker.patch("sgains.config.Config.mapping_reads_filenames"), \
             mocker.patch("os.listdir"):
 
         args = argparser.parse_args(argv)

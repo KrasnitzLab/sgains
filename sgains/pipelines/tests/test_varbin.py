@@ -5,7 +5,7 @@ Created on Jul 6, 2017
 '''
 import numpy as np
 
-from pipelines.varbin_pipeline import VarbinPipeline
+from sgains.pipelines.varbin_pipeline import VarbinPipeline
 import pytest
 
 

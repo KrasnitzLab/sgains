@@ -11,6 +11,7 @@ def test_process_long(
 
     argv = [
         "--dry-run", "--force",
+        "--config", "tests/data/scpipe_tests.yml",
         "process",
         "--bins-boundaries", "test_bins_boundaries.txt",
         "--bins-dir", "data/test_study/bins",
@@ -26,23 +27,27 @@ def test_process_long(
         "--case-name", "test_study",
     ]
 
-    args = argparser.parse_args(argv)
-    args.func(args)
+    with mocker.patch("os.path.exists"), \
+            mocker.patch("sgains.config.Config.mapping_reads_filenames"), \
+            mocker.patch("os.listdir"):
 
-    config = process_command.config
-    assert config is not None
+        args = argparser.parse_args(argv)
+        args.func(args)
 
-    assert config.force
-    assert config.dry_run
+        config = process_command.config
+        assert config is not None
 
-    assert config.bins.bins_dir == "data/test_study/bins"
-    assert config.bins.bins_boundaries == "test_bins_boundaries.txt"
+        assert config.force
+        assert config.dry_run
 
-    assert config.genome.work_dir == "data/hg19"
-    assert config.genome.index == "genomeindex"
+        assert config.bins.bins_dir == "data/test_study/bins"
+        assert config.bins.bins_boundaries == "test_bins_boundaries.txt"
 
-    assert config.mapping.reads_dir == "data/Navin2011/T10_small/reads/"
-    assert config.mapping.reads_suffix == ".fastq.gz"
-    assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"
+        assert config.genome.work_dir == "data/hg19"
+        assert config.genome.index == "genomeindex"
 
-    assert config.scclust.case_name == "test_study"
+        assert config.mapping.reads_dir == "data/Navin2011/T10_small/reads/"
+        assert config.mapping.reads_suffix == ".fastq.gz"
+        assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"
+
+        assert config.scclust.case_name == "test_study"

@@ -5,8 +5,7 @@ Created on Jun 10, 2017
 '''
 import pytest
 
-pytestmark = pytest.mark.xfail
-
+# pytestmark = pytest.mark.xfail
 
 
 def test_hg19_simple(hg):
@@ -28,8 +27,8 @@ def test_mask_chrY(hg):
 def test_count_chrom_mappable_positions(hg):
     result = hg.calc_chrom_mappable_positions_count()
 
-    assert result['chr1'] == 217026582
-    assert result['chr10'] == 126701210
+    assert result['chr1'] == 217027151  # 217026582
+    assert result['chr10'] == 126701497  # 126701210
 
 
 def test_chrom_sizes(hg):
@@ -45,21 +44,21 @@ def test_chrom_sizes(hg):
 def test_chrom_mappable_positions_count(hg):
     result = hg.chrom_mappable_positions_count()
 
-    assert result['chr1'] == 217026582
-    assert result['chr10'] == 126701210
+    assert result['chr1'] == 217027151  # 217026582
+    assert result['chr10'] == 126701497  # 126701210
 
 
 def test_mappable_positions_total_count(hg):
     total = hg.total_mappable_positions_count()
 
-    assert total == 2758913563
+    assert total == 2764542640  # 2758913563
 
 
 def test_calc_chrom_bins(hg):
     chrom_bins = hg.calc_chrom_bins()
 
-    assert chrom_bins['chr8'].bins_count == 506
-    assert chrom_bins['chr8'].bin_size == 275702.00790513837
+    assert chrom_bins['chr8'].bins_count == 505
+    assert chrom_bins['chr8'].bin_size == pytest.approx(276248.417, rel=1e-3)
 
 
 def test_chr_bins(hg):

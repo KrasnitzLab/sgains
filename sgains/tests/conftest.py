@@ -7,30 +7,30 @@ import os
 
 import pytest
 
-from config import Config
-from hg19 import HumanGenome19
+from sgains.config import Config
+from sgains.hg19 import HumanGenome19
 import pandas as pd
 
 
 @pytest.fixture(scope='session')
 def tests_config():
-    config = Config.load("tests/data/scpipe_tests.yml")
+    config = Config.load("tests/data/scpipe_tests.yml", use_config_dir=True)
     return config
 
 
 @pytest.fixture(scope='session')
-def hg():
-    config = Config.load("tests/data/scpipe_tests.yml")
-    return HumanGenome19(config)
+def hg(tests_config):
+    return HumanGenome19(tests_config)
 
 
 @pytest.fixture(scope='session')
-def bin_boundaries():
+def bin_boundaries(tests_config):
     bins_boundaries_fixture = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        "data/bin.boundaries.bowtie.txt"
+        tests_config.abspath(
+            "test_data/R100_B10k/hg19_R50_B20k_bins_boundaries.txt")
     )
-    df = pd.read_csv(bins_boundaries_fixture, sep='\t')
+    df = pd.read_csv(
+        bins_boundaries_fixture, sep='\t')
     return df
 
 

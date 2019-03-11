@@ -18,7 +18,8 @@ class GenomeIndexPipeline(object):
         self.hg = HumanGenome19(self.config)
 
     def copy_chromes_files(self):
-        self.config.check_nonempty_workdir(self.config.genome.work_dir)
+        self.config.check_nonempty_workdir(
+            self.config.abspath(self.config.genome.work_dir))
 
         for chrom in self.hg.CHROMS_ALL:
             if chrom == 'chrY':

@@ -7,15 +7,15 @@ import asyncio
 import pytest
 import logging
 import sys
-from pipelines.mappableregions_pipeline import MappableRegionsPipeline
-from utils import Mapping
+from sgains.pipelines.mappableregions_pipeline import MappableRegionsPipeline
+from sgains.utils import Mapping
 import io
 import pandas as pd
 import os
 import numpy as np
 
 
-pytestmark = pytest.mark.xfail
+# pytestmark = pytest.mark.xfail
 
 
 logging.basicConfig(
@@ -26,6 +26,7 @@ logging.basicConfig(
 LOG = logging.getLogger('')
 
 # pytestmark = pytest.mark.asyncio
+
 
 @pytest.mark.asyncio
 async def test_async_mappings_generator(tests_config, event_loop):
@@ -112,7 +113,7 @@ async def test_async_mappable_regions_50(tests_config, event_loop, chrom):
     pipeline = MappableRegionsPipeline(tests_config)
 
     filename = os.path.join(
-        'scpipe/tests/data',
+        'tests/data',
         "{}.50mer.mappable.regions.txt.gz".format(chrom)
     )
     gold_df = pd.read_csv(
