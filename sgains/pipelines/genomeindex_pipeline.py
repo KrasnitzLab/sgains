@@ -3,7 +3,7 @@ Created on Jul 31, 2017
 
 @author: lubo
 '''
-from sgains.hg19 import HumanGenome19
+from sgains.genome import Genome
 import os
 import shutil
 from termcolor import colored
@@ -15,13 +15,13 @@ class GenomeIndexPipeline(object):
     def __init__(self, config):
         self.config = config
         assert self.config.genome.version == 'hg19'
-        self.hg = HumanGenome19(self.config)
+        self.hg = Genome(self.config)
 
     def copy_chromes_files(self):
         self.config.check_nonempty_workdir(
             self.config.abspath(self.config.genome.work_dir))
 
-        for chrom in self.hg.CHROMS_ALL:
+        for chrom in self.hg.version.CHROMS_ALL:
             if chrom == 'chrY':
                 continue
             src = os.path.join(
@@ -70,7 +70,7 @@ class GenomeIndexPipeline(object):
 
         if not self.config.dry_run:
             with open(dst, 'wb') as output:
-                for chrom in self.hg.CHROMS_ALL:
+                for chrom in self.hg.version.CHROMS_ALL:
                     src = self.config.chrom_filename(chrom, pristine=False)
                     print(colored(
                         "appending {} to {}".format(src, dst),

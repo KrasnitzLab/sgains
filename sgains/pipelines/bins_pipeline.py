@@ -8,7 +8,7 @@ import multiprocessing
 import pandas as pd
 from termcolor import colored
 
-from sgains.hg19 import HumanGenome19
+from sgains.genome import Genome
 from sgains.utils import BinParams, MappableBin
 
 
@@ -17,7 +17,7 @@ class BinsPipeline(object):
     def __init__(self, config):
         self.config = config
         assert self.config.genome.version == 'hg19'
-        self.hg = HumanGenome19(self.config)
+        self.hg = Genome(self.config)
 
     def calc_bins_gc_content(self, chroms, bins_df):
 

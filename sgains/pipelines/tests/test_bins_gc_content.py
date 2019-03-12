@@ -12,7 +12,7 @@ from sgains.pipelines.bins_pipeline import BinsPipeline
 # pytestmark = pytest.mark.xfail
 
 
-@pytest.mark.parametrize("chromosome", ['chr1'])  # HumanGenome19.CHROMS)
+@pytest.mark.parametrize("chromosome", ['chr1'])
 def test_bin_gc_content(
         tests_config, chromosome, bin_boundaries):
 
@@ -36,7 +36,7 @@ def test_bin_gc_content(
         df['gc.content'], fixture_df['gc.content'])
 
 
-@pytest.mark.parametrize("chromosome", ['chr1'])  # HumanGenome19.CHROMS)
+@pytest.mark.parametrize("chromosome", ['chr1'])
 def test_bin_boundaries_full(tests_config, bin_boundaries, chromosome):
     fixture_df = bin_boundaries[
         bin_boundaries['bin.chrom'] == chromosome

@@ -8,7 +8,7 @@ import os
 import pytest
 
 from sgains.config import Config
-from sgains.hg19 import HumanGenome19
+from sgains.genome import Genome
 import pandas as pd
 
 
@@ -21,7 +21,7 @@ def tests_config():
 @pytest.fixture(scope='session')
 def hg():
     config = Config.load("tests/data/scpipe_tests.yml", use_config_dir=True)
-    return HumanGenome19(config)
+    return Genome(config)
 
 
 @pytest.fixture(scope='session')

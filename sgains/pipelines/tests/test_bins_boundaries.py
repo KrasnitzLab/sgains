@@ -36,7 +36,7 @@ def test_bins_boundaries_generator(tests_config, bin_boundaries, chromosome):
             (index, mappable_bin, fixture_bin)
 
 
-@pytest.mark.parametrize("chromosome", ['chr1'])  # HumanGenome19.CHROMS)
+@pytest.mark.parametrize("chromosome", ['chr1'])
 def test_bins_boundaries(tests_config, bin_boundaries, chromosome):
     pipeline = BinsPipeline(tests_config)
 

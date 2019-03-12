@@ -15,11 +15,16 @@ import pandas as pd
 from termcolor import colored
 
 
-class Genome(object):
-    pass
+class GenomeVersion(object):
+
+    @staticmethod
+    def from_config(config):
+        if config.genome.version == 'hg19':
+            return HumanGenome19()
+        raise NotImplementedError()
 
 
-class HumanGenome19(object):
+class HumanGenome19(GenomeVersion):
     VERSION = "hg19"
 
     CHROMS = [
@@ -129,8 +134,12 @@ class HumanGenome19(object):
         (59034049, 59363566),
     ]
 
+
+class Genome(object):
+
     def __init__(self, config):
-        assert config.genome.version == self.VERSION
+        self.version = GenomeVersion.from_config(config)
+        assert config.genome.version == self.version.VERSION
         self.config = config
 
         # assert os.path.exists(config.genome.data_dir)
@@ -156,7 +165,7 @@ class HumanGenome19(object):
     def calc_chrom_sizes(self):
         result = Box(default_box=True)
         abspos = 0
-        for chrom in self.CHROMS:
+        for chrom in self.version.CHROMS:
             record = self.load_chrom(chrom)
             size = len(record)
             result[chrom].size = size
@@ -204,7 +213,7 @@ class HumanGenome19(object):
         chr_y = self.load_chrom("chrY", pristine=True)
 
         masked = chr_y.seq.tomutable()
-        for par in self.CHRY_PARs:
+        for par in self.version.CHRY_PARs:
             start, end = par
             masked[start:end] = 'N' * (end - start)
 
@@ -241,7 +250,7 @@ class HumanGenome19(object):
     def total_mappable_positions_count(self):
         counts = self.chrom_mappable_positions_count()
         total = 0
-        for chrom in self.CHROMS:
+        for chrom in self.version.CHROMS:
             total += counts[chrom]
         return total
 
@@ -257,7 +266,7 @@ class HumanGenome19(object):
 
         chrom_bins = Box(default_box=True)
         bins_count_used = 0
-        for chrom in self.CHROMS:
+        for chrom in self.version.CHROMS:
             chrom_mappable_positions = chrom_mappable_positions_count[chrom]
             cbc = float(bins_count) * \
                 float(chrom_mappable_positions) / \
@@ -302,4 +311,4 @@ class HumanGenome19(object):
 
     @staticmethod
     def write_fasta_read(outfile, rec):
-        outfile.write(HumanGenome19.to_fasta_string(rec))
+        outfile.write(Genome.to_fasta_string(rec))
