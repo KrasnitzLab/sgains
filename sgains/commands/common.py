@@ -150,7 +150,7 @@ class GenomeIndexMixin(object):
         group.add_argument(
             "--genome-version",
             dest="genome_version",
-            help="version of reference genome in use (supports only hg19)",
+            help="version of reference genome to use",
             default=config.genome.version)
         if input_dir:
             group.add_argument(

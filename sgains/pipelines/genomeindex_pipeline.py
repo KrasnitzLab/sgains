@@ -14,7 +14,7 @@ class GenomeIndexPipeline(object):
 
     def __init__(self, config):
         self.config = config
-        assert self.config.genome.version == 'hg19'
+        # assert self.config.genome.version == 'hg19'
         self.hg = Genome(self.config)
 
     def copy_chromes_files(self):
