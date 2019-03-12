@@ -26,7 +26,6 @@ class MappableRegionsPipeline(object):
 
     def __init__(self, config):
         self.config = config
-        assert self.config.genome.version == 'hg19'
         self.hg = Genome(self.config)
 
     def mappable_regions_check(self, chroms, mappable_regions_df):
@@ -236,6 +235,6 @@ class MappableRegionsPipeline(object):
             os.makedirs(self.config.mappable_regions.work_dir)
 
         pool = multiprocessing.Pool(processes=self.config.parallel)
-        pool.map(self.run_once, self.hg.CHROMS)
+        pool.map(self.run_once, self.hg.version.CHROMS)
 
         self.concatenate_all_chroms()
