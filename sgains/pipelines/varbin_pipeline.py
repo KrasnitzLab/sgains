@@ -53,7 +53,7 @@ class VarbinPipeline(object):
             bins_df = self.hg.bins_boundaries()
             assert bins_df is not None
             chrom_sizes = self.hg.chrom_sizes()
-            chroms = set(self.hg.CHROMS)
+            chroms = set(self.hg.version.CHROMS)
 
             count = 0
             dups = 0

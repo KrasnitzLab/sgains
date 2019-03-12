@@ -194,7 +194,7 @@ class MappableRegionsPipeline(object):
 
         if not self.config.dry_run:
             with open(dst, 'wb') as output:
-                for chrom in self.hg.CHROMS:
+                for chrom in self.hg.version.CHROMS:
                     src = self.config.mappable_regions_filename(chrom)
                     print(colored(
                         "appending {} to {}".format(src, dst),

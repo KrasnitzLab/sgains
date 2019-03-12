@@ -102,7 +102,7 @@ class BinsPipeline(object):
 
     def calc_bins_boundaries(self, chroms=None, regions_df=None):
         if chroms is None:
-            chroms = self.hg.CHROMS
+            chroms = self.hg.version.CHROMS
         bin_rows = []
         for mbin in self.bins_boundaries_generator(chroms, regions_df):
             bin_rows.append(
@@ -151,7 +151,7 @@ class BinsPipeline(object):
             return
 
         dataframes = []
-        for chrom in self.hg.CHROMS:
+        for chrom in self.hg.version.CHROMS:
             srcfilename = self.config.bins_boundaries_filename(chrom)
             df = pd.read_csv(srcfilename, sep='\t')
             dataframes.append(df)
@@ -182,6 +182,6 @@ class BinsPipeline(object):
             return
 
         pool = multiprocessing.Pool(processes=self.config.parallel)
-        pool.map(self.run_once, self.hg.CHROMS)
+        pool.map(self.run_once, self.hg.version.CHROMS)
 
         self.concatenate_all_chroms()
