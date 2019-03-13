@@ -25,7 +25,6 @@ class BinsPipeline(object):
             chrom_df = bins_df[bins_df['bin.chrom'] == chrom]
             gc_df = chrom_df.copy()
             gc_df.reset_index(inplace=True, drop=True)
-            print(len(chrom_df), len(gc_df))
 
             gc_series = pd.Series(index=gc_df.index)
             chrom_seq = self.hg.load_chrom(chrom)
@@ -37,10 +36,8 @@ class BinsPipeline(object):
                 counts = [seq.count(x) for x in ['G', 'C', 'A', 'T']]
                 gc = float(sum(counts[0:2])) / sum(counts)
                 gc_series.iloc[index] = gc
-            print(len(gc_series))
 
             gc_df['gc.content'] = gc_series
-            print(len(gc_df))
             result.append(gc_df)
         assert len(result) > 0
         if len(result) == 1:
@@ -78,10 +75,6 @@ class BinsPipeline(object):
                     if bins_count == 0:
                         # last bin a chromosome
                         mappable_bin.end_pos = chrom_sizes[chrom].size
-                    # print(mappable_bin, "|", next_bin, ";",
-                    #       next_bin.is_overfill(), "(",
-                    #       next_bin.current_size - next_bin.bin_size, ")",
-                    #       current_excess)
                     yield mappable_bin
                     if next_bin.is_overfill():
                         current_excess, mappable_bins = \
