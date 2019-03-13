@@ -16,7 +16,6 @@ class BinsPipeline(object):
 
     def __init__(self, config):
         self.config = config
-        assert self.config.genome.version == 'hg19'
         self.hg = Genome(self.config)
 
     def calc_bins_gc_content(self, chroms, bins_df):
