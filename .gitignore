@@ -16,3 +16,4 @@ setenv.sh
 build
 sgains.egg-info/
 .vscode
+sgains/tests/data/test_data

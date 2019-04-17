@@ -56,7 +56,10 @@ class Config(Box):
             "case_name": "test",
             "cytoband": "hg19/cytoBand.txt",
             "nsim": 150,
-            "sharemin": 0.85
+            "sharemin": 0.80,
+            "fdrthres": -3,
+            "nshare": 4,
+            "climbtoshare": 4,
         }
     }
 

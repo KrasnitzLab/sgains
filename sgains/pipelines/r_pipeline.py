@@ -35,6 +35,9 @@ class Rpipeline(object):
 
         nsim = self.config.scclust.nsim
         sharemin = self.config.scclust.sharemin
+        fdrthres = self.config.scclust.fdrthres
+        nshare = self.config.scclust.nshare
+        climbtoshare = self.config.scclust.climbtoshare
 
         print(colored(
             "processing study {}; files from {} with suffix {} to {}".format(
@@ -48,8 +51,9 @@ class Rpipeline(object):
                 bin_boundaries_filename),
             "green"))
         print(colored(
-            "using: cytoband {}; nsim {}; sharemin: {}".format(
-                cytoband, nsim, sharemin),
+            "using: cytoband {}; nsim {}; sharemin: {}; "
+            "fdrthres: {}; nshare: {}; climbtoshare: {}".format(
+                cytoband, nsim, sharemin, fdrthres, nshare, climbtoshare),
             "green"))
 
         if os.path.exists(scclust_dirname) and \
@@ -87,7 +91,10 @@ class Rpipeline(object):
                         bin_boundaries_filename,
                         cytoband,
                         str(nsim),
-                        str(sharemin)
+                        str(sharemin),
+                        str(fdrthres),
+                        str(nshare),
+                        str(climbtoshare),
                     ],
                     shell=False,
                     stdout=sys.stdout, stderr=sys.stdout,
