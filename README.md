@@ -1,8 +1,5 @@
 # Sparse Genomic Analysis of Individual Nuclei by Sequencing (s-GAINS)
 
-**Please note that this software is still under construction and
-not ready for general use**
-
 [![DOI](https://zenodo.org/badge/98500084.svg)](https://zenodo.org/badge/latestdoi/98500084)
 
 This document describes how to setup `s-GAINS` pipeline tool and its basic command.
