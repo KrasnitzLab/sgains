@@ -4,8 +4,6 @@ Created on Aug 2, 2017
 @author: lubo
 '''
 
-import os.path
-
 
 def test_prepare_long(
         argparser, tests_config, prepare_command, mocker):
@@ -23,7 +21,10 @@ def test_prepare_long(
         "--bowtie-opts", "-1 -2 -3",
     ]
 
-    with mocker.patch("os.path.exists"):
+    with mocker.patch("os.path.exists"), \
+            mocker.patch("sgains.config.Config.mapping_reads_filenames"), \
+            mocker.patch("os.listdir"):
+
         args = argparser.parse_args(argv)
         args.func(args)
 

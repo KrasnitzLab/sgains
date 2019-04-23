@@ -1,17 +1,17 @@
 genome:
     version: hg19
-    data_dir: hg19_pristine
-    work_dir: hg19
+    data_dir: test_data/hg19_pristine
+    work_dir: test_data/hg19
     genome_index: genomeindex
 
 mappable_regions:
     length: 100
-    work_dir: R100
+    work_dir: test_data/R100
     bowtie_opts: ""
   
 bins:
     bins_count: 10000
-    bins_dir: data/R100_B10k
+    bins_dir: test_data/R100_B10k
     bins_boundaries: hg19_R100_B10k_bins_boundaries.txt
 
 mapping:

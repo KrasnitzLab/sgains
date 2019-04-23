@@ -1,4 +1,7 @@
-library("SCclust")
+library("devtools")
+devtools::load_all("/home/lubo/Work/single-cell/SCclust")
+
+# library("SCclust")
 # library("futile.logger")
 
 options(echo=TRUE)
@@ -21,7 +24,9 @@ bin_boundaries <- args[5]
 cytoband <- args[6]
 nsim <- as.integer(args[7])
 sharemin <- as.double(args[8])
-
+fdrthres <- as.double(args[9])
+nshare <- as.integer(args[10])
+climbtoshare <- as.integer(args[11])
 
 # flog.debug("varbin_dir:", varbin_dir)
 
@@ -31,4 +36,7 @@ sgains_pipeline(
     bin_boundaries,
     cytoband,
     nsim=nsim,
-    sharemin=sharemin)
+    sharemin=sharemin,
+    fdrthres=fdrthres,
+    nshare=nshare,
+    climbtoshare=climbtoshare)

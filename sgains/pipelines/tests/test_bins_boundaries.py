@@ -6,10 +6,10 @@ Created on Jun 23, 2017
 import pytest
 import numpy as np
 
-from pipelines.bins_pipeline import BinsPipeline
+from sgains.pipelines.bins_pipeline import BinsPipeline
 
 
-pytestmark = pytest.mark.xfail
+# pytestmark = pytest.mark.xfail
 
 
 @pytest.mark.parametrize("chromosome", ['chr1'])
@@ -20,6 +20,7 @@ def test_bins_boundaries_generator(tests_config, bin_boundaries, chromosome):
     mappable_regions_df = pipeline.hg.load_mappable_regions()
 
     chrom_df = bin_boundaries[bin_boundaries['bin.chrom'] == chromosome]
+
     for index, mappable_bin in enumerate(pipeline.bins_boundaries_generator(
             [chromosome], mappable_regions_df)):
         fixture_bin = chrom_df.iloc[index, :]
@@ -35,11 +36,14 @@ def test_bins_boundaries_generator(tests_config, bin_boundaries, chromosome):
             (index, mappable_bin, fixture_bin)
 
 
-@pytest.mark.parametrize("chromosome", ['chr1'])  # HumanGenome19.CHROMS)
+@pytest.mark.parametrize("chromosome", ['chr1'])
 def test_bins_boundaries(tests_config, bin_boundaries, chromosome):
     pipeline = BinsPipeline(tests_config)
 
     fixture_df = bin_boundaries[bin_boundaries['bin.chrom'] == chromosome]
+    fixture_df = fixture_df[[
+        'bin.chrom', 'bin.start', 'bin.start.abspos',
+        'bin.end', 'bin.length', 'mappable.positions']]
     fixture_df = fixture_df.reset_index()
 
     regions_df = pipeline.hg.load_mappable_regions()
@@ -48,6 +52,9 @@ def test_bins_boundaries(tests_config, bin_boundaries, chromosome):
     df = bins_df[bins_df['bin.chrom'] == chromosome]
     df = df.reset_index()
 
+    print(fixture_df.head())
+    print(df.head())
+    
     assert np.all(df.columns == fixture_df.columns)
     assert np.all(df['bin.start'] == fixture_df['bin.start'])
     assert np.all(df['bin.start.abspos'] == fixture_df['bin.start.abspos'])

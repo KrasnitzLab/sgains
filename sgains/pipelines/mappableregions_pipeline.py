@@ -3,7 +3,7 @@ Created on Jul 31, 2017
 
 @author: lubo
 '''
-from sgains.hg19 import HumanGenome19
+from sgains.genome import Genome
 import asyncio
 from termcolor import colored
 import os
@@ -20,15 +20,13 @@ logging.basicConfig(
     format='%(levelname)7s: %(message)s',
     stream=sys.stderr,
 )
-LOG = logging.getLogger('')
 
 
 class MappableRegionsPipeline(object):
 
     def __init__(self, config):
         self.config = config
-        assert self.config.genome.version == 'hg19'
-        self.hg = HumanGenome19(self.config)
+        self.hg = Genome(self.config)
 
     def mappable_regions_check(self, chroms, mappable_regions_df):
         # if mappable_regions_df is None:
@@ -84,7 +82,7 @@ class MappableRegionsPipeline(object):
 
     @staticmethod
     async def async_write_fasta(outfile, rec):
-        out = HumanGenome19.to_fasta_string(rec)
+        out = Genome.to_fasta_string(rec)
         outfile.write(out)
         await outfile.drain()
 
@@ -196,7 +194,7 @@ class MappableRegionsPipeline(object):
 
         if not self.config.dry_run:
             with open(dst, 'wb') as output:
-                for chrom in self.hg.CHROMS:
+                for chrom in self.hg.version.CHROMS:
                     src = self.config.mappable_regions_filename(chrom)
                     print(colored(
                         "appending {} to {}".format(src, dst),
@@ -237,6 +235,6 @@ class MappableRegionsPipeline(object):
             os.makedirs(self.config.mappable_regions.work_dir)
 
         pool = multiprocessing.Pool(processes=self.config.parallel)
-        pool.map(self.run_once, self.hg.CHROMS)
+        pool.map(self.run_once, self.hg.version.CHROMS)
 
         self.concatenate_all_chroms()

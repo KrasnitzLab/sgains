@@ -21,7 +21,7 @@ def test_mappable_regions_long(
     ]
 
     with mocker.patch("os.path.exists"), \
-            mocker.patch("config.Config.mapping_reads_filenames"), \
+            mocker.patch("sgains.config.Config.mapping_reads_filenames"), \
             mocker.patch("os.listdir"):
 
         args = argparser.parse_args(argv)
@@ -57,7 +57,7 @@ def test_mappable_regions_short(
     ]
 
     with mocker.patch("os.path.exists"), \
-            mocker.patch("config.Config.mapping_reads_filenames"), \
+            mocker.patch("sgains.config.Config.mapping_reads_filenames"), \
             mocker.patch("os.listdir"):
         args = argparser.parse_args(argv)
         args.func(args)

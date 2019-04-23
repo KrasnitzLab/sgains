@@ -5,16 +5,16 @@ Created on Aug 3, 2017
 '''
 import pytest
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from config import Config
-from commands.mappable_regions_command import MappableRegionsCommand
-from commands.genomeindex_command import GenomeIndexCommand
-from commands.bins_command import BinsCommand
-from commands.prepare_command import PrepareCommand
-from commands.mapping_command import MappingCommand
-from commands.varbin_command import VarbinCommand
-from commands.sc_clust_command import SCclustCommand
-from commands.process_command import ProcessCommand
-from commands.common import OptionsBase
+from sgains.config import Config
+from sgains.commands.mappable_regions_command import MappableRegionsCommand
+from sgains.commands.genomeindex_command import GenomeIndexCommand
+from sgains.commands.bins_command import BinsCommand
+from sgains.commands.prepare_command import PrepareCommand
+from sgains.commands.mapping_command import MappingCommand
+from sgains.commands.varbin_command import VarbinCommand
+from sgains.commands.sc_clust_command import SCclustCommand
+from sgains.commands.process_command import ProcessCommand
+from sgains.commands.common import OptionsBase
 
 
 @pytest.fixture

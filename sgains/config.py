@@ -56,7 +56,10 @@ class Config(Box):
             "case_name": "test",
             "cytoband": "hg19/cytoBand.txt",
             "nsim": 150,
-            "sharemin": 0.85
+            "sharemin": 0.80,
+            "fdrthres": -3,
+            "nshare": 4,
+            "climbtoshare": 4,
         }
     }
 
@@ -108,7 +111,7 @@ class Config(Box):
         return config
 
     @staticmethod
-    def load(filename):
+    def load(filename, use_config_dir=False):
         default = Config.default()
 
         filename = os.path.abspath(filename)
@@ -117,9 +120,9 @@ class Config(Box):
         with open(filename, 'r') as infile:
             config = Box.from_yaml(infile)
             config.filename = os.path.abspath(filename)
-            # config.dirname = os.path.dirname(config.filename)
             config.dirname = os.curdir
-
+            if use_config_dir:
+                config.dirname = os.path.dirname(config.filename)
             default.update(config.to_dict())
 
             return Config(
@@ -128,16 +131,16 @@ class Config(Box):
             )
 
     def abspath(self, filename):
-        return os.path.join(
-            self.dirname,
-            filename
-        )
+        return os.path.abspath(
+            os.path.join(
+                self.dirname,
+                filename))
 
     def genome_index_filename(self):
-        filename = os.path.join(
+        filename = self.abspath(os.path.join(
             self.genome.work_dir,
             self.genome.index
-        )
+        ))
         return self.abspath(filename)
 
     def genome_index_filename_exists(self):
@@ -193,6 +196,8 @@ class Config(Box):
             cache_dir,
             "{}.fa".format(chrom)
         )
+        print(filename, self.abspath(filename))
+
         return self.abspath(filename)
 
     def varbin_filenames(self):
@@ -229,7 +234,7 @@ class Config(Box):
         return dirname
 
     def mapping_reads_dirname(self):
-        assert os.path.exists(self.mapping.reads_dir)
+        assert os.path.exists(self.mapping.reads_dir), self.mapping.reads_dir
         dirname = self.abspath(self.mapping.reads_dir)
         return dirname
 
@@ -256,8 +261,10 @@ class Config(Box):
         return filenames
 
     def check_nonempty_workdir(self, dirname):
-        if os.path.exists(dirname) and len(os.listdir(dirname)) and \
-                not self.force:
+        if not os.path.exists(dirname):
+            return
+        if len(os.listdir(dirname)) and \
+                not self.force and not self.dry_run:
             print(colored(
                 "ERROR: non-empty output directory and no --force option",
                 "red"))

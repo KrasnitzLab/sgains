@@ -4,7 +4,7 @@ Created on Jul 31, 2017
 @author: lubo
 '''
 from collections import defaultdict
-from sgains.hg19 import HumanGenome19
+from sgains.genome import Genome
 from termcolor import colored
 import os
 import pandas as pd
@@ -18,7 +18,7 @@ class VarbinPipeline(object):
 
     def __init__(self, config):
         self.config = config
-        self.hg = HumanGenome19(config)
+        self.hg = Genome(config)
 
     def find_bin_index(self, abspos, bins):
         index = np.searchsorted(
@@ -53,7 +53,7 @@ class VarbinPipeline(object):
             bins_df = self.hg.bins_boundaries()
             assert bins_df is not None
             chrom_sizes = self.hg.chrom_sizes()
-            chroms = set(self.hg.CHROMS)
+            chroms = set(self.hg.version.CHROMS)
 
             count = 0
             dups = 0

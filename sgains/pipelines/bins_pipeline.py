@@ -8,7 +8,7 @@ import multiprocessing
 import pandas as pd
 from termcolor import colored
 
-from sgains.hg19 import HumanGenome19
+from sgains.genome import Genome
 from sgains.utils import BinParams, MappableBin
 
 
@@ -16,8 +16,7 @@ class BinsPipeline(object):
 
     def __init__(self, config):
         self.config = config
-        assert self.config.genome.version == 'hg19'
-        self.hg = HumanGenome19(self.config)
+        self.hg = Genome(self.config)
 
     def calc_bins_gc_content(self, chroms, bins_df):
 
@@ -37,6 +36,7 @@ class BinsPipeline(object):
                 counts = [seq.count(x) for x in ['G', 'C', 'A', 'T']]
                 gc = float(sum(counts[0:2])) / sum(counts)
                 gc_series.iloc[index] = gc
+
             gc_df['gc.content'] = gc_series
             result.append(gc_df)
         assert len(result) > 0
@@ -75,10 +75,6 @@ class BinsPipeline(object):
                     if bins_count == 0:
                         # last bin a chromosome
                         mappable_bin.end_pos = chrom_sizes[chrom].size
-                    # print(mappable_bin, "|", next_bin, ";",
-                    #       next_bin.is_overfill(), "(",
-                    #       next_bin.current_size - next_bin.bin_size, ")",
-                    #       current_excess)
                     yield mappable_bin
                     if next_bin.is_overfill():
                         current_excess, mappable_bins = \
@@ -98,7 +94,7 @@ class BinsPipeline(object):
 
     def calc_bins_boundaries(self, chroms=None, regions_df=None):
         if chroms is None:
-            chroms = self.hg.CHROMS
+            chroms = self.hg.version.CHROMS
         bin_rows = []
         for mbin in self.bins_boundaries_generator(chroms, regions_df):
             bin_rows.append(
@@ -147,7 +143,7 @@ class BinsPipeline(object):
             return
 
         dataframes = []
-        for chrom in self.hg.CHROMS:
+        for chrom in self.hg.version.CHROMS:
             srcfilename = self.config.bins_boundaries_filename(chrom)
             df = pd.read_csv(srcfilename, sep='\t')
             dataframes.append(df)
@@ -178,6 +174,6 @@ class BinsPipeline(object):
             return
 
         pool = multiprocessing.Pool(processes=self.config.parallel)
-        pool.map(self.run_once, self.hg.CHROMS)
+        pool.map(self.run_once, self.hg.version.CHROMS)
 
         self.concatenate_all_chroms()
