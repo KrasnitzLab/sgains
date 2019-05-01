@@ -1,13 +1,9 @@
-library("devtools")
-devtools::load_all("/home/lubo/Work/single-cell/SCclust")
+# library("devtools")
+# devtools::load_all("/home/lubo/Work/single-cell/SCclust")
 
-# library("SCclust")
-# library("futile.logger")
+library("SCclust")
 
 options(echo=TRUE)
-
-# flog.threshold(DEBUG)
-# flog.info("running sgains scclust pipeline script")
 
 args <- commandArgs(trailingOnly = TRUE)
 
