@@ -56,6 +56,15 @@ class OptionsBase(object):
             default=1
         )
 
+        parser.add_argument(
+            "--sge",
+            dest="sge",
+            action="store_true",
+            help="parallelilizes commands using SGE cluster manager",
+            default=False
+        )
+
+
     def create_local_cluster(self):
         workers = self.config.parallel
         threads_per_worker = 1
@@ -64,8 +73,34 @@ class OptionsBase(object):
             n_workers=workers, threads_per_worker=threads_per_worker)
         return cluster
 
+    def create_sge_cluster(self):
+        from dask_jobqueue import SGECluster
+        
+        workers = self.config.parallel
+        threads_per_worker = 1
+        print("workers=", workers, " threads_per_worker=", threads_per_worker)
+        queue = "all.q@wigclust1.cshl.edu,all.q@wigclust3.cshl.edu,all.q@wigclust4.cshl.edu,"\
+            "all.q@wigclust5.cshl.edu,all.q@wigclust6.cshl.edu,all.q@wigclust7.cshl.edu,"\
+            "all.q@wigclust8.cshl.edu,all.q@wigclust10.cshl.edu,all.q@wigclust11.cshl.edu,"\
+            "all.q@wigclust12.cshl.edu,all.q@wigclust13.cshl.edu,all.q@wigclust14.cshl.edu,"\
+            "all.q@wigclust15.cshl.edu,all.q@wigclust16.cshl.edu,all.q@wigclust17.cshl.edu,"\
+            "all.q@wigclust18.cshl.edu,all.q@wigclust19.cshl.edu"
+
+        cluster = SGECluster(
+            queue=queue,
+            walltime="02:00:00",
+            processes=1,   # we request 10 processes per worker
+            memory='4GB',  # for memory requests, this must be specified
+            resource_spec='m_mem_free=8G',  # for memory requests, this also needs to be specified
+            cores=2)        
+        cluster.scale_up(n=workers)
+        return cluster
+
     def create_dask_cluster(self):
-        return self.create_local_cluster()
+        if self.config.sge:
+            return self.create_sge_cluster()
+        else:
+            return self.create_local_cluster()
 
     def create_dask_client(self, dask_cluster):
         client = Client(dask_cluster)
@@ -94,6 +129,8 @@ class OptionsBase(object):
             self.config.dry_run = args.dry_run
         if args.force is not None:
             self.config.force = args.force
+        if args.sge is not None:
+            self.config.sge = args.sge
 
         if args.parallel is not None:
             self.config.parallel = args.parallel

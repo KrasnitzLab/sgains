@@ -21,6 +21,7 @@ class Config(Box):
         "force": False,
         "dry_run": False,
         "parallel": 1,
+        "sge": False,
 
         "genome": {
             "version": "hg19",
