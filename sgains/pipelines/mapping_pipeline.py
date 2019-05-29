@@ -142,7 +142,7 @@ class MappingPipeline(object):
                 stderr=subprocess.DEVNULL,
                 shell=True)
 
-    def run(self):
+    def run(self, dask_client):
         fastq_filenames = self.config.mapping_reads_filenames()
         assert fastq_filenames
 
@@ -172,6 +172,16 @@ class MappingPipeline(object):
             ]
             commands.append(pipeline)
 
-        pool = multiprocessing.Pool(processes=self.config.parallel)
-        pool.map(functools.partial(
-            MappingPipeline.execute_once, self.config.dry_run), commands)
+        # pool = multiprocessing.Pool(processes=self.config.parallel)
+        # pool.map(functools.partial(
+        #     MappingPipeline.execute_once, self.config.dry_run), commands)
+        assert dask_client
+
+        delayed_tasks = [
+            dask_client.submit(
+                functools.partial(
+                    MappingPipeline.execute_once, self.config.dry_run),
+                cmd) for cmd in commands
+        ]
+        fut = dask_client.compute(delayed_tasks)
+        dask_client.gather(fut)

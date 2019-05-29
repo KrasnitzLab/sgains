@@ -77,4 +77,4 @@ class VarbinCommand(
         self.config.varbin_dirname()
 
         pipeline = VarbinPipeline(self.config)
-        pipeline.run()
+        self.run_pipeline(pipeline)

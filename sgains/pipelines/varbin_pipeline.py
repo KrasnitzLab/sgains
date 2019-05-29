@@ -12,6 +12,7 @@ import numpy as np
 import pysam
 import multiprocessing
 import traceback
+from dask import delayed, compute
 
 
 class VarbinPipeline(object):
@@ -132,11 +133,19 @@ class VarbinPipeline(object):
                 df = self.varbin(mapping_filename)
                 df.to_csv(outfile, index=False, sep='\t')
 
-    def run(self):
+    def run(self, dask_client):
         mapping_filenames = self.config.mapping_filenames()
         print(colored(
             "processing files: {}".format(mapping_filenames),
             "green"))
 
-        pool = multiprocessing.Pool(processes=self.config.parallel)
-        pool.map(self.run_once, mapping_filenames)
+        # pool = multiprocessing.Pool(processes=self.config.parallel)
+        # pool.map(self.run_once, mapping_filenames)
+        assert dask_client
+
+        delayed_tasks = [
+            dask_client.submit(self.run_once, mf) for mf in mapping_filenames
+        ]
+        fut = dask_client.compute(delayed_tasks)
+        dask_client.gather(fut)
+

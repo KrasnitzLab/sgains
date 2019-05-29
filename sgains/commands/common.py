@@ -3,6 +3,9 @@ Created on Aug 2, 2017
 
 @author: lubo
 '''
+from distributed import Client, LocalCluster
+from contextlib import closing
+
 from sgains.config import Config
 
 
@@ -52,6 +55,29 @@ class OptionsBase(object):
             type=int,
             default=1
         )
+
+    def create_local_cluster(self):
+        workers = self.config.parallel
+        threads_per_worker = 1
+        print("workers=", workers, " threads_per_worker=", threads_per_worker)
+        cluster = LocalCluster(
+            n_workers=workers, threads_per_worker=threads_per_worker)
+        return cluster
+
+    def create_dask_cluster(self):
+        return self.create_local_cluster()
+
+    def create_dask_client(self, dask_cluster):
+        client = Client(dask_cluster)
+        return client
+
+    def run_pipeline(self, pipeline):
+        dask_cluster = self.create_dask_cluster()
+        with closing(dask_cluster) as cluster:
+            dask_client = self.create_dask_client(cluster)
+            with closing(dask_client) as client:
+
+                pipeline.run(dask_client=client)
 
     def common_updates(self, args):
         if args.config is not None:
