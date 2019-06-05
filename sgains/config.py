@@ -23,6 +23,13 @@ class Config(Box):
         "parallel": 1,
         "sge": False,
 
+        "sge_options": {
+            "queue": "regular",
+            "memory": "2GB",
+            "processes": 1,
+            "cores": 2,
+            "resource_spec": "m_mem_free=4G",
+        },
         "genome": {
             "version": "hg19",
             "data_dir": "data/hg19_safe",

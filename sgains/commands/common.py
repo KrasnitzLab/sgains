@@ -75,24 +75,27 @@ class OptionsBase(object):
 
     def create_sge_cluster(self):
         from dask_jobqueue import SGECluster
-        
+
+        print(self.config)
         workers = self.config.parallel
         threads_per_worker = 1
-        print("workers=", workers, " threads_per_worker=", threads_per_worker)
-        queue = "all.q@wigclust1.cshl.edu,all.q@wigclust3.cshl.edu,all.q@wigclust4.cshl.edu,"\
-            "all.q@wigclust5.cshl.edu,all.q@wigclust6.cshl.edu,all.q@wigclust7.cshl.edu,"\
-            "all.q@wigclust8.cshl.edu,all.q@wigclust10.cshl.edu,all.q@wigclust11.cshl.edu,"\
-            "all.q@wigclust12.cshl.edu,all.q@wigclust13.cshl.edu,all.q@wigclust14.cshl.edu,"\
-            "all.q@wigclust15.cshl.edu,all.q@wigclust16.cshl.edu,all.q@wigclust17.cshl.edu,"\
-            "all.q@wigclust18.cshl.edu,all.q@wigclust19.cshl.edu"
-
+        queue = self.config.sge_options.queue
+        queue = ",".join([q.strip() for q in queue.split(',')])
+        memory = self.config.sge_options.memory
+        processes = int(self.config.sge_options.processes)
+        cores = int(self.config.sge_options.cores)
+        resource_spec = self.config.sge_options.resource_spec
+        print(
+            "SGE:", "queue=", queue, "memory=", memory,
+            "processes=", processes, "cores=", cores,
+            "resource_spec=", resource_spec)
         cluster = SGECluster(
             queue=queue,
-            walltime="02:00:00",
-            processes=1,   # we request 10 processes per worker
-            memory='4GB',  # for memory requests, this must be specified
-            resource_spec='m_mem_free=8G',  # for memory requests, this also needs to be specified
-            cores=2)        
+            processes=processes,
+            memory=memory,
+            cores=cores,
+            resource_spec=resource_spec
+        )        
         cluster.scale_up(n=workers)
         return cluster
 
