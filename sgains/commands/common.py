@@ -76,7 +76,6 @@ class OptionsBase(object):
     def create_sge_cluster(self):
         from dask_jobqueue import SGECluster
 
-        print(self.config)
         workers = self.config.parallel
         threads_per_worker = 1
         queue = self.config.sge_options.queue
@@ -94,9 +93,12 @@ class OptionsBase(object):
             processes=processes,
             memory=memory,
             cores=cores,
-            resource_spec=resource_spec
-        )        
-        cluster.scale_up(n=workers)
+            resource_spec=resource_spec,
+            name="sgains-tools",
+        )
+        cluster.adapt(minimum=2, maximum=workers)
+        print(cluster)
+
         return cluster
 
     def create_dask_cluster(self):
