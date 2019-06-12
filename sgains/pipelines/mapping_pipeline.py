@@ -5,6 +5,10 @@ Created on Jul 13, 2017
 '''
 import os
 import subprocess
+import traceback
+
+from dask import distributed
+
 from sgains.config import Config
 from termcolor import colored
 import multiprocessing
@@ -134,13 +138,20 @@ class MappingPipeline(object):
 
     @staticmethod
     def execute_once(dry_run, pipeline):
+        print(os.environ)
+
         print(colored(' '.join(pipeline), "green"))
         if not dry_run:
-            subprocess.check_call(
+            res = subprocess.check_call(
                 ' '.join(pipeline),
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                # stdout=subprocess.DEVNULL,
+                # stderr=subprocess.DEVNULL,
                 shell=True)
+            print(res)
+            # print(res.cmd)
+            # print(res.stdout)
+            # print(res.stderr)
+
 
     def run(self, dask_client):
         fastq_filenames = self.config.mapping_reads_filenames()
@@ -177,11 +188,16 @@ class MappingPipeline(object):
         #     MappingPipeline.execute_once, self.config.dry_run), commands)
         assert dask_client
 
-        delayed_tasks = [
-            dask_client.submit(
+        delayed_tasks = dask_client.map(
                 functools.partial(
-                    MappingPipeline.execute_once, self.config.dry_run),
-                cmd) for cmd in commands
-        ]
-        fut = dask_client.compute(delayed_tasks)
-        dask_client.gather(fut)
+                    MappingPipeline.execute_once, self.config.dry_run), commands)
+
+        distributed.wait(delayed_tasks)
+
+        # for fut in delayed_tasks:
+        #     print("fut done:", fut.done())
+        #     print("fut exception:", fut.exception())
+        #     print("fut traceback:", fut.traceback())
+        #     if fut.traceback() is not None:
+        #         traceback.print_tb(fut.traceback())
+        #     print(fut.result())

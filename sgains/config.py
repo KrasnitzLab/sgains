@@ -25,10 +25,11 @@ class Config(Box):
 
         "sge_options": {
             "queue": "regular",
-            "memory": "2GB",
+            "memory": "4GB",
             "processes": 1,
             "cores": 2,
             "resource_spec": "m_mem_free=4G",
+            "job_extra": [],
         },
         "genome": {
             "version": "hg19",

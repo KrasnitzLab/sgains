@@ -84,10 +84,12 @@ class OptionsBase(object):
         processes = int(self.config.sge_options.processes)
         cores = int(self.config.sge_options.cores)
         resource_spec = self.config.sge_options.resource_spec
+        job_extra = self.config.sge_options.job_extra
         print(
             "SGE:", "queue=", queue, "memory=", memory,
             "processes=", processes, "cores=", cores,
-            "resource_spec=", resource_spec)
+            "resource_spec=", resource_spec,
+            "job_extra=", job_extra)
         cluster = SGECluster(
             queue=queue,
             processes=processes,
@@ -95,6 +97,8 @@ class OptionsBase(object):
             cores=cores,
             resource_spec=resource_spec,
             name="sgains-tools",
+            job_extra=job_extra,
+            walltime='08:00:00',
         )
         cluster.adapt(minimum=2, maximum=workers)
         print(cluster)
@@ -113,8 +117,12 @@ class OptionsBase(object):
 
     def run_pipeline(self, pipeline):
         dask_cluster = self.create_dask_cluster()
+        print(dask_cluster)
+        print(dask_cluster.job_script())
+        print(dask_cluster.job_file())
         with closing(dask_cluster) as cluster:
             dask_client = self.create_dask_client(cluster)
+            print(dask_client)
             with closing(dask_client) as client:
 
                 pipeline.run(dask_client=client)

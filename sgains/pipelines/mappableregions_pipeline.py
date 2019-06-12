@@ -3,6 +3,9 @@ Created on Jul 31, 2017
 
 @author: lubo
 '''
+import traceback
+from dask import distributed
+
 from sgains.genome import Genome
 import asyncio
 from termcolor import colored
@@ -168,6 +171,7 @@ class MappableRegionsPipeline(object):
             yield prev
 
     def run_once(self, chrom):
+        print(os.environ)
         event_loop = asyncio.get_event_loop()
 
         # LOG.info('enabling debugging')
@@ -203,7 +207,7 @@ class MappableRegionsPipeline(object):
                         if not self.config.dry_run:
                             shutil.copyfileobj(src, output, 1024 * 1024 * 10)
 
-    def run(self):
+    def run(self, dask_client):
         outfilename = self.config.mappable_regions_filename()
         print(colored(
             "going to generate mappable regions with length {} "
@@ -234,7 +238,23 @@ class MappableRegionsPipeline(object):
         if not os.path.exists(self.config.mappable_regions.work_dir):
             os.makedirs(self.config.mappable_regions.work_dir)
 
-        pool = multiprocessing.Pool(processes=self.config.parallel)
-        pool.map(self.run_once, self.hg.version.CHROMS)
+
+        assert dask_client
+
+        delayed_tasks = dask_client.map(
+                self.run_once, self.hg.version.CHROMS)
+        print(delayed_tasks)
+        print(dask_client.scheduler_info())
+
+        distributed.wait(delayed_tasks)
+
+        # for fut in delayed_tasks:
+        #     print("fut done:", fut.done())
+        #     print("fut exception:", fut.exception())
+        #     print("fut traceback:", fut.traceback())
+        #     if fut.traceback() is not None:
+        #         traceback.print_tb(fut.traceback())
+        #     if fut.exception() is None:
+        #         print(fut.result())
 
         self.concatenate_all_chroms()

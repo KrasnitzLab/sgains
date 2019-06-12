@@ -38,4 +38,4 @@ class MappableRegionsCommand(
         print("mappable-regions subcommand called with args: {}".format(args))
         self.process_args(args)
         pipeline = MappableRegionsPipeline(self.config)
-        pipeline.run()
+        self.run_pipeline(pipeline)
