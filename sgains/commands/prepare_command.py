@@ -48,10 +48,10 @@ class PrepareCommand(
         self.process_args(args)
 
         pipeline = GenomeIndexPipeline(self.config)
-        pipeline.run()
+        self.run_pipeline(pipeline)
 
         pipeline = MappableRegionsPipeline(self.config)
-        pipeline.run()
+        self.run_pipeline(pipeline)
 
         pipeline = BinsPipeline(self.config)
-        pipeline.run()
+        self.run_pipeline(pipeline)

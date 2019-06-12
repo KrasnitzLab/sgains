@@ -42,4 +42,4 @@ class BinsCommand(
         print("bins subcommand called with args: {}".format(args))
         self.process_args(args)
         pipeline = BinsPipeline(self.config)
-        pipeline.run()
+        self.run_pipeline(pipeline)

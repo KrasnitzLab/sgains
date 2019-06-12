@@ -3,6 +3,9 @@ Created on Jul 31, 2017
 
 @author: lubo
 '''
+import traceback
+from dask import distributed
+
 import os
 import multiprocessing
 import pandas as pd
@@ -153,7 +156,7 @@ class BinsPipeline(object):
 
         outdf.to_csv(outfilename, sep='\t', index=False)
 
-    def run(self):
+    def run(self, dask_client):
         outfilename = self.config.bins_boundaries_filename()
         print(colored(
             "going to compute bin boundaries from mappable regions: {} "
@@ -173,7 +176,13 @@ class BinsPipeline(object):
         if self.config.dry_run:
             return
 
-        pool = multiprocessing.Pool(processes=self.config.parallel)
-        pool.map(self.run_once, self.hg.version.CHROMS)
+        # pool = multiprocessing.Pool(processes=self.config.parallel)
+        # pool.map(self.run_once, self.hg.version.CHROMS)
+        delayed_tasks = dask_client.map(
+                self.run_once, self.hg.version.CHROMS)
+        print(delayed_tasks)
+        print(dask_client.scheduler_info())
+
+        distributed.wait(delayed_tasks)
 
         self.concatenate_all_chroms()
