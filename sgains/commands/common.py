@@ -64,7 +64,6 @@ class OptionsBase(object):
             default=False
         )
 
-
     def create_local_cluster(self):
         workers = self.config.parallel
         threads_per_worker = 1
@@ -77,7 +76,6 @@ class OptionsBase(object):
         from dask_jobqueue import SGECluster
 
         workers = self.config.parallel
-        threads_per_worker = 1
         queue = self.config.sge_options.queue
         queue = ",".join([q.strip() for q in queue.split(',')])
         memory = self.config.sge_options.memory
@@ -102,6 +100,8 @@ class OptionsBase(object):
         )
         cluster.adapt(minimum=2, maximum=workers)
         print(cluster)
+        print(cluster.job_script())
+        print(cluster.job_file())
 
         return cluster
 
@@ -117,9 +117,6 @@ class OptionsBase(object):
 
     def run_pipeline(self, pipeline):
         dask_cluster = self.create_dask_cluster()
-        print(dask_cluster)
-        print(dask_cluster.job_script())
-        print(dask_cluster.job_file())
         with closing(dask_cluster) as cluster:
             dask_client = self.create_dask_client(cluster)
             print(dask_client)
