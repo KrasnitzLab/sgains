@@ -5,13 +5,11 @@ Created on Jul 13, 2017
 '''
 import os
 import subprocess
-import traceback
 
 from dask import distributed
 
 from sgains.config import Config
 from termcolor import colored
-import multiprocessing
 import functools
 
 
@@ -152,7 +150,6 @@ class MappingPipeline(object):
             # print(res.stdout)
             # print(res.stderr)
 
-
     def run(self, dask_client):
         fastq_filenames = self.config.mapping_reads_filenames()
         assert fastq_filenames
@@ -183,14 +180,12 @@ class MappingPipeline(object):
             ]
             commands.append(pipeline)
 
-        # pool = multiprocessing.Pool(processes=self.config.parallel)
-        # pool.map(functools.partial(
-        #     MappingPipeline.execute_once, self.config.dry_run), commands)
         assert dask_client
 
         delayed_tasks = dask_client.map(
                 functools.partial(
-                    MappingPipeline.execute_once, self.config.dry_run), commands)
+                    MappingPipeline.execute_once, self.config.dry_run),
+                commands)
 
         distributed.wait(delayed_tasks)
 

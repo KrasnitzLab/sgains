@@ -239,9 +239,7 @@ class MappableRegionsPipeline(object):
         assert dask_client
 
         delayed_tasks = dask_client.map(
-                self.run_once, self.hg.version.CHROMS[:1])
-        print(delayed_tasks)
-        print(dask_client.scheduler_info())
+                self.run_once, self.hg.version.CHROMS)
 
         distributed.wait(delayed_tasks)
 
