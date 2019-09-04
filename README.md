@@ -31,7 +31,7 @@ Short tutorial on how to use this tool could be found in
 
     ```bash
     conda create -n sgains3
-    source activate sgains3
+    conda activate sgains3
     ```
 
 ### Install `sgains` anaconda package
