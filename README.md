@@ -40,7 +40,7 @@ Short tutorial on how to use this tool could be found in
     Annaconda channel. So to install *sGAINS* tools use:
 
     ```bash
-    conda install -c krasnitzlab -c bioconda sgains
+    conda install -c krasnitzlab -c bioconda -c conda-forge sgains
     ```
 
     This command should install all the packages and tools need for
