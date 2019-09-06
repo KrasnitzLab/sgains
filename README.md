@@ -12,7 +12,7 @@ Short tutorial on how to use this tool could be found in
 ### Install Anaconda
 
 * Go to anaconda web site
-    [https://www.continuum.io/downloads](https://www.continuum.io/downloads)
+    [https://www.anaconda.com/distribution/](https://www.anaconda.com/distribution/)
     and download the latest anaconda installer for your operating system.
 
 * *s-GAINS* supports *Python 3.6* or greater so you need to choose an
@@ -22,7 +22,7 @@ Short tutorial on how to use this tool could be found in
 
 * Install anaconda into suitable place on your local machine following
     instructions from
-    [https://docs.continuum.io/anaconda/install](https://docs.continuum.io/anaconda/install)
+    [https://docs.anaconda.com/anaconda/install/](https://docs.anaconda.com/anaconda/install/)
 
 ### Create `sgains` Anaconda environment
 
