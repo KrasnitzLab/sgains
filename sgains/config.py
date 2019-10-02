@@ -56,6 +56,16 @@ class Config(Box):
             "mapping_suffix": ".rmdup.bam",
             "mapping_bowtie_opts": "",
         },
+        "mapping_10x": {
+            # "data_10x_dir": "",
+            "data_10x_prefix": "",
+            "data_10x_summary": "",
+            "data_10x_bam": "",
+            "data_10x_bai": "",
+            # "mapping_10x_dir": "",
+            "mapping_10x_suffix": ".rmdup.bam",
+            "mapping_10x_bowtie_opts": "",
+        },
         "varbin": {
             "varbin_dir": "",
             "varbin_suffix": ".varbin.txt",
@@ -92,6 +102,7 @@ class Config(Box):
         config = Box(data, default_box=True)
         config.filename = None
         config.dirname = os.getcwd()
+
         return Config(
             config.to_dict(),
             default_box=True,
@@ -125,17 +136,17 @@ class Config(Box):
 
         filename = os.path.abspath(filename)
         assert os.path.exists(filename), filename
-
         with open(filename, 'r') as infile:
             config = Box.from_yaml(infile)
             config.filename = os.path.abspath(filename)
             config.dirname = os.curdir
             if use_config_dir:
                 config.dirname = os.path.dirname(config.filename)
-            default.update(config.to_dict())
+            default_dict = default.to_dict()
+            default_dict.update(config.to_dict())
 
             return Config(
-                default.to_dict(),
+                default_dict,
                 default_box=True,
             )
 
@@ -268,6 +279,54 @@ class Config(Box):
         )
         filenames = glob.glob(pattern)
         return filenames
+
+    def build_data_10x_dir(self):
+        dirname = self.mapping_10x.data_10x_dir
+
+        if dirname:
+            if os.path.isabs(dirname):
+                return self.mapping_10x.data_10x_dir
+            else:
+                return os.path.join(
+                    self.dirname,
+                    dirname
+                )
+        return None
+
+    def build_mapping_10x_dir(self):
+        if self.mapping_10x.mapping_10x_dir:
+            if os.path.isabs(self.mapping_10x.mapping_10x_dir):
+                return self.mapping_10x.mapping_10x_dir
+            else:
+                return os.path.join(
+                    self.dirname,
+                    self.mapping_10x.mapping_10x_dir
+                )
+        return None
+
+    def _data_10x_filename(self, pattern):
+        dirname = self.build_data_10x_dir()
+        if dirname is None:
+            return None
+        if self.mapping_10x.data_10x_summary:
+            return os.path.join(dirname, self.mapping_10x.data_10x_summary)
+        pattern = os.path.join(
+            dirname,
+            pattern
+        )
+        filenames = glob.glob(pattern)
+        if not filenames:
+            return None
+        return filenames[0]
+
+    def build_data_10x_summary(self):
+        return self._data_10x_filename("*_per_cell_summary_metrics.csv")
+
+    def build_data_10x_bam(self):
+        return self._data_10x_filename("*_possorted_bam.bam")
+
+    def build_data_10x_bai(self):
+        return self._data_10x_filename("*_possorted_bam.bam.bai")
 
     def check_nonempty_workdir(self, dirname):
         if not os.path.exists(dirname):
