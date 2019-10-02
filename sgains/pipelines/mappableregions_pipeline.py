@@ -3,23 +3,85 @@ Created on Jul 31, 2017
 
 @author: lubo
 '''
+import traceback
+import distributed
+import queue
+
+from subprocess import Popen, PIPE
+from threading import Thread
+
 from sgains.genome import Genome
-import asyncio
 from termcolor import colored
 import os
 from Bio.SeqRecord import SeqRecord  # @UnresolvedImport
 
 from sgains.utils import MappableState, Mapping, MappableRegion, LOG
 import sys
-import multiprocessing
 import shutil
-import logging
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(levelname)7s: %(message)s',
-    stream=sys.stderr,
-)
+
+class BowtieInputGenerateThread(Thread):
+
+    def __init__(self, control_queue, bowtie_input, input_function_generator):
+        super(BowtieInputGenerateThread, self).__init__()
+
+        self.control_queue = control_queue
+        self.bowtie_input = bowtie_input
+        self.input_function_generator = input_function_generator
+
+    def run(self):
+        for rec in self.input_function_generator:
+            out = Genome.to_fasta_string(rec)
+            self.bowtie_input.write(out)
+            self.bowtie_input.flush()
+        self.bowtie_input.close()
+
+
+class BowtieOutputProcessThread(Thread):
+
+    def __init__(self, control_queue, bowtie_output, output_process_function):
+        super(BowtieOutputProcessThread, self).__init__()
+
+        self.control_queue = control_queue
+        self.bowtie_output = bowtie_output
+        self.output_process_function = output_process_function
+
+    def run(self):
+        prev = None
+        state = MappableState.OUT
+
+        while True:
+            line = self.bowtie_output.readline()
+            if not line:
+                break
+
+            line = line.decode()
+            if line[0] == '@':
+                # comment
+                continue
+
+            mapping = Mapping.parse_sam(line)
+
+            if state == MappableState.OUT:
+                if mapping.flag == 0:
+                    prev = MappableRegion(mapping)
+                    state = MappableState.IN
+            else:
+                if mapping.flag == 0:
+                    if mapping.chrom == prev.chrom:
+                        prev.extend(mapping.start)
+                    else:
+                        self.output_process_function(prev)
+                        prev = MappableRegion(mapping)
+                else:
+                    self.output_process_function(prev)
+                    state = MappableState.OUT
+
+        if state == MappableState.IN:
+            self.output_process_function(prev)
+
+        self.bowtie_output.close()
+        self.control_queue.put("out_done")
 
 
 class MappableRegionsPipeline(object):
@@ -29,8 +91,6 @@ class MappableRegionsPipeline(object):
         self.hg = Genome(self.config)
 
     def mappable_regions_check(self, chroms, mappable_regions_df):
-        # if mappable_regions_df is None:
-        #     mappable_regions_df = self.load_mappable_regions()
 
         for chrom in chroms:
             chrom_df = mappable_regions_df[mappable_regions_df.chrom == chrom]
@@ -55,7 +115,7 @@ class MappableRegionsPipeline(object):
         finally:
             pass
 
-    async def async_start_bowtie(self, bowtie_opts=""):
+    def bowtie_command(self, bowtie_opts=""):
         genomeindex = self.config.genome_index_filename()
         if bowtie_opts:
             command = [
@@ -72,117 +132,59 @@ class MappableRegionsPipeline(object):
             "going to execute bowtie: {}".format(" ".join(command)),
             "green"
         ))
-        create = asyncio.create_subprocess_exec(
-            *command,
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-        )
-        proc = await create
-        return proc
+        return command
 
-    @staticmethod
-    async def async_write_fasta(outfile, rec):
-        out = Genome.to_fasta_string(rec)
-        outfile.write(out)
-        await outfile.drain()
-
-    async def async_write_reads_generator(self, out, reads_generator):
-        for rec in reads_generator:
-            await self.async_write_fasta(out, rec)
-        out.close()
-
-    async def async_mappings_generator(self, reads_generator, bowtie):
-        writer = asyncio.Task(
-            self.async_write_reads_generator(bowtie.stdin, reads_generator)
-        )
-
-        while True:
-            line = await bowtie.stdout.readline()
-            if not line:
-                break
-            yield line.decode()
-
-        await bowtie.wait()
-        await writer
-
-    async def async_generate_mappings(
-            self, chroms, read_length, outfile=None):
-        if outfile is None:
-            outfile = sys.stdout
-
-        bowtie = await self.async_start_bowtie()
-        reads_generator = self.generate_reads(chroms, read_length)
-        async for mappings in self.async_mappings_generator(
-                reads_generator, bowtie):
-            outfile.write(mappings)
-
-    async def async_generate_mappable_regions(
+    def generate_mappable_regions(
             self, chroms, read_length,
             outfile=None, bowtie_opts=""):
 
-        bowtie = await self.async_start_bowtie(bowtie_opts=bowtie_opts)
-        reads_generator = self.generate_reads(chroms, read_length)
-        writer = asyncio.Task(
-            self.async_write_reads_generator(bowtie.stdin, reads_generator)
-        )
         if outfile is None:
             outfile = sys.stdout
-        async for mapping in self.async_mappable_regions_generator(
-                bowtie.stdout):
-            outfile.write(str(mapping))
-            outfile.write('\n')
-        await bowtie.wait()
-        await writer
 
-    async def async_mappable_regions_generator(self, infile):
-        prev = None
-        state = MappableState.OUT
+        bowtie_command = self.bowtie_command(bowtie_opts=bowtie_opts)
+        reads_generator = self.generate_reads(chroms, read_length)
 
-        while True:
-            line = await infile.readline()
-            if not line:
-                break
-            line = line.decode()
-            if line[0] == '@':
-                # comment
-                continue
+        def bowtie_output_process_function(line):
+            outfile.write(str(line))
+            outfile.write("\n")
 
-            mapping = Mapping.parse_sam(line)
+        with Popen(bowtie_command, stdout=PIPE, stdin=PIPE) as proc:
 
-            if state == MappableState.OUT:
-                if mapping.flag == 0:
-                    prev = MappableRegion(mapping)
-                    state = MappableState.IN
-            else:
-                if mapping.flag == 0:
-                    if mapping.chrom == prev.chrom:
-                        prev.extend(mapping.start)
-                    else:
-                        yield prev
-                        prev = MappableRegion(mapping)
-                else:
-                    yield prev
-                    state = MappableState.OUT
+            control_queue = queue.Queue()
+            input_thread = BowtieInputGenerateThread(
+                control_queue,
+                proc.stdin,
+                reads_generator)
+            output_thread = BowtieOutputProcessThread(
+                control_queue,
+                proc.stdout,
+                bowtie_output_process_function)
 
-        if state == MappableState.IN:
-            yield prev
+            input_thread.start()
+            output_thread.start()
+
+            while True:
+                msg = None
+                try:
+                    msg = control_queue.get()
+                except queue.Empty:
+                    print("timeout - queue empty")
+                    msg = None
+                if msg == 'out_done':
+                    print("output done")
+                    break
+                if msg == 'in_done':
+                    print('input done')
+            input_thread.join()
+            output_thread.join()
 
     def run_once(self, chrom):
-        event_loop = asyncio.get_event_loop()
-
-        # LOG.info('enabling debugging')
-        # Enable debugging
-        # event_loop.set_debug(True)
 
         outfilename = self.config.mappable_regions_filename(chrom)
         with open(outfilename, "w") as outfile:
-            event_loop.run_until_complete(
-                self.async_generate_mappable_regions(
-                    [chrom],
-                    self.config.mappable_regions.length,
-                    outfile=outfile,
-                    bowtie_opts=self.config.mappable_regions.bowtie_opts)
-            )
+            self.generate_mappable_regions(
+                [chrom], read_length=50,
+                outfile=outfile)
 
     def concatenate_all_chroms(self):
         dst = self.config.mappable_regions_filename()
@@ -203,7 +205,7 @@ class MappableRegionsPipeline(object):
                         if not self.config.dry_run:
                             shutil.copyfileobj(src, output, 1024 * 1024 * 10)
 
-    def run(self):
+    def run(self, dask_client):
         outfilename = self.config.mappable_regions_filename()
         print(colored(
             "going to generate mappable regions with length {} "
@@ -234,7 +236,20 @@ class MappableRegionsPipeline(object):
         if not os.path.exists(self.config.mappable_regions.work_dir):
             os.makedirs(self.config.mappable_regions.work_dir)
 
-        pool = multiprocessing.Pool(processes=self.config.parallel)
-        pool.map(self.run_once, self.hg.version.CHROMS)
+        assert dask_client
+
+        delayed_tasks = dask_client.map(
+                self.run_once, self.hg.version.CHROMS)
+
+        distributed.wait(delayed_tasks)
+
+        for fut in delayed_tasks:
+            print("fut done:", fut.done())
+            print("fut exception:", fut.exception())
+            print("fut traceback:", fut.traceback())
+            if fut.traceback() is not None:
+                traceback.print_tb(fut.traceback())
+            if fut.exception() is None:
+                print(fut.result())
 
         self.concatenate_all_chroms()

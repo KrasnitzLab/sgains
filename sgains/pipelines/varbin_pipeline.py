@@ -12,6 +12,8 @@ import numpy as np
 import pysam
 import multiprocessing
 import traceback
+from dask import delayed, compute
+from dask import distributed
 
 
 class VarbinPipeline(object):
@@ -81,34 +83,36 @@ class VarbinPipeline(object):
 
                 bin_counts[index] += 1
                 prev_pos = abspos
-        except Exception:
-            traceback.print_exc()
 
-        number_of_reads_per_bin = float(count) / len(bins_df)
-        result = []
-        for index, row in bins_df.iterrows():
-            bin_count = bin_counts[index]
-            ratio = float(bin_count) / number_of_reads_per_bin
-            result.append(
-                [
-                    row['bin.chrom'],
-                    row['bin.start'],
-                    row['bin.start.abspos'],
-                    bin_count,
-                    ratio
-                ]
-            )
-        df = pd.DataFrame.from_records(
-            result,
-            columns=[
-                'chrom',
-                'chrompos',
-                'abspos',
-                'bincount',
-                'ratio',
-            ])
-        df.sort_values(by=['abspos'], inplace=True)
-        return df
+            number_of_reads_per_bin = float(count) / len(bins_df)
+            result = []
+            for index, row in bins_df.iterrows():
+                bin_count = bin_counts[index]
+                ratio = float(bin_count) / number_of_reads_per_bin
+                result.append(
+                    [
+                        row['bin.chrom'],
+                        row['bin.start'],
+                        row['bin.start.abspos'],
+                        bin_count,
+                        ratio
+                    ]
+                )
+            df = pd.DataFrame.from_records(
+                result,
+                columns=[
+                    'chrom',
+                    'chrompos',
+                    'abspos',
+                    'bincount',
+                    'ratio',
+                ])
+            df.sort_values(by=['abspos'], inplace=True)
+            return df
+        except Exception as ex:
+            traceback.print_exc()
+            raise ex
+        return None
 
     def run_once(self, mapping_filename):
         cellname = self.config.cellname(mapping_filename)
@@ -132,11 +136,24 @@ class VarbinPipeline(object):
                 df = self.varbin(mapping_filename)
                 df.to_csv(outfile, index=False, sep='\t')
 
-    def run(self):
+    def run(self, dask_client):
         mapping_filenames = self.config.mapping_filenames()
         print(colored(
             "processing files: {}".format(mapping_filenames),
             "green"))
 
-        pool = multiprocessing.Pool(processes=self.config.parallel)
-        pool.map(self.run_once, mapping_filenames)
+        # pool = multiprocessing.Pool(processes=self.config.parallel)
+        # pool.map(self.run_once, mapping_filenames)
+        assert dask_client
+
+        delayed_tasks = dask_client.map(self.run_once, mapping_filenames)
+        distributed.wait(delayed_tasks)
+
+        # for fut in delayed_tasks:
+        #     print("fut done:", fut.done())
+        #     print("fut exception:", fut.exception())
+        #     print("fut traceback:", fut.traceback())
+        #     if fut.traceback() is not None:
+        #         traceback.print_tb(fut.traceback())
+        #     print(fut.result())
+

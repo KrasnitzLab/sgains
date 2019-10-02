@@ -21,7 +21,16 @@ class Config(Box):
         "force": False,
         "dry_run": False,
         "parallel": 1,
+        "sge": False,
 
+        "sge_options": {
+            "queue": "regular",
+            "memory": "4GB",
+            "processes": 1,
+            "cores": 2,
+            "resource_spec": "m_mem_free=4G",
+            "job_extra": [],
+        },
         "genome": {
             "version": "hg19",
             "data_dir": "data/hg19_safe",

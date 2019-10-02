@@ -41,4 +41,4 @@ class MappingCommand(
             "yellow"))
         self.process_args(args)
         pipeline = MappingPipeline(self.config)
-        pipeline.run()
+        self.run_pipeline(pipeline)

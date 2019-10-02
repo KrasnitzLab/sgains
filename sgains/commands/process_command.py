@@ -112,10 +112,10 @@ class ProcessCommand(
             os.makedirs(scclust_workdir)
 
         pipeline = MappingPipeline(mapping_config)
-        pipeline.run()
+        self.run_pipeline(pipeline)
 
         pipeline = VarbinPipeline(varbin_config)
-        pipeline.run()
+        self.run_pipeline(pipeline)
 
         pipeline = Rpipeline(segment_config)
         pipeline.run()
