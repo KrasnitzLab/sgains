@@ -143,14 +143,8 @@ class Config(Box):
             if use_config_dir:
                 config.dirname = os.path.dirname(config.filename)
             default_dict = default.to_dict()
-            def recursive_dict_update(input_dict, updater_dict):
-                # FIXME !
-                # This method cannot handle nested dictionaries
-                # that hold a reference to the dictionary that
-                # contains them. If such a dictionary is given
-                # to this function, it will reach the maximum
-                # recursion depth.
 
+            def recursive_dict_update(input_dict, updater_dict):
                 result_dict = dict(input_dict)
                 for key, val in updater_dict.items():
                     if key in result_dict and type(val) is dict:
@@ -308,7 +302,7 @@ class Config(Box):
                 )
         return None
 
-    def build_mapping_10x_dir(self):        
+    def build_mapping_10x_dir(self):
         if self.mapping_10x.mapping_10x_dir:
             if os.path.isabs(self.mapping_10x.mapping_10x_dir):
                 return self.mapping_10x.mapping_10x_dir
