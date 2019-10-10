@@ -143,12 +143,30 @@ class Config(Box):
             if use_config_dir:
                 config.dirname = os.path.dirname(config.filename)
             default_dict = default.to_dict()
-            default_dict.update(config.to_dict())
+            def recursive_dict_update(input_dict, updater_dict):
+                # FIXME !
+                # This method cannot handle nested dictionaries
+                # that hold a reference to the dictionary that
+                # contains them. If such a dictionary is given
+                # to this function, it will reach the maximum
+                # recursion depth.
 
-            return Config(
+                result_dict = dict(input_dict)
+                for key, val in updater_dict.items():
+                    if key in result_dict and type(val) is dict:
+                        result_dict[key] = recursive_dict_update(
+                            result_dict[key], updater_dict[key])
+                    else:
+                        result_dict[key] = updater_dict[key]
+                return result_dict
+            default_dict = recursive_dict_update(
+                default_dict, config.to_dict())
+
+            config = Config(
                 default_dict,
                 default_box=True,
             )
+            return config
 
     def abspath(self, filename):
         return os.path.abspath(
@@ -216,8 +234,6 @@ class Config(Box):
             cache_dir,
             "{}.fa".format(chrom)
         )
-        print(filename, self.abspath(filename))
-
         return self.abspath(filename)
 
     def varbin_filenames(self):
@@ -282,7 +298,6 @@ class Config(Box):
 
     def build_data_10x_dir(self):
         dirname = self.mapping_10x.data_10x_dir
-
         if dirname:
             if os.path.isabs(dirname):
                 return self.mapping_10x.data_10x_dir
@@ -293,7 +308,7 @@ class Config(Box):
                 )
         return None
 
-    def build_mapping_10x_dir(self):
+    def build_mapping_10x_dir(self):        
         if self.mapping_10x.mapping_10x_dir:
             if os.path.isabs(self.mapping_10x.mapping_10x_dir):
                 return self.mapping_10x.mapping_10x_dir
@@ -304,12 +319,24 @@ class Config(Box):
                 )
         return None
 
-    def _data_10x_filename(self, pattern):
+    def build_mapping_10x_fastqdir(self):
+        dirname = self.build_data_10x_dir()
+        if dirname is None:
+            fastqdir = os.path.join(os.getcwd(), "fastq")
+        else:
+            assert os.path.exists(dirname)
+            assert os.path.isdir(dirname)
+            fastqdir = os.path.join(dirname, "fastq")
+        if not os.path.exists(fastqdir):
+            os.mkdir(fastqdir)
+        return fastqdir
+
+    def _data_10x_filename(self, param, pattern):
         dirname = self.build_data_10x_dir()
         if dirname is None:
             return None
-        if self.mapping_10x.data_10x_summary:
-            return os.path.join(dirname, self.mapping_10x.data_10x_summary)
+        if self.mapping_10x[param]:
+            return os.path.join(dirname, self.mapping_10x[param])
         pattern = os.path.join(
             dirname,
             pattern
@@ -320,13 +347,16 @@ class Config(Box):
         return filenames[0]
 
     def build_data_10x_summary(self):
-        return self._data_10x_filename("*_per_cell_summary_metrics.csv")
+        return self._data_10x_filename(
+            "data_10x_summary", "*_per_cell_summary_metrics.csv")
 
     def build_data_10x_bam(self):
-        return self._data_10x_filename("*_possorted_bam.bam")
+        return self._data_10x_filename(
+            "data_10x_bam", "*_possorted_bam.bam")
 
     def build_data_10x_bai(self):
-        return self._data_10x_filename("*_possorted_bam.bam.bai")
+        return self._data_10x_filename(
+            "data_10x_bai", "*_possorted_bam.bam.bai")
 
     def check_nonempty_workdir(self, dirname):
         if not os.path.exists(dirname):

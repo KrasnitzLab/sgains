@@ -8,7 +8,7 @@ import argparse
 from termcolor import colored
 
 from sgains.commands.common import GenomeIndexMixin, OptionsBase, MappingMixin
-# from sgains.pipelines.mapping_pipeline import MappingPipeline
+from sgains.pipelines.mapping_10x_pipeline import Mapping10xPipeline
 
 
 
@@ -143,5 +143,5 @@ class Mapping10xCommand(
             "mapping_10x subcommand called with args: {}".format(args),
             "yellow"))
         self.process_args(args)
-        # pipeline = MappingPipeline(self.config)
-        # self.run_pipeline(pipeline)
+        pipeline = Mapping10xPipeline(self.config)
+        self.run_pipeline(pipeline)
