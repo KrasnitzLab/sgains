@@ -137,7 +137,7 @@ class VarbinPipeline(object):
                 df.to_csv(outfile, index=False, sep='\t')
 
     def run(self, dask_client):
-        mapping_filenames = self.config.mapping_filenames()
+        mapping_filenames = self.config.mapping_all_filenames()
         print(colored(
             "processing files: {}".format(mapping_filenames),
             "green"))

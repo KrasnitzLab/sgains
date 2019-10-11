@@ -290,6 +290,22 @@ class Config(Box):
         filenames = glob.glob(pattern)
         return filenames
 
+    def mapping_all_filenames(self):
+        pattern = os.path.join(
+            self.mapping_dirname(),
+            "*{}".format(self.mapping.mapping_suffix)
+        )
+        filenames = glob.glob(pattern)
+        if filenames:
+            return filenames
+        pattern = os.path.join(
+            self.build_mapping_10x_dir(),
+            "*{}".format(self.mapping_10x.mapping_10x_suffix)
+        )
+        filenames = glob.glob(pattern)
+
+        return filenames
+
     def build_data_10x_dir(self):
         dirname = self.mapping_10x.data_10x_dir
         if dirname:
