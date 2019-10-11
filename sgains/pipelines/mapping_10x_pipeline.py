@@ -6,15 +6,17 @@ Created on Jul 13, 2017
 import os
 import gzip
 import glob
+import subprocess
 from collections import defaultdict
 
 import pysam
 
 import pandas as pd
 from dask import distributed
+from termcolor import colored
 
 from sgains.config import NonEmptyWorkDirectory
-from termcolor import colored
+from sgains.pipelines.mapping_pipeline import MappingPipeline
 from sgains.genome import Genome
 
 
@@ -26,6 +28,7 @@ class Mapping10xPipeline(object):
         self.fastq_dirname = config.build_mapping_10x_fastqdir()
         self.bam_filename = config.build_data_10x_bam()
         self.bai_filename = config.build_data_10x_bai()
+        self.mapping_dirname = config.build_mapping_10x_dir()
 
         assert os.path.exists(self.summary_filename), self.summary_filename
         assert os.path.exists(self.bam_filename), self.bam_filename
@@ -158,13 +161,99 @@ class Mapping10xPipeline(object):
         os.system(command)
         return filenames
 
+    def _bowtie_stage(self, cellname):
+        reportfile = os.path.join(
+            self.mapping_dirname,
+            "{}.bowtie_report.log".format(cellname)
+        )
+
+        bowtie_opts = self.config.mapping_10x.\
+            mapping_10x_bowtie_opts.split(' ')
+        return [
+            'bowtie',
+            '-S', '-t', '-v', '0', '-m', '1',
+            '--best', '--strata', '--chunkmbs', '256',
+            *bowtie_opts,
+            self.config.genome_index_filename(),
+            '-',
+            '2>',
+            reportfile,
+        ]
+
+    def _samtools_view_store_stage(self, cellname):
+        outfile = os.path.join(
+            self.mapping_dirname,
+            "{}.rmdup.bam".format(cellname)
+        )
+        return [
+            'samtools',
+            'view',
+            '-b',
+            '-o',
+            outfile,
+            '-',
+        ]
+
+    def _samtools_index_bam(self, cellname):
+        outfile = os.path.join(
+            self.mapping_dirname,
+            "{}.rmdup.bam".format(cellname)
+        )
+        return [
+            'samtools'
+            'index',
+            outfile,
+        ]
+
+    def _mapping_once(self, dry_run, cell_id):
+        cellname = "{:0>5}".format(cell_id)
+        fastq_filename = os.path.join(
+            self.fastq_dirname,
+            "{}.fastq.gz".format(cellname))
+        pipeline = [
+            *MappingPipeline.unarchive_stage(fastq_filename),
+            '|',
+            # *MappingPipeline.head_stage(cellname, lines=40000),
+            # '|',
+            *self._bowtie_stage(cellname),
+            '|',
+            *MappingPipeline.samtools_view_stage(cellname),
+            '|',
+            *MappingPipeline.samtools_view_remove_unmappted_stage(cellname),
+            '|',
+            *MappingPipeline.samtools_sort_stage(cellname),
+            '|',
+            *MappingPipeline.samtools_rmdup_stage(cellname),
+            '|',
+            *self._samtools_view_store_stage(cellname),
+        ]
+        command = ' '.join(pipeline)
+        print(colored(command, "green"))
+        if not dry_run:
+            res = subprocess.check_call(
+                command,
+                # stdout=subprocess.DEVNULL,
+                # stderr=subprocess.DEVNULL,
+                shell=True)
+            print(res)
+
     def run(self, dask_client):
         try:
             self.config.check_nonempty_workdir(self.fastq_dirname)
         except NonEmptyWorkDirectory:
             return
+        try:
+            self.config.check_nonempty_workdir(
+                self.mapping_dirname
+            )
+        except NonEmptyWorkDirectory:
+            return
 
         command = "rm -rf {}/*".format(self.fastq_dirname)
+        print(colored(command, 'yellow'))
+        os.system(command)
+
+        command = "rm -rf {}/*".format(self.mapping_dirname)
         print(colored(command, 'yellow'))
         os.system(command)
 
@@ -178,6 +267,13 @@ class Mapping10xPipeline(object):
         cells = self.barcodes.values()
         delayed_tasks = dask_client.map(
             self._merge_cell,
+            cells
+        )
+        distributed.wait(delayed_tasks)
+
+        cells = self.barcodes.values()
+        delayed_tasks = dask_client.map(
+            lambda cell_id: self._mapping_once(self.config.dry_run, cell_id),
             cells
         )
         distributed.wait(delayed_tasks)

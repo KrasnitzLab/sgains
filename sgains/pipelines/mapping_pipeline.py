@@ -54,6 +54,8 @@ class MappingPipeline(object):
         bowtie_opts = self.config.mapping.mapping_bowtie_opts.split(' ')
         return [
             'bowtie',
+            '-S', '-t', '-v', '0', '-m', '1',
+            '--best', '--strata', '--chunkmbs', '256',
             *bowtie_opts,
             self.config.genome_index_filename(),
             '-',
@@ -83,7 +85,7 @@ class MappingPipeline(object):
         ]
 
     @staticmethod
-    def samtools_rmdup_stage(filename):
+    def samtools_rmdup_stage(_filename):
         return [
             'samtools',
             'rmdup',
