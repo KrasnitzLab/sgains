@@ -100,7 +100,7 @@ class Mapping10xPipeline(object):
                     self._write_to_fastq(barcode, segment, records)
 
     def _write_to_fastq(self, barcode, segment, records):
-        filename = "{:0>5}_{:0>5}.fastq.gz".format(
+        filename = "C{:0>5}_{:0>5}.fastq.gz".format(
             self.barcodes[barcode], segment)
         filename = os.path.join(self.fastq_dirname, filename)
         with gzip.open(filename, "at") as outfile:
@@ -132,12 +132,20 @@ class Mapping10xPipeline(object):
             return
         self._process_segment(segment_index, region)
 
-    def _merge_cell(self, cell_id):
-        pattern = "{:0>5}_*.fastq.gz".format(cell_id)
+    def _merge_cell(self, dry_run, cell_id):
+        pattern = "C{:0>5}_*.fastq.gz".format(cell_id)
         pattern = os.path.join(
             self.fastq_dirname,
             pattern
         )
+        print(colored(
+            "merging fastq cell files {} ".format(
+                pattern
+            ),
+            "green"))
+        if dry_run:
+            return []
+
         filenames = glob.glob(pattern)
         if not filenames:
             print(colored(
@@ -147,7 +155,7 @@ class Mapping10xPipeline(object):
             ))
             return []
         print(filenames)
-        outfile = "{:0>5}.fastq.gz".format(cell_id)
+        outfile = "C{:0>5}.fastq.gz".format(cell_id)
         outfile = os.path.join(self.fastq_dirname, outfile)
 
         command = "cat {} > {}".format(
@@ -206,7 +214,7 @@ class Mapping10xPipeline(object):
         ]
 
     def _mapping_once(self, dry_run, cell_id):
-        cellname = "{:0>5}".format(cell_id)
+        cellname = "C{:0>5}".format(cell_id)
         fastq_filename = os.path.join(
             self.fastq_dirname,
             "{}.fastq.gz".format(cellname))
@@ -266,7 +274,7 @@ class Mapping10xPipeline(object):
 
         cells = self.barcodes.values()
         delayed_tasks = dask_client.map(
-            self._merge_cell,
+            lambda cell_id: self._merge_cell(self.config.dry_run, cell_id),
             cells
         )
         distributed.wait(delayed_tasks)

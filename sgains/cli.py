@@ -18,6 +18,7 @@ from sgains.commands.mapping_command import MappingCommand
 from sgains.commands.mapping_10x_command import Mapping10xCommand
 from sgains.commands.prepare_command import PrepareCommand
 from sgains.commands.process_command import ProcessCommand
+from sgains.commands.process_10x_command import Process10xCommand
 from sgains.commands.sc_clust_command import SCclustCommand
 from sgains.commands.varbin_command import VarbinCommand
 from sgains.config import Config
@@ -78,6 +79,10 @@ USAGE
         process_command = ProcessCommand(
             argparser, subparsers)
         process_command.add_options(defaults_config)
+
+        process_10x_command = Process10xCommand(
+            argparser, subparsers)
+        process_10x_command.add_options(defaults_config)
 
         prepare_command = PrepareCommand(
             argparser, subparsers)
