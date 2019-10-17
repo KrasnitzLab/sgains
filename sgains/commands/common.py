@@ -101,7 +101,7 @@ class OptionsBase(object):
         cluster.adapt(minimum=2, maximum=workers)
         print(cluster)
         print(cluster.job_script())
-        print(cluster.job_file())
+        # print(cluster.job_file())
 
         return cluster
 
