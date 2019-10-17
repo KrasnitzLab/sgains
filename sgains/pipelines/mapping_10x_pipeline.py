@@ -72,8 +72,8 @@ class Mapping10xPipeline(object):
                 segments.append((index, (contig, begin_pos, end_pos)))
         return segments
 
-    PROGRESS_STEP = 50_000
-    FLUSH_STEP = 500_000
+    PROGRESS_STEP = 10_000
+    FLUSH_STEP = 10_000
 
     def _process_segment(self, segment, region):
         with pysam.AlignmentFile(self.bam_filename, 'rb') as samfile:
@@ -88,16 +88,20 @@ class Mapping10xPipeline(object):
                     continue
                 mapped += 1
                 barcode = rec.get_tag('CB')
+                if barcode not in self.barcodes:
+                    continue
+
                 cell_records[barcode].append(rec)
-                if len(cell_records[barcode]) > self.FLUSH_STEP \
-                        and barcode in self.barcodes:
-                    self._write_to_fastq(
-                        barcode, segment, cell_records[barcode])
+                if len(cell_records[barcode]) > self.FLUSH_STEP:
+                    if barcode in self.barcodes:
+                        self._write_to_fastq(
+                            barcode, segment, cell_records[barcode])
                     cell_records[barcode] = []
 
             for barcode, records in cell_records.items():
                 if barcode in self.barcodes:
                     self._write_to_fastq(barcode, segment, records)
+                cell_records[barcode] = []
 
     def _write_to_fastq(self, barcode, segment, records):
         filename = "C{:0>5}_{:0>5}.fastq.gz".format(
@@ -265,7 +269,7 @@ class Mapping10xPipeline(object):
         print(colored(command, 'yellow'))
         os.system(command)
 
-        segments = self._build_segment_regions(segment_len=50_000_000)
+        segments = self._build_segment_regions(segment_len=25_000_000)
         delayed_tasks = dask_client.map(
             lambda segment: self._split_once(self.config.dry_run, segment),
             segments
