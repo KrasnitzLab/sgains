@@ -69,7 +69,9 @@ class OptionsBase(object):
         threads_per_worker = 1
         print("workers=", workers, " threads_per_worker=", threads_per_worker)
         cluster = LocalCluster(
-            n_workers=workers, threads_per_worker=threads_per_worker)
+            n_workers=workers, threads_per_worker=threads_per_worker,
+            dashboard_address=':28787',
+        )
         return cluster
 
     def create_sge_cluster(self):
@@ -97,11 +99,13 @@ class OptionsBase(object):
             name="sgains-tools",
             job_extra=job_extra,
             walltime='08:00:00',
+            dashboard_address=':28787',
         )
         cluster.adapt(minimum=2, maximum=workers)
         print(cluster)
         print(cluster.job_script())
         # print(cluster.job_file())
+        print("SGE cluster dashboard link:", cluster.dashboard_link)
 
         return cluster
 

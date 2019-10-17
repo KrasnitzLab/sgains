@@ -61,7 +61,7 @@ class Mapping10xPipeline(object):
                 continue
             size = chrom_sizes[contig_name]['size']
             count = size // segment_len
-            count = max(count, 0)
+            count = max(count, 1)
             segment_size = size // count
             for seg_index in range(count):
                 begin_pos = seg_index * segment_size
@@ -265,7 +265,7 @@ class Mapping10xPipeline(object):
         print(colored(command, 'yellow'))
         os.system(command)
 
-        segments = self._build_segment_regions(segment_len=10_000_000)
+        segments = self._build_segment_regions(segment_len=50_000_000)
         delayed_tasks = dask_client.map(
             lambda segment: self._split_once(self.config.dry_run, segment),
             segments
