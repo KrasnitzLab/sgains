@@ -104,7 +104,8 @@ class OptionsBase(object):
         print("SGE cluster dashboard link:", cluster.dashboard_link)
         print(cluster)
         print(cluster.job_script())
-        print(cluster.job_file())
+        # print(cluster.job_file())
+        print("SGE cluster dashboard link:", cluster.dashboard_link)
 
         return cluster
 
