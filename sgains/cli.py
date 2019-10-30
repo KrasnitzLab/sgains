@@ -15,8 +15,10 @@ from sgains.commands.bins_command import BinsCommand
 from sgains.commands.genomeindex_command import GenomeIndexCommand
 from sgains.commands.mappable_regions_command import MappableRegionsCommand
 from sgains.commands.mapping_command import MappingCommand
+from sgains.commands.mapping_10x_command import Mapping10xCommand
 from sgains.commands.prepare_command import PrepareCommand
 from sgains.commands.process_command import ProcessCommand
+from sgains.commands.process_10x_command import Process10xCommand
 from sgains.commands.sc_clust_command import SCclustCommand
 from sgains.commands.varbin_command import VarbinCommand
 from sgains.config import Config
@@ -78,6 +80,10 @@ USAGE
             argparser, subparsers)
         process_command.add_options(defaults_config)
 
+        process_10x_command = Process10xCommand(
+            argparser, subparsers)
+        process_10x_command.add_options(defaults_config)
+
         prepare_command = PrepareCommand(
             argparser, subparsers)
         prepare_command.add_options(defaults_config)
@@ -97,6 +103,10 @@ USAGE
         mapping_command = MappingCommand(
             argparser, subparsers)
         mapping_command.add_options(defaults_config)
+
+        mapping_10x_command = Mapping10xCommand(
+            argparser, subparsers)
+        mapping_10x_command.add_options(defaults_config)
 
         varbin_command = VarbinCommand(
             argparser, subparsers)

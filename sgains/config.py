@@ -56,6 +56,16 @@ class Config(Box):
             "mapping_suffix": ".rmdup.bam",
             "mapping_bowtie_opts": "",
         },
+        "mapping_10x": {
+            # "data_10x_dir": "",
+            "data_10x_prefix": "",
+            "data_10x_summary": "",
+            "data_10x_bam": "",
+            "data_10x_bai": "",
+            # "mapping_10x_dir": "",
+            "mapping_10x_suffix": ".rmdup.bam",
+            "mapping_10x_bowtie_opts": "",
+        },
         "varbin": {
             "varbin_dir": "",
             "varbin_suffix": ".varbin.txt",
@@ -92,6 +102,7 @@ class Config(Box):
         config = Box(data, default_box=True)
         config.filename = None
         config.dirname = os.getcwd()
+
         return Config(
             config.to_dict(),
             default_box=True,
@@ -125,19 +136,31 @@ class Config(Box):
 
         filename = os.path.abspath(filename)
         assert os.path.exists(filename), filename
-
         with open(filename, 'r') as infile:
             config = Box.from_yaml(infile)
             config.filename = os.path.abspath(filename)
             config.dirname = os.curdir
             if use_config_dir:
                 config.dirname = os.path.dirname(config.filename)
-            default.update(config.to_dict())
+            default_dict = default.to_dict()
 
-            return Config(
-                default.to_dict(),
+            def recursive_dict_update(input_dict, updater_dict):
+                result_dict = dict(input_dict)
+                for key, val in updater_dict.items():
+                    if key in result_dict and type(val) is dict:
+                        result_dict[key] = recursive_dict_update(
+                            result_dict[key], updater_dict[key])
+                    else:
+                        result_dict[key] = updater_dict[key]
+                return result_dict
+            default_dict = recursive_dict_update(
+                default_dict, config.to_dict())
+
+            config = Config(
+                default_dict,
                 default_box=True,
             )
+            return config
 
     def abspath(self, filename):
         return os.path.abspath(
@@ -205,8 +228,6 @@ class Config(Box):
             cache_dir,
             "{}.fa".format(chrom)
         )
-        print(filename, self.abspath(filename))
-
         return self.abspath(filename)
 
     def varbin_filenames(self):
@@ -268,6 +289,84 @@ class Config(Box):
         )
         filenames = glob.glob(pattern)
         return filenames
+
+    def mapping_all_filenames(self):
+        pattern = os.path.join(
+            self.mapping_dirname(),
+            "*{}".format(self.mapping.mapping_suffix)
+        )
+        filenames = glob.glob(pattern)
+        if filenames:
+            return filenames
+        pattern = os.path.join(
+            self.build_mapping_10x_dir(),
+            "*{}".format(self.mapping_10x.mapping_10x_suffix)
+        )
+        filenames = glob.glob(pattern)
+
+        return filenames
+
+    def build_data_10x_dir(self):
+        dirname = self.mapping_10x.data_10x_dir
+        if dirname:
+            if os.path.isabs(dirname):
+                return self.mapping_10x.data_10x_dir
+            else:
+                return os.path.join(
+                    self.dirname,
+                    dirname
+                )
+        return None
+
+    def build_mapping_10x_dir(self):
+        if self.mapping_10x.mapping_10x_dir:
+            if os.path.isabs(self.mapping_10x.mapping_10x_dir):
+                return self.mapping_10x.mapping_10x_dir
+            else:
+                return os.path.join(
+                    self.dirname,
+                    self.mapping_10x.mapping_10x_dir
+                )
+        return None
+
+    def build_mapping_10x_fastqdir(self):
+        dirname = self.build_data_10x_dir()
+        if dirname is None:
+            fastqdir = os.path.join(os.getcwd(), "fastq")
+        else:
+            assert os.path.exists(dirname)
+            assert os.path.isdir(dirname)
+            fastqdir = os.path.join(dirname, "fastq")
+        if not os.path.exists(fastqdir):
+            os.mkdir(fastqdir)
+        return fastqdir
+
+    def _data_10x_filename(self, param, pattern):
+        dirname = self.build_data_10x_dir()
+        if dirname is None:
+            return None
+        if self.mapping_10x[param]:
+            return os.path.join(dirname, self.mapping_10x[param])
+        pattern = os.path.join(
+            dirname,
+            pattern
+        )
+        filenames = glob.glob(pattern)
+        if not filenames:
+            return None
+        return filenames[0]
+
+    def build_data_10x_summary(self):
+        return self._data_10x_filename(
+            "data_10x_summary", "*_per_cell_summary_metrics.csv")
+
+    def build_data_10x_bam(self):
+        return self._data_10x_filename(
+            "data_10x_bam", "*_possorted_bam.bam")
+
+    def build_data_10x_bai(self):
+        return self._data_10x_filename(
+            "data_10x_bai", "*_possorted_bam.bam.bai")
 
     def check_nonempty_workdir(self, dirname):
         if not os.path.exists(dirname):
