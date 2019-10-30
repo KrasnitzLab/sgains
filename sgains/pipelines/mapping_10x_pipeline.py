@@ -42,8 +42,8 @@ class Mapping10xPipeline(object):
         self.genome = Genome(self.config)
         assert self.genome is not None
 
-    def _build_segment_regions(self, segment_len=10_000_000):
-
+    def _build_segment_regions(self, segment_len=25_000_000):
+        
         with pysam.AlignmentFile(self.bam_filename, 'rb') as samfile:
             assert samfile.check_index(), \
                 (self.bam_filename, self.bai_filename)
@@ -265,7 +265,7 @@ class Mapping10xPipeline(object):
         print(colored(command, 'yellow'))
         os.system(command)
 
-        segments = self._build_segment_regions(segment_len=10_000_000)
+        segments = self._build_segment_regions(segment_len=50_000_000)
         delayed_tasks = dask_client.map(
             lambda segment: self._split_once(self.config.dry_run, segment),
             segments
