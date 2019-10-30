@@ -73,7 +73,7 @@ class Mapping10xPipeline(object):
         return segments
 
     PROGRESS_STEP = 10_000
-    FLUSH_STEP = 10_000
+    FLUSH_STEP = 2_000
 
     def _process_segment(self, segment, region):
         with pysam.AlignmentFile(self.bam_filename, 'rb') as samfile:
