@@ -50,7 +50,7 @@ pipeline will place a modified version of `hg19` reference genome:
 your `hg19_pristine` copy into working `hg19` subdirectory:
 
     ```
-    sgains.py genomeindex --genome-pristine hg19_pristine --genome-dir hg19
+    sgains-tools genomeindex --genome-pristine hg19_pristine --genome-dir hg19
     ```
 
 * This step will use `bowtie-build` command to produce bowtie index of the *hg19* 
@@ -84,16 +84,16 @@ where a working copy of reference genome is located and the read length to be us
 length 100:
 
     ```
-    sgains.py mappable-regions --genome-dir hg19 \
+    sgains-tools mappable-regions --genome-dir hg19 \
         --mappable-dir R50 --read-length 50
     ````
 
 * This step is computationaly very intensive and could take days in CPU time.
-Consider using `--parallel` option of `sgains.py` command to parallelize the
+Consider using `--parallel` option of `sgains-tools` command to parallelize the
 computation if your computer has a suitable number of cores. For example, on a
 workstation with 10 cores you could use 8 cores to compute mappable regions:
     ```
-    sgains.py -p 8 mappable-regions --genome-dir hg19 \
+    sgains-tools -p 8 mappable-regions --genome-dir hg19 \
         --mappable-dir R50 --read-length 50
     ```
 
@@ -127,7 +127,7 @@ number of uniquely mappable positions.
     * a directory where a working copy of HG19 is located
 
     ```
-    sgains.py bins \
+    sgains-tools bins \
         --mappable-dir R50 \
         --mappable-regions hg19_R50_mappable_regions.txt \
         --genome-dir hg19 \
@@ -294,7 +294,7 @@ inside `navinT10` working directory.
 #### `mapping` step
 
 First step in processing samples is to map them on the reference genome. For the
-mapping we are using `bowtie`. By default `sgains.py` uses unique mapping of reads, 
+mapping we are using `bowtie`. By default `sgains-tools` uses unique mapping of reads, 
 i.e. if the read could be mapped on more than one place on reference genome it 
 is discarded.
 
@@ -303,7 +303,7 @@ This step is CPU intensive and could take hours in CPU time.
 To start the mapping step you can use:
 
 ```
-sgains.py -p 8 mapping
+sgains-tools -p 8 mapping
 ```
 
 Please note that `-p 8` in the previous command starts 8 `bowtie` processes for
@@ -321,7 +321,7 @@ count for this bin.
 To start this step you should use:
 
 ```
-sgains.py -p 8 varbin
+sgains-tools -p 8 varbin
 ```
 
 #### `scclust` step
@@ -332,7 +332,7 @@ package and prepares the results, that could be visualized using `SCGV` viewer.
 To run the step you could use:
 
 ```
-sgains.py scslust
+sgains-tools scslust
 ```
 
 This command will read the results from `varbin` step and will store results
@@ -340,12 +340,12 @@ in subdirectory as configured in `sgains.yml` configuration file.
 
 
 #### Run whole processing pipeline in single command
-Once we have `s-GAINS` configuration file setup we can run `sgains.py` command
+Once we have `s-GAINS` configuration file setup we can run `sgains-tools` command
 to process the downloaded data (**please note that this command in computationally 
 intensive and could take long time to finish**):
 
     ```
-    sgains.py -p 10 process -o T10_Results
+    sgains-tools -p 10 process -o T10_Results
     ```
 
 This command will run the last three steps of the pipeline:
@@ -360,7 +360,7 @@ clonal structure of the samples using hierarchical clustering.
 
 
 The result from `process` is written in directory passed to `-o` option of 
-the command. Inside `T10_Results` directory the `sgains.py` will create
+the command. Inside `T10_Results` directory the `sgains-tools` will create
 named after the `case_name` with subdirectories for the results of each of the
 steps of `process` command:
 
