@@ -14,7 +14,7 @@ import traceback
 from dask import distributed
 
 
-class VarbinPipeline(object):
+class Varbin10xPipeline(object):
 
     def __init__(self, config):
         self.config = config
@@ -82,15 +82,18 @@ class VarbinPipeline(object):
                 bin_counts[index] += 1
                 prev_pos = abspos
 
+            number_of_reads_per_bin = float(count) / len(bins_df)
             result = []
             for index, row in bins_df.iterrows():
                 bin_count = bin_counts[index]
+                ratio = float(bin_count) / number_of_reads_per_bin
                 result.append(
                     [
                         row['bin.chrom'],
                         row['bin.start'],
                         row['bin.start.abspos'],
                         bin_count,
+                        ratio
                     ]
                 )
             df = pd.DataFrame.from_records(
@@ -100,13 +103,9 @@ class VarbinPipeline(object):
                     'chrompos',
                     'abspos',
                     'bincount',
+                    'ratio',
                 ])
-
             df.sort_values(by=['abspos'], inplace=True)
-            total_count = df.bincount.sum()
-            total_reads_per_bin = float(total_count)/len(bins_df)
-            df['ratio'] = df.bincount / total_reads_per_bin
-
             return df
         except Exception as ex:
             traceback.print_exc()

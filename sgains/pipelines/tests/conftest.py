@@ -59,7 +59,7 @@ def varbin_counts():
 def varbin0918():
     fixture_filename = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
-        "data/CJA0918.varbin.txt"
+        "data/CJA0918.varbin.lubo.txt"
     )
     df = pd.read_csv(fixture_filename, sep='\t')
     return df
