@@ -1,9 +1,4 @@
-'''
-Created on Jul 31, 2017
-
-@author: lubo
-'''
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from sgains.genome import Genome
 from termcolor import colored
 import os
@@ -19,6 +14,107 @@ class Varbin10xPipeline(object):
     def __init__(self, config):
         self.config = config
         self.hg = Genome(config)
+
+        self.summary_filename = config.build_data_10x_summary()
+        self.bam_filename = config.build_data_10x_bam()
+        self.bai_filename = config.build_data_10x_bai()
+
+        assert os.path.exists(self.summary_filename), self.summary_filename
+        assert os.path.exists(self.bam_filename), self.bam_filename
+        assert os.path.exists(self.bai_filename), self.bai_filename
+
+        self.summary_df = pd.read_csv(self.summary_filename, sep=',')
+        self.barcodes = {
+            k: v for (k, v) in
+            self.summary_df[['barcode', 'cell_id']].to_records(index=False)
+        }
+        self.bins_filename = self.config.bins_boundaries_filename()
+        assert os.path.exists(self.bins_filename), self.bins_filename
+
+        self.bins_df = pd.read_csv(self.bins_filename, sep='\t')
+        self.chrom2contig = self._chrom2contig_mapping()
+    
+    def _chrom2contig_mapping(self):
+        with pysam.AlignmentFile(self.bam_filename, 'rb') as samfile:
+            assert samfile.check_index(), \
+                (self.bam_filename, self.bai_filename)
+            sam_stats = samfile.get_index_statistics()
+        chroms = set(self.bins_df['bin.chrom'].values)
+        chrom2contig = {}
+        for stat in sam_stats:
+            contig = stat.contig
+            chrom_name = contig
+            if chrom_name not in chroms:
+                chrom_name = "chr{}".format(contig)
+            if chrom_name not in chroms:
+                continue
+            chrom2contig[chrom_name] = contig
+        return chrom2contig
+
+    Region = namedtuple('Region', ['chrom', 'contig', 'start', 'end'])
+
+    def split_bins(self, bins_step, bins_region=None):
+        total_bins = len(self.bins_df)
+        regions = []
+        bin_start = 0
+        bin_end = total_bins
+        if bins_region is not None:
+            bin_start, bin_end = bins_region
+            bin_end = min(bin_end, total_bins)
+
+        index = bin_start
+        while index < bin_end:
+            start = index
+            end = index + bins_step - 1
+            if end >= total_bins:
+                end = total_bins - 1
+
+            chrom_start = self.bins_df.iloc[start, 0]
+            chrom_end = self.bins_df.iloc[end, 0]
+            while chrom_end != chrom_start:
+                end -= 1
+                assert end >= start
+                chrom_end = self.bins_df.iloc[end, 0]
+
+            pos_start = self.bins_df.iloc[start, 1]
+            pos_end = self.bins_df.iloc[end, 3]
+
+            regions.append((chrom_start, pos_start, pos_end))
+            index = end + 1
+
+        return [
+            self.Region(chrom, self.chrom2contig[chrom], start, end)
+            for chrom, start, end in regions
+        ]
+
+    Read = namedtuple('Read', ['chrom', 'pos'])
+
+    def process_region_reads(self, region):
+        with pysam.AlignmentFile(self.bam_filename, 'rb') as samfile:
+            assert samfile.check_index(), \
+                (self.bam_filename, self.bai_filename)
+
+            mapped = 0
+            cells_reads = defaultdict(lambda: [])
+            for rec in samfile.fetch(region.contig, region.start, region.end):
+                if not rec.has_tag('CB'):
+                    continue
+                mapped += 1
+                barcode = rec.get_tag('CB')
+                if barcode not in self.barcodes:
+                    continue
+                cell_id = self.barcodes[barcode]
+                read = self.Read(rec.reference_name, rec.reference_start)
+                cells_reads[cell_id].append(read)
+
+            return cells_reads
+
+    def process_reads(self, dask_client, bins_step=1, bins_region=None):
+        regions = self.split_bins(bins_step=bins_step, bins_region=bins_region)
+        delayed_tasks = dask_client.map(
+            self.process_region_reads, regions
+        )
+        return delayed_tasks
 
     def find_bin_index(self, abspos, bins):
         index = np.searchsorted(

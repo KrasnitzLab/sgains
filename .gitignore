@@ -18,3 +18,4 @@ sgains.egg-info/
 .vscode
 sgains/tests/data/test_data
 .pytest_cache
+sgains/dask-worker-space
