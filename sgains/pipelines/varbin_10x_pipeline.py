@@ -32,7 +32,8 @@ class Varbin10xPipeline(object):
         assert os.path.exists(self.bins_filename), self.bins_filename
 
         self.bins_df = pd.read_csv(self.bins_filename, sep='\t')
-        self.chrom2contig = self._chrom2contig_mapping()
+        self.chrom2contig, self.contig2chrom = self._chrom2contig_mapping()
+        self.chrom_sizes = self.hg.chrom_sizes()
     
     def _chrom2contig_mapping(self):
         with pysam.AlignmentFile(self.bam_filename, 'rb') as samfile:
@@ -41,6 +42,7 @@ class Varbin10xPipeline(object):
             sam_stats = samfile.get_index_statistics()
         chroms = set(self.bins_df['bin.chrom'].values)
         chrom2contig = {}
+        contig2chrom = {}
         for stat in sam_stats:
             contig = stat.contig
             chrom_name = contig
@@ -49,7 +51,8 @@ class Varbin10xPipeline(object):
             if chrom_name not in chroms:
                 continue
             chrom2contig[chrom_name] = contig
-        return chrom2contig
+            contig2chrom[contig] = chrom_name
+        return chrom2contig, contig2chrom
 
     Region = namedtuple('Region', ['chrom', 'contig', 'start', 'end'])
 
@@ -104,7 +107,11 @@ class Varbin10xPipeline(object):
                 if barcode not in self.barcodes:
                     continue
                 cell_id = self.barcodes[barcode]
-                read = self.Read(rec.reference_name, rec.reference_start)
+                contig = rec.reference_name
+                if contig not in self.contig2chrom:
+                    continue
+                read = self.Read(
+                    self.contig2chrom[contig], rec.reference_start)
                 cells_reads[cell_id].append(read)
 
             return cells_reads
@@ -115,6 +122,14 @@ class Varbin10xPipeline(object):
             self.process_region_reads, regions
         )
         return delayed_tasks
+
+    def merge_reads(self, delayed_tasks):
+        cells_reads = defaultdict(lambda: [])
+        for task in delayed_tasks:
+            result = task.result()
+            for cell_id, reads in result.items():
+                cells_reads[cell_id].extend(reads)
+        return cells_reads
 
     def find_bin_index(self, abspos, bins):
         index = np.searchsorted(
@@ -141,72 +156,56 @@ class Varbin10xPipeline(object):
 
         return index_down
 
-    def varbin(self, filename):
-        try:
-            assert os.path.exists(filename), os.path.abspath(filename)
+    def varbin_cell_reads(self, cell_reads):
+        assert self.bins_df is not None
+        cell_reads = sorted(cell_reads, key=lambda r: f"{r.chrom}:{r.pos:15}")
+        count = 0
+        dups = 0
+        total_reads = 0
 
-            infile = pysam.AlignmentFile(filename, 'rb')
-            bins_df = self.hg.bins_boundaries()
-            assert bins_df is not None
-            chrom_sizes = self.hg.chrom_sizes()
-            chroms = set(self.hg.version.CHROMS)
+        prev_pos = 0
+        bin_counts = defaultdict(int)
 
-            count = 0
-            dups = 0
-            total_reads = 0
+        bins = self.bins_df['bin.start.abspos'].values
 
-            prev_pos = 0
-            bin_counts = defaultdict(int)
+        for read in cell_reads:
+            total_reads += 1
 
-            bins = bins_df['bin.start.abspos'].values
+            abspos = self.chrom_sizes[read.chrom].abspos + read.pos
+            if prev_pos == abspos:
+                dups += 1
+                continue
+            count += 1
+            index = self.find_bin_index_binsearch(bins, abspos)
 
-            for seg in infile:
-                total_reads += 1
-                if seg.is_unmapped:
-                    continue
-                chrom = seg.reference_name
-                if chrom not in chroms:
-                    continue
+            bin_counts[index] += 1
+            prev_pos = abspos
 
-                abspos = chrom_sizes[chrom].abspos + seg.reference_start
-                if prev_pos == abspos:
-                    dups += 1
-                    continue
-                count += 1
-                index = self.find_bin_index_binsearch(bins, abspos)
-
-                bin_counts[index] += 1
-                prev_pos = abspos
-
-            number_of_reads_per_bin = float(count) / len(bins_df)
-            result = []
-            for index, row in bins_df.iterrows():
-                bin_count = bin_counts[index]
-                ratio = float(bin_count) / number_of_reads_per_bin
-                result.append(
-                    [
-                        row['bin.chrom'],
-                        row['bin.start'],
-                        row['bin.start.abspos'],
-                        bin_count,
-                        ratio
-                    ]
-                )
-            df = pd.DataFrame.from_records(
-                result,
-                columns=[
-                    'chrom',
-                    'chrompos',
-                    'abspos',
-                    'bincount',
-                    'ratio',
-                ])
-            df.sort_values(by=['abspos'], inplace=True)
-            return df
-        except Exception as ex:
-            traceback.print_exc()
-            raise ex
-        return None
+        number_of_reads_per_bin = float(count) / len(self.bins_df)
+        result = []
+        for index, row in self.bins_df.iterrows():
+            bin_count = bin_counts[index]
+            ratio = float(bin_count) / number_of_reads_per_bin
+            result.append(
+                [
+                    row['bin.chrom'],
+                    row['bin.start'],
+                    row['bin.start.abspos'],
+                    bin_count,
+                    ratio
+                ]
+            )
+        df = pd.DataFrame.from_records(
+            result,
+            columns=[
+                'chrom',
+                'chrompos',
+                'abspos',
+                'bincount',
+                'ratio',
+            ])
+        df.sort_values(by=['abspos'], inplace=True)
+        return df
 
     def run_once(self, mapping_filename):
         cellname = self.config.cellname(mapping_filename)

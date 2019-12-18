@@ -1,0 +1,72 @@
+chr1:
+  abspos: 0
+  size: 249250621
+chr10:
+  abspos: 1680373143
+  size: 135534747
+chr11:
+  abspos: 1815907890
+  size: 135006516
+chr12:
+  abspos: 1950914406
+  size: 133851895
+chr13:
+  abspos: 2084766301
+  size: 115169878
+chr14:
+  abspos: 2199936179
+  size: 107349540
+chr15:
+  abspos: 2307285719
+  size: 102531392
+chr16:
+  abspos: 2409817111
+  size: 90354753
+chr17:
+  abspos: 2500171864
+  size: 81195210
+chr18:
+  abspos: 2581367074
+  size: 78077248
+chr19:
+  abspos: 2659444322
+  size: 59128983
+chr2:
+  abspos: 249250621
+  size: 243199373
+chr20:
+  abspos: 2718573305
+  size: 63025520
+chr21:
+  abspos: 2781598825
+  size: 48129895
+chr22:
+  abspos: 2829728720
+  size: 51304566
+chr3:
+  abspos: 492449994
+  size: 198022430
+chr4:
+  abspos: 690472424
+  size: 191154276
+chr5:
+  abspos: 881626700
+  size: 180915260
+chr6:
+  abspos: 1062541960
+  size: 171115067
+chr7:
+  abspos: 1233657027
+  size: 159138663
+chr8:
+  abspos: 1392795690
+  size: 146364022
+chr9:
+  abspos: 1539159712
+  size: 141213431
+chrX:
+  abspos: 2881033286
+  size: 155270560
+chrY:
+  abspos: 3036303846
+  size: 59373566
