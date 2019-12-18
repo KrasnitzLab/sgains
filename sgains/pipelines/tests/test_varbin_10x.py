@@ -135,7 +135,8 @@ def test_process_region_reads_delayed(
     assert len(set(cells_reads[18])) == 2551
 
 
-def test_process_region_reads_delayed_diff(dask_client, dataset10x):
+def test_process_region_reads_delayed_varbin_cell_reads(
+        dask_client, dataset10x):
     pipeline = Varbin10xPipeline(dataset10x('29799993'))
     delayed_02reads = pipeline.process_reads(
         dask_client, bins_step=10, bins_region=(0, 20))
@@ -158,8 +159,11 @@ def test_process_region_reads_delayed_diff(dask_client, dataset10x):
 
     df1 = pipeline.varbin_cell_reads(c18_02)
     df2 = pipeline.varbin_cell_reads(c18_20)
+    df3 = pipeline.varbin_cell_reads(set(c18_20))
 
     print(df1.head())
     print(df2.head())
+    print(df3.head())
 
     pd.testing.assert_frame_equal(df1, df2)
+    pd.testing.assert_frame_equal(df1, df3)
