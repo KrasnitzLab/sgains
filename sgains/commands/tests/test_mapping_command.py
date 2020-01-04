@@ -24,25 +24,25 @@ def test_mapping_long(
         "data/Navin2011/T10_small/navin2011_T10_test/mapping/",
     ]
 
-    with mocker.patch("os.path.exists"), \
-            mocker.patch("sgains.config.Config.mapping_reads_filenames"), \
-            mocker.patch("os.listdir"):
+    mocker.patch("os.path.exists")
+    mocker.patch("sgains.config.Config.mapping_reads_filenames")
+    mocker.patch("os.listdir")
 
-        args = argparser.parse_args(argv)
-        args.func(args)
+    args = argparser.parse_args(argv)
+    args.func(args)
 
-        config = mapping_command.config
-        assert config is not None
+    config = mapping_command.config
+    assert config is not None
 
-        assert config.force
-        assert config.dry_run
-        assert config.parallel == 10
+    assert config.force
+    assert config.dry_run
+    assert config.parallel == 10
 
-        assert config.genome.work_dir == "data/hg19"
-        assert config.genome.index == "genomeindex"
+    assert config.genome.work_dir == "data/hg19"
+    assert config.genome.index == "genomeindex"
 
-        assert config.mapping.mapping_dir == \
-            "data/Navin2011/T10_small/navin2011_T10_test/mapping/"
-        assert config.mapping.reads_dir == "data/Navin2011/T10_small/reads/"
-        assert config.mapping.reads_suffix == ".fastq.gz"
-        assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"
+    assert config.mapping.mapping_dir == \
+        "data/Navin2011/T10_small/navin2011_T10_test/mapping/"
+    assert config.mapping.reads_dir == "data/Navin2011/T10_small/reads/"
+    assert config.mapping.reads_suffix == ".fastq.gz"
+    assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"

@@ -28,7 +28,7 @@ def hg():
 def bin_boundaries(tests_config):
     bins_boundaries_fixture = os.path.join(
         tests_config.abspath(
-            "test_data/R100_B10k/hg19_R50_B20k_bins_boundaries.txt")
+            "test_data/R100_B10k/hg19_R100_B10k_bins_boundaries.txt")
     )
     df = pd.read_csv(
         bins_boundaries_fixture, sep='\t')

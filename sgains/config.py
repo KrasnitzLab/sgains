@@ -62,7 +62,7 @@ class Config(Box):
             "data_10x_summary": "",
             "data_10x_bam": "",
             "data_10x_bai": "",
-            # "mapping_10x_dir": "",
+            "mapping_10x_dir": "",
             "mapping_10x_suffix": ".rmdup.bam",
             "mapping_10x_bowtie_opts": "",
         },
@@ -231,6 +231,8 @@ class Config(Box):
         return self.abspath(filename)
 
     def varbin_filenames(self):
+        if self.varbin.varbin_dir is None:
+            return []
         if not os.path.exists(self.varbin.varbin_dir):
             return []
         dirname = self.abspath(self.varbin.varbin_dir)
@@ -319,15 +321,14 @@ class Config(Box):
         return None
 
     def build_mapping_10x_dir(self):
-        if self.mapping_10x.mapping_10x_dir:
-            if os.path.isabs(self.mapping_10x.mapping_10x_dir):
-                return self.mapping_10x.mapping_10x_dir
-            else:
-                return os.path.join(
-                    self.dirname,
-                    self.mapping_10x.mapping_10x_dir
-                )
-        return None
+        assert self.mapping_10x.mapping_10x_dir is not None
+        if os.path.isabs(self.mapping_10x.mapping_10x_dir):
+            return self.mapping_10x.mapping_10x_dir
+        else:
+            return os.path.join(
+                self.dirname,
+                self.mapping_10x.mapping_10x_dir
+            )
 
     def build_mapping_10x_fastqdir(self):
         dirname = self.build_data_10x_dir()

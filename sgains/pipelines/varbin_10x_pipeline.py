@@ -123,10 +123,10 @@ class Varbin10xPipeline(object):
         )
         return delayed_tasks
 
-    def merge_reads(self, delayed_tasks):
+    def merge_reads(self, dask_client, delayed_reads):
         cells_reads = defaultdict(lambda: [])
-        for task in delayed_tasks:
-            result = task.result()
+        results = dask_client.gather(delayed_reads)
+        for result in results:
             for cell_id, reads in result.items():
                 cells_reads[cell_id].extend(reads)
         return cells_reads
@@ -207,46 +207,24 @@ class Varbin10xPipeline(object):
         df.sort_values(by=['abspos'], inplace=True)
         return df
 
-    def run_once(self, mapping_filename):
-        cellname = self.config.cellname(mapping_filename)
-        outfile = self.config.varbin_filename(cellname)
-        print(colored(
-            "processing cell {}; reading from {}; writing to {}".format(
-                cellname, mapping_filename, outfile),
-            "green"))
+    def varbin_cell_reads_save(self, cell_id, cell_reads, outdir):
+        df = self.varbin_cell_reads(cell_reads)
+        outfile = self.config.varbin_filename(str(cell_id))
 
-        if os.path.exists(outfile) and not self.config.force:
-            print(
-                colored(
-                    "output file {} exists; add --force to overwrite"
-                    .format(
-                        outfile
-                    ),
-                    "red")
-            )
-        else:
-            if not self.config.dry_run:
-                df = self.varbin(mapping_filename)
-                df.to_csv(outfile, index=False, sep='\t')
+        # outfile = os.path.join(outdir, filename)
 
-    def run(self, dask_client):
-        mapping_filenames = self.config.mapping_all_filenames()
-        print(colored(
-            "processing files: {}".format(mapping_filenames),
-            "green"))
+        df.to_csv(outfile, sep='\t', index=False)
 
-        # pool = multiprocessing.Pool(processes=self.config.parallel)
-        # pool.map(self.run_once, mapping_filenames)
-        assert dask_client
+    def run(self, dask_client, bins_step=20, bins_region=None, outdir='.'):
+        delayed_reads = self.process_reads(
+            dask_client, bins_step=bins_step, bins_region=bins_region
+        )
+        cells_reads = self.merge_reads(dask_client, delayed_reads)
 
-        delayed_tasks = dask_client.map(self.run_once, mapping_filenames)
-        distributed.wait(delayed_tasks)
-
-        # for fut in delayed_tasks:
-        #     print("fut done:", fut.done())
-        #     print("fut exception:", fut.exception())
-        #     print("fut traceback:", fut.traceback())
-        #     if fut.traceback() is not None:
-        #         traceback.print_tb(fut.traceback())
-        #     print(fut.result())
+        delayed_varbins = dask_client.map(
+            lambda item: self.varbin_cell_reads_save(
+                item[0], item[1], outdir),
+            cells_reads.items()
+        )
+        distributed.wait(delayed_varbins)
 

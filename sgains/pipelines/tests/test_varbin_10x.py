@@ -102,7 +102,7 @@ def test_process_region_reads(dataset10x, bins_step):
 @pytest.fixture(scope='session')
 def dask_client():
     dask_cluster = LocalCluster(
-        n_workers=10, threads_per_worker=2,
+        n_workers=20, threads_per_worker=2,
         dashboard_address=':28787')
     with closing(dask_cluster) as cluster:
         dask_client = Client(cluster)
@@ -125,7 +125,7 @@ def test_process_region_reads_delayed(
     delayed_reads = pipeline.process_reads(
         dask_client, bins_step=bins_step, bins_region=bins_region)
 
-    cells_reads = pipeline.merge_reads(delayed_reads)
+    cells_reads = pipeline.merge_reads(dask_client, delayed_reads)
 
     assert len(cells_reads) == 4
     print(set(cells_reads.keys()))
@@ -143,8 +143,8 @@ def test_process_region_reads_delayed_varbin_cell_reads(
     delayed_20reads = pipeline.process_reads(
         dask_client, bins_step=1, bins_region=(0, 20))
 
-    reads02 = pipeline.merge_reads(delayed_02reads)
-    reads20 = pipeline.merge_reads(delayed_20reads)
+    reads02 = pipeline.merge_reads(dask_client, delayed_02reads)
+    reads20 = pipeline.merge_reads(dask_client, delayed_20reads)
 
     c18_02 = reads02[18]
     c18_20 = reads20[18]
@@ -167,3 +167,29 @@ def test_process_region_reads_delayed_varbin_cell_reads(
 
     pd.testing.assert_frame_equal(df1, df2)
     pd.testing.assert_frame_equal(df1, df3)
+
+
+def test_varbin10x_run(dask_client, dataset10x):
+    pipeline = Varbin10xPipeline(dataset10x('29799993'))
+    pipeline.run(dask_client)
+
+
+@pytest.mark.skip
+def test_varbin10x_all(dask_client):
+    dataset_dir = "/home/lubo/Work/single-cell/data-single-cell/10xGenomics/datasets/bj_mkn45_10pct"
+    bins_dir = relative_to_this_test_folder('data/R100_B10k')
+
+    config = Config.default()
+    config.mapping_10x.data_10x_dir = dataset_dir
+    config.bins.bins_dir = bins_dir
+    config.bins.bins_boundaries = "hg19_R100_B10k_bins_boundaries.txt"
+    config.mappable_regions.chrom_sizes = \
+        relative_to_this_test_folder('data/chrom_sizes.yml')
+    config.varbin.varbin_dir = "/home/lubo/Work/single-cell/data-single-cell/10xGenomics/datasets/process_bj_mkn45_10pct/bwa_varbin_10x"
+    print(config)
+
+    pipeline = Varbin10xPipeline(config)
+
+    assert pipeline is not None
+
+    pipeline.run(dask_client)

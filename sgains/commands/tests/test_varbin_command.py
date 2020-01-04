@@ -6,7 +6,7 @@ Created on Aug 2, 2017
 
 
 def test_varbin_long(
-        argparser, tests_config, varbin_command):
+        argparser, tests_config, varbin_command, mocker):
     varbin_command.add_options(tests_config)
 
     argv = [
@@ -19,6 +19,9 @@ def test_varbin_long(
         "--varbin-dir", "data/proba/varbin",
         "--varbin-suffix", "varbin.txt",
     ]
+
+    # mocker.patch("os.path.exists")
+    # mocker.patch("os.listdir")
 
     args = argparser.parse_args(argv)
     args.func(args)
