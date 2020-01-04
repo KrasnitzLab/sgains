@@ -19,25 +19,27 @@ def relative_to_this_test_folder(path):
     )
 
 
+def dataset_builder(dataset):
+    dataset_dir = os.path.join(
+        relative_to_this_test_folder('data'),
+        dataset
+    )
+    bins_dir = relative_to_this_test_folder('data/R100_B10k')
+    config = Config.default()
+    config.mapping_10x.data_10x_dir = dataset_dir
+    config.bins.bins_dir = bins_dir
+    config.bins.bins_boundaries = "hg19_R100_B10k_bins_boundaries.txt"
+    config.mappable_regions.chrom_sizes = \
+        relative_to_this_test_folder('data/chrom_sizes.yml')
+    print(config)
+
+    return config
+
+
 @pytest.fixture(scope='session')
 def dataset10x():
 
-    def builder(dataset):
-        dataset_dir = os.path.join(
-            relative_to_this_test_folder('data'),
-            dataset
-        )
-        bins_dir = relative_to_this_test_folder('data/R100_B10k')
-        config = Config.default()
-        config.mapping_10x.data_10x_dir = dataset_dir
-        config.bins.bins_dir = bins_dir
-        config.bins.bins_boundaries = "hg19_R100_B10k_bins_boundaries.txt"
-        config.mappable_regions.chrom_sizes = \
-            relative_to_this_test_folder('data/chrom_sizes.yml')
-        print(config)
-
-        return config
-    return builder
+    return dataset_builder
 
 
 @pytest.mark.parametrize('dataset_name', [
@@ -102,7 +104,7 @@ def test_process_region_reads(dataset10x, bins_step):
 @pytest.fixture(scope='session')
 def dask_client():
     dask_cluster = LocalCluster(
-        n_workers=20, threads_per_worker=2,
+        n_workers=15, threads_per_worker=2,
         dashboard_address=':28787')
     with closing(dask_cluster) as cluster:
         dask_client = Client(cluster)
@@ -174,7 +176,7 @@ def test_varbin10x_run(dask_client, dataset10x):
     pipeline.run(dask_client)
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_varbin10x_all(dask_client):
     dataset_dir = "/home/lubo/Work/single-cell/data-single-cell/10xGenomics/datasets/bj_mkn45_10pct"
     bins_dir = relative_to_this_test_folder('data/R100_B10k')

@@ -1,12 +1,10 @@
 from collections import defaultdict, namedtuple
 from sgains.genome import Genome
-from termcolor import colored
 import os
 import pandas as pd
 import numpy as np
 import pysam
-import traceback
-from dask import distributed
+from dask.distributed import as_completed, Queue
 
 
 class Varbin10xPipeline(object):
@@ -125,10 +123,13 @@ class Varbin10xPipeline(object):
 
     def merge_reads(self, dask_client, delayed_reads):
         cells_reads = defaultdict(lambda: [])
-        results = dask_client.gather(delayed_reads)
-        for result in results:
+        for count, task in enumerate(as_completed(delayed_reads)):
+            result = dask_client.gather(task)
             for cell_id, reads in result.items():
                 cells_reads[cell_id].extend(reads)
+            print(f'processed {count} merge reads')
+            dask_client.cancel(task)
+
         return cells_reads
 
     def find_bin_index(self, abspos, bins):
@@ -215,7 +216,8 @@ class Varbin10xPipeline(object):
 
         df.to_csv(outfile, sep='\t', index=False)
 
-    def run(self, dask_client, bins_step=20, bins_region=None, outdir='.'):
+    def run(self, dask_client, bins_step=5, bins_region=None, outdir='.'):
+
         delayed_reads = self.process_reads(
             dask_client, bins_step=bins_step, bins_region=bins_region
         )
@@ -226,5 +228,7 @@ class Varbin10xPipeline(object):
                 item[0], item[1], outdir),
             cells_reads.items()
         )
-        distributed.wait(delayed_varbins)
-
+        for count, task in enumerate(as_completed(delayed_varbins)):
+            dask_client.gather(task)
+            dask_client.cancel(task)
+            print(f'processed varbin {count} tasks with result')
