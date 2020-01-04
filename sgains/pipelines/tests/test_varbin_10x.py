@@ -239,3 +239,20 @@ def test_delayed_tasks(dask_client):
     consumer = dask_client.submit(task_consumer, task_queue)
     result = dask_client.gather(consumer)
     print(result)
+
+
+def test_compress_decompress_reads():
+    reads = [
+        Varbin10xPipeline.Read("1", "1", 1),
+        Varbin10xPipeline.Read("2", "1", 1),
+        Varbin10xPipeline.Read("1", "1", 2),
+        Varbin10xPipeline.Read("2", "1", 2),
+    ]
+    data = Varbin10xPipeline.compress_reads(reads)
+    assert data is not None
+
+    df = Varbin10xPipeline.decompress_reads(data)
+    assert df is not None
+    assert len(df) == 4
+    print(df)
+

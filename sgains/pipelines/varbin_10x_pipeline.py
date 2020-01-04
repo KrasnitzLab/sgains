@@ -6,6 +6,8 @@ import pandas as pd
 import numpy as np
 import pysam
 from dask.distributed import as_completed, Queue, worker_client, wait
+import gzip
+from io import BytesIO
 
 
 class Varbin10xPipeline(object):
@@ -89,16 +91,33 @@ class Varbin10xPipeline(object):
             for chrom, start, end in regions
         ]
 
-    Read = namedtuple('Read', ['chrom', 'pos'])
+    @staticmethod
+    def compress_reads(reads):
+        if not reads:
+            return None
+        df = pd.DataFrame(reads, columns=['cell_id', 'chrom', 'pos'])
+        buff = BytesIO()
+        df.to_feather(buff)
+
+        return buff.getbuffer()
+    
+    @staticmethod
+    def decompress_reads(data):
+        if data is None:
+            return None
+        buff = BytesIO(data)
+        df = pd.read_feather(buff)
+        return df
+
+    Read = namedtuple('Read', ['cell_id', 'chrom', 'pos'])
 
     def process_region_reads(self, region):
         print(f"started region {region}")
         with pysam.AlignmentFile(self.bam_filename, 'rb') as samfile:
             assert samfile.check_index(), \
                 (self.bam_filename, self.bai_filename)
-
+            cells_reads = []
             mapped = 0
-            cells_reads = defaultdict(lambda: [])
             for rec in samfile.fetch(region.contig, region.start, region.end):
                 if not rec.has_tag('CB'):
                     continue
@@ -111,10 +130,10 @@ class Varbin10xPipeline(object):
                 if contig not in self.contig2chrom:
                     continue
                 read = self.Read(
-                    self.contig2chrom[contig], rec.reference_start)
-                cells_reads[cell_id].append(read)
-            print(f"done region {region}")
-            return cells_reads
+                    cell_id, self.contig2chrom[contig], rec.reference_start)
+                cells_reads.append(read)
+            print(f"done region {region}; reads processed {len(cells_reads)}")
+            return self.compress_reads(cells_reads)
 
     def find_bin_index(self, abspos, bins):
         index = np.searchsorted(
@@ -201,9 +220,8 @@ class Varbin10xPipeline(object):
         df.to_csv(outfile, sep='\t', index=False)
 
     def _process_reads_producer(
-            self, task_queue, bins_step=1, bins_region=None):
+            self, task_queue, regions):
 
-        regions = self.split_bins(bins_step=bins_step, bins_region=bins_region)
         with worker_client() as client:
             for index, region in enumerate(regions):
                 print(
@@ -217,37 +235,51 @@ class Varbin10xPipeline(object):
 
     def run(self, dask_client, bins_step=20, bins_region=None, outdir='.'):
         parallel = int(self.config.parallel)
-        maxsize = int(1.8 * parallel)
+        maxsize = int(2 * parallel)
         task_queue = Queue(maxsize=maxsize)
+
+        regions = self.split_bins(bins_step=bins_step, bins_region=bins_region)
+
         producer = dask_client.submit(
             self._process_reads_producer, task_queue, 
-            bins_step=bins_step, bins_region=bins_region
+            regions
         )
+
         print("producer started...")
         while task_queue.qsize() == 0:
             print("task queue empty. sleeping...")
             time.sleep(10)
 
-        cells_reads = defaultdict(lambda: [])
+        reads_data = []
         processed_tasks = 0
-        while task_queue.qsize() > 0:
-            batch_size = min(task_queue.qsize(), parallel)
-            batch = [task_queue.get() for _ in range(batch_size)]
-            for task in as_completed(batch):
-                start = time.time()
-                print(f"task finished...")
-                result = task.result()
-                # result = dask_client.gather(task)
-                elapsed = time.time() - start
-                print(f"results collected in {elapsed}...")
+        while task_queue.qsize() > 0 or processed_tasks < len(regions):
 
-                for cell_id, reads in result.items():
-                    cells_reads[cell_id].extend(reads)
-                processed_tasks += 1
-                print(f'processed {processed_tasks} merge reads')
-                dask_client.cancel(task)
+            task = task_queue.get()
+            result = dask_client.gather(task)
+            start = time.time()
+            print(f"task finished...")
+            result = task.result()
+            # result = dask_client.gather(task)
+            elapsed = time.time() - start
+            print(f"results collected in {elapsed}...")
 
+            reads_data.append(result)
+            processed_tasks += 1
+            print(f'processed {processed_tasks} merge reads')
+            dask_client.cancel(task)
+
+        print("about to wait for producer")
         wait(producer)
+        print("[done]")
+
+        cells_reads = defaultdict(list)
+        for data in reads_data:
+            df = self.decompress_reads(data)
+            if df is None:
+                continue
+            for rec in df.to_dict(orient='records'):
+                read = self.Read(rec['cell_id'], rec['chrom'], rec['pos'])
+                cells_reads[read.cell_id].append(read)
 
         delayed_varbins = dask_client.map(
             lambda item: self.varbin_cell_reads_save(
