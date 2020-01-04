@@ -3,8 +3,8 @@ from contextlib import closing
 
 import pandas as pd
 
-from dask import distributed
-from distributed import Client, LocalCluster
+from dask import distributed, delayed
+from dask.distributed import Client, LocalCluster, Queue, worker_client
 
 from sgains.config import Config
 
@@ -182,6 +182,7 @@ def test_varbin10x_all(dask_client):
     bins_dir = relative_to_this_test_folder('data/R100_B10k')
 
     config = Config.default()
+    config.parallel = 15
     config.mapping_10x.data_10x_dir = dataset_dir
     config.bins.bins_dir = bins_dir
     config.bins.bins_boundaries = "hg19_R100_B10k_bins_boundaries.txt"
@@ -195,3 +196,46 @@ def test_varbin10x_all(dask_client):
     assert pipeline is not None
 
     pipeline.run(dask_client)
+
+
+def lazy_task(task_id, how_long=10):
+    print(f"task [{task_id}] started")
+    import time
+    time.sleep(how_long)
+    print(f"task [{task_id}] done")
+    return task_id
+
+
+def task_producer(total, task_queue):
+    print("inside task producer")
+    with worker_client() as client:
+
+        for task_id in range(total):
+            task = client.submit(lazy_task, task_id)
+            print(f"task {task_id} submitted")
+            task_queue.put(task)
+
+
+def task_consumer(task_queue):
+    collected_tasks = []
+    with worker_client() as client:
+        while task_queue.qsize() > 0:
+            task = task_queue.get()
+            result = client.gather(task)
+            print(f"task result {result} collected")
+            collected_tasks.append(result)
+    return collected_tasks
+
+
+def test_delayed_tasks(dask_client):
+    import time
+    task_queue = Queue(maxsize=20)
+    producer = dask_client.submit(task_producer, 100, task_queue)
+    print("producer started...")
+    while task_queue.qsize() == 0:
+        print("task queue empty. sleeping...")
+        time.sleep(10)
+
+    consumer = dask_client.submit(task_consumer, task_queue)
+    result = dask_client.gather(consumer)
+    print(result)
