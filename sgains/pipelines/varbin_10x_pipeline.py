@@ -99,13 +99,13 @@ class Varbin10xPipeline(object):
         buff = BytesIO()
         df.to_feather(buff)
 
-        return buff.getbuffer()
+        return str(buff.getbuffer(), encoding='latin1')
     
     @staticmethod
     def decompress_reads(data):
         if data is None:
             return None
-        buff = BytesIO(data)
+        buff = BytesIO(bytes(data, encoding='latin1'))
         df = pd.read_feather(buff)
         return df
 
@@ -211,13 +211,26 @@ class Varbin10xPipeline(object):
         df.sort_values(by=['abspos'], inplace=True)
         return df
 
-    def varbin_cell_reads_save(self, cell_id, cell_reads, outdir):
+    def varbin_cell_reads_save(self, cell_id, data, outdir):
+        reads_df = self.decompress_reads(data)
+        cell_reads = []
+        for read in reads_df.to_dict(orient='records'):
+            cell_reads.append(
+                self.Read(
+                    cell_id=read['cell_id'],
+                    chrom= read['chrom'],
+                    pos=read['pos']
+                )
+            )
+        reads_df = None
+
         df = self.varbin_cell_reads(cell_reads)
         outfile = self.config.varbin_filename(str(cell_id))
 
         # outfile = os.path.join(outdir, filename)
 
         df.to_csv(outfile, sep='\t', index=False)
+        return cell_id
 
     def _process_reads_producer(
             self, task_queue, regions):
@@ -232,6 +245,17 @@ class Varbin10xPipeline(object):
                     self.process_region_reads, region
                 )
                 task_queue.put(task)
+
+    def _varbins_cleaner(self, task_queue, total):
+        with worker_client() as client:
+            processed_tasks = 0
+            while task_queue.qsize() > 0 or processed_tasks < total:
+                print(f"processed tasks {processed_tasks} out of {total}")
+                task = task_queue.get()
+                processed_tasks += 1
+                cell_id = task.result()
+                print(f"processing {cell_id} done")
+                client.cancel(task)
 
     def run(self, dask_client, bins_step=20, bins_region=None, outdir='.'):
         parallel = int(self.config.parallel)
@@ -273,19 +297,32 @@ class Varbin10xPipeline(object):
         print("[done]")
 
         cells_reads = defaultdict(list)
-        for data in reads_data:
+        while len(reads_data) > 0:
+            print(f"reads data processing {len(reads_data)}")
+            data = reads_data.pop()
             df = self.decompress_reads(data)
             if df is None:
                 continue
             for rec in df.to_dict(orient='records'):
                 read = self.Read(rec['cell_id'], rec['chrom'], rec['pos'])
                 cells_reads[read.cell_id].append(read)
-
-        delayed_varbins = dask_client.map(
-            lambda item: self.varbin_cell_reads_save(
-                item[0], item[1], outdir),
-            cells_reads.items()
+            df = None
+            data = None
+        
+        cleaner = dask_client.submit(
+            self._varbins_cleaner, task_queue, 
+            len(cells_reads)
         )
-        for task in as_completed(delayed_varbins):
-            dask_client.cancel(task)
-            print(f'processed varbin tasks')
+
+        for cell_id, cell_reads in cells_reads.items():
+            print(f"about to start varbins for cell {cell_id}")
+            data = self.compress_reads(cell_reads)
+            task = dask_client.submit(
+                self.varbin_cell_reads_save, cell_id, data, outdir
+            )
+            print(f"starting processing varbins for cell {cell_id}")
+            task_queue.put(task)
+
+        print("about to wait for cleaner")
+        wait(cleaner)
+        print("[done]")
