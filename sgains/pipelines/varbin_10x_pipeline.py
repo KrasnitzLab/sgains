@@ -5,8 +5,7 @@ import time
 import pandas as pd
 import numpy as np
 import pysam
-from dask.distributed import as_completed, Queue, worker_client, wait
-import gzip
+from dask.distributed import Queue, worker_client, wait
 from io import BytesIO
 
 
@@ -35,7 +34,7 @@ class Varbin10xPipeline(object):
         self.bins_df = pd.read_csv(self.bins_filename, sep='\t')
         self.chrom2contig, self.contig2chrom = self._chrom2contig_mapping()
         self.chrom_sizes = self.hg.chrom_sizes()
-    
+
     def _chrom2contig_mapping(self):
         with pysam.AlignmentFile(self.bam_filename, 'rb') as samfile:
             assert samfile.check_index(), \
@@ -100,7 +99,7 @@ class Varbin10xPipeline(object):
         df.to_feather(buff)
 
         return str(buff.getbuffer(), encoding='latin1')
-    
+
     @staticmethod
     def decompress_reads(data):
         if data is None:
@@ -218,14 +217,14 @@ class Varbin10xPipeline(object):
             cell_reads.append(
                 self.Read(
                     cell_id=read['cell_id'],
-                    chrom= read['chrom'],
+                    chrom=read['chrom'],
                     pos=read['pos']
                 )
             )
         reads_df = None
 
         df = self.varbin_cell_reads(cell_reads)
-        outfile = self.config.varbin_filename(str(cell_id))
+        outfile = self.config.varbin_filename(f"C{cell_id:0>5}")
 
         # outfile = os.path.join(outdir, filename)
 
@@ -265,7 +264,7 @@ class Varbin10xPipeline(object):
         regions = self.split_bins(bins_step=bins_step, bins_region=bins_region)
 
         producer = dask_client.submit(
-            self._process_reads_producer, task_queue, 
+            self._process_reads_producer, task_queue,
             regions
         )
 
@@ -308,9 +307,9 @@ class Varbin10xPipeline(object):
                 cells_reads[read.cell_id].append(read)
             df = None
             data = None
-        
+
         cleaner = dask_client.submit(
-            self._varbins_cleaner, task_queue, 
+            self._varbins_cleaner, task_queue,
             len(cells_reads)
         )
 

@@ -3,7 +3,6 @@ from contextlib import closing
 
 import pandas as pd
 
-from dask import distributed, delayed
 from dask.distributed import Client, LocalCluster, Queue, worker_client
 
 from sgains.config import Config
@@ -176,9 +175,11 @@ def test_varbin10x_run(dask_client, dataset10x):
     pipeline.run(dask_client)
 
 
-# @pytest.mark.skip
+@pytest.mark.skip
 def test_varbin10x_all(dask_client):
-    dataset_dir = "/home/lubo/Work/single-cell/data-single-cell/10xGenomics/datasets/bj_mkn45_10pct"
+    dataset_dir = \
+        "/home/lubo/Work/single-cell/data-single-cell/"\
+        "10xGenomics/datasets/bj_mkn45_10pct"
     bins_dir = relative_to_this_test_folder('data/R100_B10k')
 
     config = Config.default()
@@ -188,7 +189,9 @@ def test_varbin10x_all(dask_client):
     config.bins.bins_boundaries = "hg19_R100_B10k_bins_boundaries.txt"
     config.mappable_regions.chrom_sizes = \
         relative_to_this_test_folder('data/chrom_sizes.yml')
-    config.varbin.varbin_dir = "/home/lubo/Work/single-cell/data-single-cell/10xGenomics/datasets/process_bj_mkn45_10pct/bwa_varbin_10x"
+    config.varbin.varbin_dir = \
+        "/home/lubo/Work/single-cell/data-single-cell/"\
+        "10xGenomics/datasets/process_bj_mkn45_10pct/bwa_varbin_10x"
     print(config)
 
     pipeline = Varbin10xPipeline(config)
@@ -239,6 +242,8 @@ def test_delayed_tasks(dask_client):
     consumer = dask_client.submit(task_consumer, task_queue)
     result = dask_client.gather(consumer)
     print(result)
+    result = dask_client.gather(producer)
+    print(result)
 
 
 def test_compress_decompress_reads():
@@ -255,4 +260,3 @@ def test_compress_decompress_reads():
     assert df is not None
     assert len(df) == 4
     print(df)
-
