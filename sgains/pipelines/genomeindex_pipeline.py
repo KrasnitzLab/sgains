@@ -16,6 +16,7 @@ class GenomeIndexPipeline(object):
         self.config = config
         # assert self.config.genome.version == 'hg19'
         self.hg = Genome(self.config)
+        assert self.hg.aligner is not None
 
     def copy_chromes_files(self):
         self.config.check_nonempty_workdir(
@@ -79,26 +80,20 @@ class GenomeIndexPipeline(object):
                         if not self.config.dry_run:
                             shutil.copyfileobj(src, output, 1024 * 1024 * 10)
 
-    def build_bowtie_index(self):
-        src = os.path.join(
-            self.config.genome.work_dir,
-            'genome.fa'
-        )
-        dst = os.path.join(
-            self.config.genome.work_dir,
-            self.config.genome.index
-        )
+    def build_aligner_index(self):
         print(colored(
-            "building bowtie index of {} into {}".format(src, dst),
+            f"building genome index of {self.hg.sequence_filename} "
+            f"into {self.hg.index_prefix}",
             "green"))
-        command = "bowtie-build -f {} {}".format(src, dst)
+        command = " ".join(self.hg.aligner.build_index_command())
         print(colored(
-            "executing bowtie-build: {}".format(command),
+            f"going to execute aligner genome index build: {command}",
             "green"))
-        test_filename = "{}.1.bt2".format(dst)
+
+        test_filename = self.hg.aligner.genome_index_filenames[0]
         if os.path.exists(test_filename) and not self.config.force:
             print(colored(
-                "output bowtie index {} already exists".format(test_filename),
+                "output genome index {} already exists".format(test_filename),
                 "red"))
             raise ValueError("destination file already exists")
 
@@ -109,4 +104,4 @@ class GenomeIndexPipeline(object):
         self.copy_chromes_files()
         self.mask_pars()
         self.concatenate_all_chroms()
-        self.build_bowtie_index()
+        self.build_aligner_index()

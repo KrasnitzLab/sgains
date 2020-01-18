@@ -35,7 +35,7 @@ def test_generate_mappable_regions(tests_config):
 def test_async_mappable_regions_50(tests_config, chrom):
 
     filename = os.path.join(
-        'tests/data',
+        'sgains/tests/data',
         "{}.50mer.mappable.regions.txt.gz".format(chrom)
     )
     gold_df = pd.read_csv(

@@ -14,13 +14,15 @@ import pandas as pd
 
 @pytest.fixture(scope='session')
 def tests_config():
-    config = Config.load("tests/data/scpipe_tests.yml", use_config_dir=True)
+    config = Config.load(
+        "sgains/tests/data/scpipe_tests.yml", use_config_dir=True)
     return config
 
 
 @pytest.fixture(scope='session')
 def hg():
-    config = Config.load("tests/data/scpipe_tests.yml", use_config_dir=True)
+    config = Config.load(
+        "sgains/tests/data/scpipe_tests.yml", use_config_dir=True)
     return Genome(config)
 
 

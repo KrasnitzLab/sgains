@@ -36,6 +36,8 @@ class Config(Box):
             "data_dir": "data/hg19_safe",
             "work_dir": "data/hg19",
             "index": "genomeindex",
+            "aligner": "bowtie",
+            # "aligner": "hisat2",
         },
         "mappable_regions": {
             "length": 100,
@@ -54,7 +56,7 @@ class Config(Box):
             "reads_suffix": "",
             "mapping_dir": "",
             "mapping_suffix": ".rmdup.bam",
-            "mapping_bowtie_opts": "",
+            "mapping_opts": "",
         },
         "mapping_10x": {
             # "data_10x_dir": "",

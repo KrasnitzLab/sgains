@@ -19,7 +19,7 @@ from sgains.commands.common import OptionsBase
 
 @pytest.fixture
 def tests_config():
-    config = Config.load("tests/data/scpipe_tests.yml")
+    config = Config.load("sgains/tests/data/scpipe_tests.yml")
     return config
 
 

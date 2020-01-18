@@ -14,7 +14,7 @@ import pandas as pd
 
 @pytest.fixture(scope='session')
 def tests_config():
-    config = Config.load("tests/data/scpipe_tests.yml", use_config_dir=True)
+    config = Config.load("sgains/tests/data/scpipe_tests.yml", use_config_dir=True)
     return config
 
 
@@ -27,7 +27,7 @@ def hg(tests_config):
 def bin_boundaries(tests_config):
     bins_boundaries_fixture = os.path.join(
         tests_config.abspath(
-            "test_data/R100_B10k/hg19_R50_B20k_bins_boundaries.txt")
+            "sgains/test_data/R100_B10k/hg19_R50_B20k_bins_boundaries.txt")
     )
     df = pd.read_csv(
         bins_boundaries_fixture, sep='\t')

@@ -1,18 +1,43 @@
+import os
 
 
 class GenomeVersion(object):
 
+    def __init__(self, config):
+        self.config = config
+
+    @property
+    def sequence_filename(self):
+        result = os.path.join(
+            self.config.genome.work_dir,
+            'genome.fa'
+        )
+        assert os.path.exists(result), result
+        return result
+
+    @property
+    def index_prefix(self):
+        result = os.path.join(
+            self.config.genome.work_dir,
+            self.config.genome.index
+        )
+        return result
+
     @staticmethod
     def from_config(config):
         if config.genome.version == 'hg19':
-            return HumanGenome19()
+            return HumanGenome19(config)
         elif config.genome.version == 'hg38':
-            return HumanGenome38()
+            return HumanGenome38(config)
 
         raise NotImplementedError()
 
 
 class HumanGenome19(GenomeVersion):
+
+    def __init__(self, config):
+        super(HumanGenome19, self).__init__(config)
+
     VERSION = "hg19"
 
     CHROMS = [
@@ -124,6 +149,10 @@ class HumanGenome19(GenomeVersion):
 
 
 class HumanGenome38(GenomeVersion):
+
+    def __init__(self, config):
+        super(HumanGenome19, self).__init__(config)
+
     VERSION = "hg38"
 
     CHROMS = [

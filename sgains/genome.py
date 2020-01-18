@@ -15,14 +15,18 @@ import pandas as pd
 from termcolor import colored
 
 from sgains.genome_version import GenomeVersion
+from sgains.aligners import Aligner
 
 
 class Genome(object):
 
     def __init__(self, config):
+        assert config is not None
+        self.config = config
+
         self.version = GenomeVersion.from_config(config)
         assert config.genome.version == self.version.VERSION
-        self.config = config
+        self.aligner = Aligner.from_config(config, self.version)
 
         # assert os.path.exists(config.genome.data_dir)
         if not os.path.exists(config.genome.work_dir):
@@ -32,6 +36,14 @@ class Genome(object):
         self._chrom_sizes = None
         self._chrom_bins = None
         self._chrom_mappable_positions_count = None
+
+    @property
+    def sequence_filename(self):
+        return self.version.sequence_filename
+
+    @property
+    def index_prefix(self):
+        return self.version.index_prefix
 
     def load_chrom(self, chrom, pristine=False):
         infile = self.config.chrom_filename(chrom, pristine)

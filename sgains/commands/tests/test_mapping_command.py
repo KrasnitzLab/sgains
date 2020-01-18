@@ -7,11 +7,16 @@ Created on Aug 2, 2017
 
 def test_mapping_long(
         argparser, tests_config, mapping_command, mocker):
+
+    mocker.patch("os.path.exists", return_value=True)
+    mocker.patch("os.listdir", return_value=[])
+    mocker.patch("sgains.config.Config.mapping_reads_filenames")
+
     mapping_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",
-        "--config", "tests/data/scpipe_tests.yml",
+        "--config", "sgains/tests/data/scpipe_tests.yml",
         "--parallel", "10",
         "mapping",
         "--genome-index", "genomeindex",
@@ -23,10 +28,6 @@ def test_mapping_long(
         "--mapping-dir",
         "data/Navin2011/T10_small/navin2011_T10_test/mapping/",
     ]
-
-    mocker.patch("os.path.exists")
-    mocker.patch("sgains.config.Config.mapping_reads_filenames")
-    mocker.patch("os.listdir")
 
     args = argparser.parse_args(argv)
     args.func(args)

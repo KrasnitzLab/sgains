@@ -9,6 +9,8 @@ import subprocess
 from dask import distributed
 
 from sgains.config import Config
+from sgains.genome import Genome
+
 from termcolor import colored
 import functools
 
@@ -17,6 +19,7 @@ class MappingPipeline(object):
 
     def __init__(self, config):
         self.config = config
+        self.genome = Genome(config)
 
     @staticmethod
     def cells(filenames):
@@ -43,25 +46,22 @@ class MappingPipeline(object):
             '-'
         ]
 
-    def bowtie_stage(self, filename):
+    def mapping_stage(self, filename):
         cellname = Config.cellname((filename))
         reportfile = os.path.join(
             self.config.mapping_dirname(),
-            "{}.bowtie_report.log".format(cellname)
+            "{}.aligner_report.log".format(cellname)
         )
         reportfile = self.config.abspath(reportfile)
-
-        bowtie_opts = self.config.mapping.mapping_bowtie_opts.split(' ')
-        return [
-            'bowtie',
-            '-S', '-t', '-v', '0', '-m', '1',
-            '--best', '--strata', '--chunkmbs', '256',
-            *bowtie_opts,
-            self.config.genome_index_filename(),
+        mapping_opts = self.config.mapping.mapping_opts.split(' ')
+        command = self.genome.aligner.build_mapping_command(mapping_opts)
+        command = [
+            *command,
             '-',
-            '2>',
+            '>2',
             reportfile,
         ]
+        return command
 
     @staticmethod
     def samtools_view_stage(_filename):
