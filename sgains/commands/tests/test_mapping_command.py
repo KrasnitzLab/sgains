@@ -21,7 +21,7 @@ def test_mapping_long(
         "mapping",
         "--genome-index", "genomeindex",
         "--genome-dir", "data/hg19",
-        "--mapping-bowtie-opts", "-1 -2 -3",
+        "--mapping-opts", "-1 -2 -3",
         "--reads-dir",
         "data/Navin2011/T10_small/reads/",
         "--reads-suffix", ".fastq.gz",
@@ -46,4 +46,4 @@ def test_mapping_long(
         "data/Navin2011/T10_small/navin2011_T10_test/mapping/"
     assert config.mapping.reads_dir == "data/Navin2011/T10_small/reads/"
     assert config.mapping.reads_suffix == ".fastq.gz"
-    assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"
+    assert config.mapping.mapping_opts == "-1 -2 -3"

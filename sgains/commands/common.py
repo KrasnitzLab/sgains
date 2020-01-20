@@ -391,28 +391,28 @@ class MappingMixin(object):
         if args.mapping_suffix is not None:
             self.config.mapping.mapping_suffix = args.mapping_suffix
 
-    def mapping_bowtie_opts(self, config):
+    def mapping_opts(self, config):
         self.subparser.add_argument(
-            "--mapping-bowtie-opts",
-            dest="mapping_bowtie_opts",
-            help="bowtie mapping options",
-            default=config.mapping.mapping_bowtie_opts
+            "--mapping-opts",
+            dest="mapping_opts",
+            help="aligner mapping options",
+            default=config.mapping.mapping_opts
         )
 
-    def mapping_bowtie_updates(self, args):
-        if args.mapping_bowtie_opts:
-            self.config.mapping.mapping_bowtie_opts = \
-                args.mapping_bowtie_opts
+    def mapping_opts_updates(self, args):
+        if args.mapping_opts:
+            self.config.mapping.mapping_opts = \
+                args.mapping_opts
 
     def mapping_options(self, config):
         self.reads_dir_options(config=config)
         self.mapping_dir_options(config=config)
-        self.mapping_bowtie_opts(config=config)
+        self.mapping_opts(config=config)
 
     def mapping_updates(self, args):
         self.reads_dir_updates(args)
         self.mapping_dir_updates(args)
-        self.mapping_bowtie_updates(args)
+        self.mapping_opts_updates(args)
 
 
 class Mapping10xMixin(object):

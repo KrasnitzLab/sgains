@@ -24,7 +24,7 @@ def test_process_long(
         "--reads-dir",
         "data/Navin2011/T10_small/reads/",
         "--reads-suffix", ".fastq.gz",
-        "--mapping-bowtie-opts", "-1 -2 -3",
+        "--mapping-opts", "-1 -2 -3",
 
         "--genome-index", "genomeindex",
         "--genome-dir", "data/hg19",
@@ -49,6 +49,6 @@ def test_process_long(
 
     assert config.mapping.reads_dir == "data/Navin2011/T10_small/reads/"
     assert config.mapping.reads_suffix == ".fastq.gz"
-    assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"
+    assert config.mapping.mapping_opts == "-1 -2 -3"
 
     assert config.scclust.case_name == "test_study"

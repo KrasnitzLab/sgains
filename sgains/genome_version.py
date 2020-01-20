@@ -8,19 +8,19 @@ class GenomeVersion(object):
 
     @property
     def sequence_filename(self):
-        result = os.path.join(
+        result = os.path.abspath(os.path.join(
             self.config.genome.work_dir,
             'genome.fa'
-        )
+        ))
         assert os.path.exists(result), result
         return result
 
     @property
     def index_prefix(self):
-        result = os.path.join(
+        result = os.path.abspath(os.path.join(
             self.config.genome.work_dir,
             self.config.genome.index
-        )
+        ))
         return result
 
     @staticmethod

@@ -62,7 +62,7 @@ class ProcessCommand(
 
     def add_options(self, config):
         self.reads_dir_options(config=config)
-        self.mapping_bowtie_opts(config=config)
+        self.mapping_opts(config=config)
         self.output_options(config=config)
 
         self.genome_index_options(config=config, input_dir=False)
@@ -71,7 +71,7 @@ class ProcessCommand(
     def process_args(self, args):
         self.common_updates(args)
         self.reads_dir_updates(args)
-        self.mapping_bowtie_updates(args)
+        self.mapping_opts_updates(args)
 
         self.output_updates(args)
         self.genome_index_updates(args, input_dir=False)

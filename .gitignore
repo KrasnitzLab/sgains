@@ -19,3 +19,5 @@ sgains.egg-info/
 sgains/tests/data/test_data
 .pytest_cache
 sgains/dask-worker-space
+dask-worker-space
+*.varbin.txt
