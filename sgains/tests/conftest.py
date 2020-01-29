@@ -7,15 +7,8 @@ import os
 
 import pytest
 
-from sgains.config import Config
 from sgains.genome import Genome
 import pandas as pd
-
-
-@pytest.fixture(scope='session')
-def tests_config():
-    config = Config.load("sgains/tests/data/scpipe_tests.yml", use_config_dir=True)
-    return config
 
 
 @pytest.fixture(scope='session')

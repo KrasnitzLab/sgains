@@ -622,6 +622,5 @@ class HumanGenome38(GenomeVersion):
         "chrX_KI270881v1_alt",
         "chrX_KI270913v1_alt",
         "chrY",
-        "chrY_KI270740v1_random",        
+        "chrY_KI270740v1_random",
     ]
-

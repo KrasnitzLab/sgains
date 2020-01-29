@@ -49,6 +49,10 @@ class Aligner:
             self, fastq_filename: str, options: List[str] = []) -> List[str]:
         raise NotImplementedError()
 
+    def build_mappable_regions_command(
+            self, options: List[str] = []) -> List[str]:
+        raise NotImplementedError()
+
     def build_postmapping_filter(self) -> List[str]:
         raise NotImplementedError()
 
@@ -114,6 +118,7 @@ class Aligner:
             self.build_fastq_stream_command(
                 fastq_filename, num_lines=num_lines),
             self.build_mapping_command(fastq_filename, options=options),
+            # post mapping filter
             self.build_postmapping_filter(),
             # sort
             ['samtools', 'sort'],
@@ -188,6 +193,15 @@ class Bowtie(Aligner):
             reportfile,
         ]
 
+    def build_mappable_regions_command(
+            self, options: List[str] = []) -> List[str]:
+        return [
+            'bowtie', '-S', '-t', '-v', '0', '-m', '1',
+            *options,
+            '-f', self.default_genome_index_prefix,
+            '-',
+        ]
+
     def build_postmapping_filter(self) -> List[str]:
         return [
             'samtools',
@@ -242,6 +256,17 @@ class Hisat2(Aligner):
             '-x', self.default_genome_index_prefix,
             '-U', '-',
             '2>', reportfile,
+        ]
+
+    def build_mappable_regions_command(
+            self, options: List[str] = []) -> List[str]:
+        return [
+            'hisat2',
+            '-X', '1500',
+            '--no-spliced-alignment',
+            *options,
+            '-x', self.default_genome_index_prefix,
+            '-f', '-',
         ]
 
     def build_postmapping_filter(self) -> List[str]:

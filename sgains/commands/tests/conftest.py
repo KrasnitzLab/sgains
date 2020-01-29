@@ -1,11 +1,5 @@
-'''
-Created on Aug 3, 2017
-
-@author: lubo
-'''
 import pytest
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from sgains.config import Config
 from sgains.commands.mappable_regions_command import MappableRegionsCommand
 from sgains.commands.genomeindex_command import GenomeIndexCommand
 from sgains.commands.bins_command import BinsCommand
@@ -15,12 +9,6 @@ from sgains.commands.varbin_command import VarbinCommand
 from sgains.commands.sc_clust_command import SCclustCommand
 from sgains.commands.process_command import ProcessCommand
 from sgains.commands.common import OptionsBase
-
-
-@pytest.fixture
-def tests_config():
-    config = Config.load("sgains/tests/data/scpipe_tests.yml")
-    return config
 
 
 @pytest.fixture
