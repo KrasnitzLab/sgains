@@ -21,3 +21,4 @@ sgains/tests/data/test_data
 sgains/dask-worker-space
 dask-worker-space
 *.varbin.txt
+test_data
