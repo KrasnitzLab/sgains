@@ -255,15 +255,13 @@ class Config(Box):
 
     def varbin_dirname(self):
         dirname = self.abspath(self.varbin.varbin_dir)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
+        os.makedirs(dirname, exist_ok=True)
         return dirname
 
     def scclust_dirname(self):
         dirname = self.abspath(self.scclust.scclust_dir)
         dirname = os.path.join(dirname, self.scclust.case_name)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
+        os.makedirs(dirname, exist_ok=True)
 
         return dirname
 
@@ -282,8 +280,7 @@ class Config(Box):
 
     def mapping_dirname(self):
         dirname = self.abspath(self.mapping.mapping_dir)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
+        os.makedirs(dirname, exist_ok=True)
         return dirname
 
     def mapping_filenames(self):
@@ -340,8 +337,7 @@ class Config(Box):
             assert os.path.exists(dirname)
             assert os.path.isdir(dirname)
             fastqdir = os.path.join(dirname, "fastq")
-        if not os.path.exists(fastqdir):
-            os.mkdir(fastqdir)
+        os.makedirs(fastqdir, exist_ok=True)
         return fastqdir
 
     def _data_10x_filename(self, param, pattern):
