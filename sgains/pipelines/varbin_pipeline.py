@@ -141,8 +141,9 @@ class VarbinPipeline(object):
             "processing files: {}".format(mapping_filenames),
             "green"))
 
-        # pool = multiprocessing.Pool(processes=self.config.parallel)
-        # pool.map(self.run_once, mapping_filenames)
+        if self.config.dry_run:
+            return
+
         assert dask_client
 
         delayed_tasks = dask_client.map(self.run_once, mapping_filenames)

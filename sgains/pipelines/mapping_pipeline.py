@@ -77,6 +77,14 @@ class MappingPipeline(object):
 
             commands.append((mapping_command, index_command))
 
+        for command in commands:
+            print(colored(
+                f"going to execute {command}",
+                "green"))
+
+        if self.config.dry_run:
+            return
+
         assert dask_client
 
         delayed_tasks = dask_client.map(

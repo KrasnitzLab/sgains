@@ -210,10 +210,11 @@ class MappableRegionsPipeline(object):
                 "red"))
             raise ValueError("output file already exists")
 
-        if not self.config.genome_index_filename_exists():
+        genome_index_filenames = self.aligner.genome_index_filenames
+        if not os.path.exists(genome_index_filenames[0]):
             print(colored(
                 "genome index file {} not found".format(
-                    self.config.genome_index_filename()),
+                    genome_index_filenames),
                 "red"))
             raise ValueError("genome index file not found")
 

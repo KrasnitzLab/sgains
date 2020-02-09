@@ -177,13 +177,6 @@ class Config(Box):
         ))
         return self.abspath(filename)
 
-    def genome_index_filename_exists(self):
-        filename = os.path.join(
-            self.genome.work_dir,
-            "{}.1.ebwt".format(self.genome.index)
-        )
-        return os.path.exists(filename)
-
     def mappable_regions_filename(self, chrom=None):
         mname = self.mappable_regions.mappable_regions
         if chrom:
