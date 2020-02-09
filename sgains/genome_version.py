@@ -151,7 +151,7 @@ class HumanGenome19(GenomeVersion):
 class HumanGenome38(GenomeVersion):
 
     def __init__(self, config):
-        super(HumanGenome19, self).__init__(config)
+        super(HumanGenome38, self).__init__(config)
 
     VERSION = "hg38"
 
