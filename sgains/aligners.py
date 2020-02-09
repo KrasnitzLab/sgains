@@ -225,6 +225,11 @@ class Hisat2(Aligner):
             self, sequence_filename: str,
             index_prefix: str) -> List[str]:
 
+        if sequence_filename is None:
+            sequence_filename = self.genome_version.sequence_filename
+        if index_prefix is None:
+            index_prefix = self.genome_version.index_prefix
+
         result = [
             "hisat2-build",
             self.genome_version.sequence_filename,

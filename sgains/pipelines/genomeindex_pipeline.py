@@ -85,7 +85,10 @@ class GenomeIndexPipeline(object):
             f"building genome index of {self.hg.sequence_filename} "
             f"into {self.hg.index_prefix}",
             "green"))
-        command = " ".join(self.hg.aligner.build_index_command())
+        command = " ".join(self.hg.aligner.build_index_command(
+            self.hg.sequence_filename,
+            self.hg.index_prefix
+        ))
         print(colored(
             f"going to execute aligner genome index build: {command}",
             "green"))
