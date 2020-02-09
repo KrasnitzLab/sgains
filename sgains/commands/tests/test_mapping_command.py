@@ -7,26 +7,27 @@ Created on Aug 2, 2017
 
 def test_mapping_long(
         argparser, tests_config, mapping_command, mocker):
+
+    mocker.patch("os.path.exists", return_value=True)
+    mocker.patch("os.listdir", return_value=[])
+    mocker.patch("sgains.config.Config.mapping_reads_filenames")
+
     mapping_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",
-        "--config", "tests/data/scpipe_tests.yml",
+        "--config", "sgains/tests/data/scpipe_tests.yml",
         "--parallel", "10",
         "mapping",
         "--genome-index", "genomeindex",
         "--genome-dir", "data/hg19",
-        "--mapping-bowtie-opts", "-1 -2 -3",
+        "--mapping-opts", "-1 -2 -3",
         "--reads-dir",
         "data/Navin2011/T10_small/reads/",
         "--reads-suffix", ".fastq.gz",
         "--mapping-dir",
         "data/Navin2011/T10_small/navin2011_T10_test/mapping/",
     ]
-
-    mocker.patch("os.path.exists")
-    mocker.patch("sgains.config.Config.mapping_reads_filenames")
-    mocker.patch("os.listdir")
 
     args = argparser.parse_args(argv)
     args.func(args)
@@ -45,4 +46,4 @@ def test_mapping_long(
         "data/Navin2011/T10_small/navin2011_T10_test/mapping/"
     assert config.mapping.reads_dir == "data/Navin2011/T10_small/reads/"
     assert config.mapping.reads_suffix == ".fastq.gz"
-    assert config.mapping.mapping_bowtie_opts == "-1 -2 -3"
+    assert config.mapping.mapping_opts == "-1 -2 -3"

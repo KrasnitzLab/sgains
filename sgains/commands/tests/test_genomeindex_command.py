@@ -5,9 +5,13 @@ Created on Aug 2, 2017
 '''
 
 
-def test_genomeindex_long(argparser, tests_config, genomeindex_command):
-    genomeindex_command.add_options(tests_config)
+def test_genomeindex_long(
+        argparser, tests_config, genomeindex_command, mocker):
 
+    mocker.patch("os.path.exists", return_value=True)
+    mocker.patch("os.listdir", return_value=[])
+
+    genomeindex_command.add_options(tests_config)
     argv = [
         "--dry-run", "--force",
         "genomeindex",
@@ -30,7 +34,12 @@ def test_genomeindex_long(argparser, tests_config, genomeindex_command):
     assert config.genome.data_dir == "data/hg19_safe/"
 
 
-def test_genomeindex_short(argparser, tests_config, genomeindex_command):
+def test_genomeindex_short(
+        argparser, tests_config, genomeindex_command, mocker):
+
+    mocker.patch("os.path.exists", return_value=True)
+    mocker.patch("os.listdir", return_value=[])
+
     genomeindex_command.add_options(tests_config)
 
     argv = [

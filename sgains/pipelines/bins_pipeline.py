@@ -3,11 +3,9 @@ Created on Jul 31, 2017
 
 @author: lubo
 '''
-import traceback
 from dask import distributed
 
 import os
-import multiprocessing
 import pandas as pd
 from termcolor import colored
 
@@ -158,6 +156,8 @@ class BinsPipeline(object):
 
     def run(self, dask_client):
         outfilename = self.config.bins_boundaries_filename()
+        os.makedirs(os.path.dirname(outfilename), exist_ok=True)
+
         print(colored(
             "going to compute bin boundaries from mappable regions: {} "
             "into bins boundaries file {}".format(

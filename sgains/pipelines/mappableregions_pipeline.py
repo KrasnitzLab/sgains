@@ -1,8 +1,3 @@
-'''
-Created on Jul 31, 2017
-
-@author: lubo
-'''
 import traceback
 import distributed
 import queue
@@ -20,30 +15,32 @@ import sys
 import shutil
 
 
-class BowtieInputGenerateThread(Thread):
+class InputGeneratorThread(Thread):
 
-    def __init__(self, control_queue, bowtie_input, input_function_generator):
-        super(BowtieInputGenerateThread, self).__init__()
+    def __init__(self, control_queue, aligner_input, input_function_generator):
+        super(InputGeneratorThread, self).__init__()
 
         self.control_queue = control_queue
-        self.bowtie_input = bowtie_input
+        self.aligner_input = aligner_input
         self.input_function_generator = input_function_generator
 
     def run(self):
         for rec in self.input_function_generator:
             out = Genome.to_fasta_string(rec)
-            self.bowtie_input.write(out)
-            self.bowtie_input.flush()
-        self.bowtie_input.close()
+
+            self.aligner_input.write(out)
+            self.aligner_input.flush()
+
+        self.aligner_input.close()
 
 
-class BowtieOutputProcessThread(Thread):
+class AlignerOutputProcessingThread(Thread):
 
-    def __init__(self, control_queue, bowtie_output, output_process_function):
-        super(BowtieOutputProcessThread, self).__init__()
+    def __init__(self, control_queue, aligner_output, output_process_function):
+        super(AlignerOutputProcessingThread, self).__init__()
 
         self.control_queue = control_queue
-        self.bowtie_output = bowtie_output
+        self.aligner_output = aligner_output
         self.output_process_function = output_process_function
 
     def run(self):
@@ -51,7 +48,7 @@ class BowtieOutputProcessThread(Thread):
         state = MappableState.OUT
 
         while True:
-            line = self.bowtie_output.readline()
+            line = self.aligner_output.readline()
             if not line:
                 break
 
@@ -59,15 +56,14 @@ class BowtieOutputProcessThread(Thread):
             if line[0] == '@':
                 # comment
                 continue
-
             mapping = Mapping.parse_sam(line)
 
             if state == MappableState.OUT:
-                if mapping.flag == 0:
+                if mapping.acceptable():
                     prev = MappableRegion(mapping)
                     state = MappableState.IN
             else:
-                if mapping.flag == 0:
+                if mapping.acceptable():
                     if mapping.chrom == prev.chrom:
                         prev.extend(mapping.start)
                     else:
@@ -80,15 +76,21 @@ class BowtieOutputProcessThread(Thread):
         if state == MappableState.IN:
             self.output_process_function(prev)
 
-        self.bowtie_output.close()
+        self.aligner_output.close()
         self.control_queue.put("out_done")
 
 
 class MappableRegionsPipeline(object):
 
-    def __init__(self, config):
+    def __init__(self, config, aligner=None):
         self.config = config
-        self.hg = Genome(self.config)
+        self.genome = Genome(self.config)
+        if aligner is not None:
+            self.aligner = aligner
+        else:
+            assert self.genome.aligner is not None
+            self.aligner = self.genome.aligner
+        assert self.aligner is not None
 
     def mappable_regions_check(self, chroms, mappable_regions_df):
 
@@ -104,7 +106,7 @@ class MappableRegionsPipeline(object):
     def generate_reads(self, chroms, read_length):
         try:
             for chrom in chroms:
-                seq_record = self.hg.load_chrom(chrom)
+                seq_record = self.genome.load_chrom(chrom)
                 for i in range(len(seq_record) - read_length + 1):
                     out_record = SeqRecord(
                         seq_record.seq[i: i + read_length],
@@ -115,50 +117,35 @@ class MappableRegionsPipeline(object):
         finally:
             pass
 
-    def bowtie_command(self, bowtie_opts=""):
-        genomeindex = self.config.genome_index_filename()
-        if bowtie_opts:
-            command = [
-                'bowtie', '-S', '-t', '-v', '0', '-m', '1',
-                *bowtie_opts.split(' '),
-                '-f', genomeindex, '-',
-            ]
-        else:
-            command = [
-                'bowtie', '-S', '-t', '-v', '0', '-m', '1',
-                '-f', genomeindex, '-',
-            ]
-        print(colored(
-            "going to execute bowtie: {}".format(" ".join(command)),
-            "green"
-        ))
-        return command
-
     def generate_mappable_regions(
             self, chroms, read_length,
-            outfile=None, bowtie_opts=""):
+            outfile=None, aligner_options=[]):
 
         if outfile is None:
             outfile = sys.stdout
 
-        bowtie_command = self.bowtie_command(bowtie_opts=bowtie_opts)
         reads_generator = self.generate_reads(chroms, read_length)
 
-        def bowtie_output_process_function(line):
+        def aligner_output_process_function(line):
             outfile.write(str(line))
             outfile.write("\n")
 
-        with Popen(bowtie_command, stdout=PIPE, stdin=PIPE) as proc:
+        aligner_command = self.aligner.build_mappable_regions_command(
+            options=aligner_options
+        )
+        print('aligner command', ' '.join(aligner_command))
+
+        with Popen(aligner_command, stdout=PIPE, stdin=PIPE) as proc:
 
             control_queue = queue.Queue()
-            input_thread = BowtieInputGenerateThread(
+            input_thread = InputGeneratorThread(
                 control_queue,
                 proc.stdin,
                 reads_generator)
-            output_thread = BowtieOutputProcessThread(
+            output_thread = AlignerOutputProcessingThread(
                 control_queue,
                 proc.stdout,
-                bowtie_output_process_function)
+                aligner_output_process_function)
 
             input_thread.start()
             output_thread.start()
@@ -196,7 +183,7 @@ class MappableRegionsPipeline(object):
 
         if not self.config.dry_run:
             with open(dst, 'wb') as output:
-                for chrom in self.hg.version.CHROMS:
+                for chrom in self.genome.version.CHROMS:
                     src = self.config.mappable_regions_filename(chrom)
                     print(colored(
                         "appending {} to {}".format(src, dst),
@@ -239,7 +226,7 @@ class MappableRegionsPipeline(object):
         assert dask_client
 
         delayed_tasks = dask_client.map(
-                self.run_once, self.hg.version.CHROMS)
+                self.run_once, self.genome.version.CHROMS)
 
         distributed.wait(delayed_tasks)
 

@@ -8,11 +8,15 @@ Created on Aug 2, 2017
 def test_prepare_long(
         argparser, tests_config, prepare_command, mocker):
 
+    mocker.patch("os.path.exists", return_value=True)
+    mocker.patch("os.listdir", return_value=[])
+    mocker.patch("sgains.config.Config.mapping_reads_filenames")
+
     prepare_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",
-        "--config", "tests/data/scpipe_tests.yml",
+        "--config", "sgains/tests/data/scpipe_tests.yml",
         "prepare",
         "--mappable-dir", "data/proba",
         "--genome-index", "genomeindex",
@@ -20,10 +24,6 @@ def test_prepare_long(
         "--read-length", "200",
         "--bowtie-opts", "-1 -2 -3",
     ]
-
-    mocker.patch("os.path.exists")
-    mocker.patch("sgains.config.Config.mapping_reads_filenames")
-    mocker.patch("os.listdir")
 
     args = argparser.parse_args(argv)
     args.func(args)

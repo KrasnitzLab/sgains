@@ -6,12 +6,17 @@ Created on Aug 2, 2017
 
 
 def test_sc_clust_long(
-        argparser, tests_config, sc_clust_command):
+        argparser, tests_config, sc_clust_command, mocker):
+
+    mocker.patch("os.path.exists", return_value=True)
+    mocker.patch("os.listdir", return_value=[])
+    mocker.patch("sgains.config.Config.mapping_reads_filenames")
+
     sc_clust_command.add_options(tests_config)
 
     argv = [
         "--dry-run", "--force",
-        "--config", "tests/data/scpipe_tests.yml",
+        "--config", "sgains/tests/data/scpipe_tests.yml",
         "scclust",
         "--bins-boundaries", "test_bins_boundaries.txt",
         "--bins-dir", "data/test_study/bins",

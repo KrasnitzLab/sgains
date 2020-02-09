@@ -313,7 +313,7 @@ To list the options available for `process` subcommand use:
 sgains-tools process -h
 usage: sgains-tools process [-h] [--reads-dir READS_DIR]
                          [--reads-suffix READS_SUFFIX]
-                         [--mapping-bowtie-opts MAPPING_BOWTIE_OPTS]
+                         [--mapping-opts MAPPING_OPTS]
                          [--output-dir OUTPUT_DIR] [--case-name CASE_NAME]
                          [--genome-index GENOME_INDEX]
                          [--genome-dir GENOME_DIR]
@@ -323,7 +323,7 @@ usage: sgains-tools process [-h] [--reads-dir READS_DIR]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --mapping-bowtie-opts MAPPING_BOWTIE_OPTS
+  --mapping-opts MAPPING_OPTS
                         bowtie mapping options (default: -S -t -m 1 --best
                         --strata --chunkmbs 256)
 
@@ -394,14 +394,14 @@ usage: sgains-tools mapping [-h] [--reads-dir READS_DIR]
                          [--reads-suffix READS_SUFFIX]
                          [--mapping-dir MAPPING_DIR]
                          [--mapping-suffix MAPPING_SUFFIX]
-                         [--mapping-bowtie-opts MAPPING_BOWTIE_OPTS]
+                         [--mapping-bowtie-opts MAPPING_OPTS]
                          [--genome-index GENOME_INDEX]
                          [--genome-dir GENOME_DIR]
                          [--genome-version GENOME_VERSION]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --mapping-bowtie-opts MAPPING_BOWTIE_OPTS
+  --mapping-bowtie-opts MAPPING_OPTS
                         bowtie mapping options (default: -S -t -m 1 --best
                         --strata)
 
@@ -525,7 +525,7 @@ mapping:
     reads_suffix: ".fastq.gz"
     mapping_dir: mapping
     mapping_suffix: ".rmdup.bam"
-    mapping_bowtie_opts: "-S -t -m 1 --best --strata --chunkmbs 256"
+    mapping_opts: "-S -t -m 1 --best --strata --chunkmbs 256"
 
 varbin:
     varbin_dir: varbin

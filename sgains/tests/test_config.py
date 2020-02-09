@@ -10,7 +10,7 @@ import pickle
 
 
 def test_load_config():
-    conf = Config.load("tests/data/scpipe_tests.yml")
+    conf = Config.load("sgains/tests/data/scpipe_tests.yml")
     assert conf is not None
 
     assert conf.genome is not None
@@ -18,7 +18,7 @@ def test_load_config():
 
 
 def test_bins_config():
-    conf = Config.load("tests/data/scpipe_tests.yml")
+    conf = Config.load("sgains/tests/data/scpipe_tests.yml")
     assert conf is not None
 
     assert conf.mappable_regions is not None
@@ -30,7 +30,7 @@ def test_bins_config():
 
 
 def test_pickle_depickle():
-    conf = Config.load("tests/data/scpipe_tests.yml")
+    conf = Config.load("sgains/tests/data/scpipe_tests.yml")
     assert conf is not None
 
     pkl = pickle.dumps(conf)

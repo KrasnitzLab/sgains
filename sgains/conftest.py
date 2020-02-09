@@ -1,34 +1,54 @@
-'''
-Created on Jun 22, 2017
-
-@author: lubo
-'''
 import os
-
 import pytest
 
-from sgains.config import Config
-from sgains.genome import Genome
 import pandas as pd
+
+from sgains.config import Config
+from sgains.aligners import Hisat2
+from sgains.genome import Genome
 
 
 @pytest.fixture(scope='session')
 def tests_config():
-    config = Config.load("tests/data/scpipe_tests.yml", use_config_dir=True)
+    sgains_data = os.environ.get('SGAINS_DATA')
+    assert sgains_data is not None
+    assert os.path.exists(sgains_data)
+    assert os.path.isdir(sgains_data)
+
+    work_dir = os.path.join(sgains_data, 'test_data/hg19')
+    pristine_dir = os.path.join(sgains_data, 'test_data/hg19_pristine')
+
+    config = Config.load("sgains/tests/data/scpipe_tests.yml")
+    config.genome.work_dir = work_dir
+    config.genome.data_dir = pristine_dir
+
     return config
 
 
 @pytest.fixture(scope='session')
-def hg():
-    config = Config.load("tests/data/scpipe_tests.yml", use_config_dir=True)
-    return Genome(config)
+def tests_genome(tests_config):
+    genome = Genome(tests_config)
+    assert genome is not None
+    assert genome.version.VERSION == 'hg19'
+    return genome
+
+
+@pytest.fixture(scope='session')
+def hisat2(tests_config, tests_genome):
+    assert tests_config.genome.version == 'hg19'
+    return Hisat2(tests_config, tests_genome.version)
+
+
+@pytest.fixture(scope='session')
+def hg(tests_config):
+    return Genome(tests_config)
 
 
 @pytest.fixture(scope='session')
 def bin_boundaries(tests_config):
     bins_boundaries_fixture = os.path.join(
-        tests_config.abspath(
-            "test_data/R100_B10k/hg19_R100_B10k_bins_boundaries.txt")
+        os.path.abspath(os.path.dirname(__file__)),
+        "test_data/R100_B10k/hg19_R100_B10k_bins_boundaries.txt"
     )
     df = pd.read_csv(
         bins_boundaries_fixture, sep='\t')
@@ -59,7 +79,7 @@ def varbin_counts():
 def varbin0918():
     fixture_filename = os.path.join(
         os.path.abspath(os.path.dirname(__file__)),
-        "data/CJA0918.varbin.lubo.txt"
+        "pipelines/tests/data/CJA0918.varbin.lubo.txt"
     )
     df = pd.read_csv(fixture_filename, sep='\t')
     return df

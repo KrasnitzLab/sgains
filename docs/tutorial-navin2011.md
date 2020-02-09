@@ -268,7 +268,7 @@ mapping:
     reads_suffix: ".fastq.gz"
     mapping_dir: mapping
     mapping_suffix: ".rmdup.bam"
-    mapping_bowtie_opts: "-S -t -m 1 --best --strata --chunkmbs 256"
+    mapping_opts: "-S -t -m 1 --best --strata --chunkmbs 256"
 
 varbin:
     varbin_dir: varbin
