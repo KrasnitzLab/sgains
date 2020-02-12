@@ -123,6 +123,10 @@ class BinsPipeline(object):
         return df
 
     def run_once(self, chrom):
+        print(colored(
+            f"started calculating bins for chromosome {chrom}",
+            "green"
+        ))
         regions_df = self.hg.load_mappable_regions()
         bins_df = self.calc_bins_boundaries(
             [chrom],
@@ -130,7 +134,12 @@ class BinsPipeline(object):
         )
         df = self.calc_bins_gc_content([chrom], bins_df)
         outfilename = self.config.bins_boundaries_filename(chrom)
+        print(colored(
+            f"saving bins for chromosome {chrom} into {outfilename}",
+            "green"
+        ))
         df.to_csv(outfilename, sep='\t', index=False)
+        return outfilename
 
     def concatenate_all_chroms(self):
         outfilename = self.config.bins_boundaries_filename()
@@ -180,9 +189,12 @@ class BinsPipeline(object):
         # pool.map(self.run_once, self.hg.version.CHROMS)
         delayed_tasks = dask_client.map(
                 self.run_once, self.hg.version.CHROMS)
-        print(delayed_tasks)
+        print(len(delayed_tasks), delayed_tasks)
         print(dask_client.scheduler_info())
 
         distributed.wait(delayed_tasks)
+        for task in delayed_tasks:
+            outfile = task.result()
+            print(outfile, os.path.exists(outfile))
 
         self.concatenate_all_chroms()

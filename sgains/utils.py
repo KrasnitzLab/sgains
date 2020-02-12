@@ -136,7 +136,7 @@ class MappableBin(object):
 
     def check_extend(self, region):
         assert region['start_pos'] >= self.end_pos, (self, region)
-        assert region['end_pos'] > region['start_pos']
+        assert region['end_pos'] > region['start_pos'], (self, region)
 
         region_size = region['end_pos'] - region['start_pos']
         if region_size < self.missing_mappable_positions():

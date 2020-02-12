@@ -100,7 +100,7 @@ class OptionsBase(object):
             walltime='08:00:00',
             dashboard_address=':28787',
         )
-        cluster.adapt(minimum=2, maximum=workers)
+        cluster.adapt(minimum=workers, maximum=workers)
         print("SGE cluster dashboard link:", cluster.dashboard_link)
         print(cluster)
         print(cluster.job_script())

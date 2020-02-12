@@ -67,13 +67,19 @@ class AlignerOutputProcessingThread(Thread):
                     if mapping.chrom == prev.chrom:
                         prev.extend(mapping.start)
                     else:
+                        if prev.start < prev.end:
+                            print("ERROR: prev=", prev, "; line=", line)
                         self.output_process_function(prev)
                         prev = MappableRegion(mapping)
                 else:
+                    if prev.start < prev.end:
+                        print("ERROR: prev=", prev, "; line=", line)
                     self.output_process_function(prev)
                     state = MappableState.OUT
 
         if state == MappableState.IN:
+            if prev.start < prev.end:
+                print("ERROR: prev=", prev, "; line=", line)
             self.output_process_function(prev)
 
         self.aligner_output.close()
