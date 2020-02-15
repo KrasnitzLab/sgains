@@ -67,11 +67,10 @@ class AlignerOutputProcessingThread(Thread):
                     if mapping.chrom == prev.chrom:
                         if mapping.start < prev.end:
                             print(
-                                "WARN (skipping): prev=", prev,
+                                "WARN: prev=", prev,
                                 "; mapping=", mapping,
                                 "; line=", line)
-                        else:
-                            prev.extend(mapping)
+                        prev.extend(mapping)
                     else:
 
                         if prev.start >= prev.end:
@@ -124,11 +123,15 @@ class MappableRegionsPipeline(object):
             for chrom in chroms:
                 seq_record = self.genome.load_chrom(chrom)
                 for i in range(len(seq_record) - read_length + 1):
+                    seq = seq_record.seq[i: i + read_length]
                     out_record = SeqRecord(
-                        seq_record.seq[i: i + read_length],
+                        seq,
                         id="{}.{}".format(chrom, i + 1),
                         description="generated_read"
                     )
+                    if 'N' in seq:
+                        print('skipping: ', out_record)
+                        continue
                     yield out_record
         finally:
             pass

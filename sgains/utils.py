@@ -37,8 +37,8 @@ class Mapping(object):
             name=name, flag=flag, chrom=chrom, start=start, mapq=mapq)
 
     def __repr__(self):
-        return f"{self.name}: "\
-            f"F{self.flag}:Q{self.mapq}, {self.chrom}:{self.start}"
+        return f"ID:{self.name}: "\
+            f"F{self.flag}:Q{self.mapq}, POS: {self.chrom}:{self.start}"
 
     def acceptable(self):
         return self.flag == 0 and self.mapq > 30
@@ -51,13 +51,18 @@ class MappableRegion(object):
         self.start = mapping.start
 
         self.end = self.start + 1
+        self.mapping = mapping
 
     def extend(self, mapping):
-        if mapping.start < self.start:
-            print("WARN (extending): region=", self, "; mapping=", mapping)
-            self.start = mapping.start
+        if mapping.start < self.end:
+            print(
+                "WARN (skipping): region=", self,
+                "; mapping=", mapping,
+                "; prev mapping=", self.mapping)
+            # self.start = mapping.start
         else:
             self.end = mapping.start + 1
+        self.mapping = mapping
 
     def __repr__(self):
         return "{}\t{}\t{}".format(
