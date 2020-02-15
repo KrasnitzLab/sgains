@@ -48,6 +48,7 @@ class Genome(object):
     def load_chrom(self, chrom, pristine=False):
         infile = self.config.chrom_filename(chrom, pristine)
         assert os.path.exists(infile), os.path.abspath(infile)
+        print(f"loading chrom {chrom} from {infile}")
         seq_record = SeqIO.read(infile, 'fasta')
         seq_record.seq = seq_record.seq.upper()
         return seq_record

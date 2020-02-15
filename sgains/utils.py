@@ -52,8 +52,12 @@ class MappableRegion(object):
 
         self.end = self.start + 1
 
-    def extend(self, start):
-        self.end = start + 1
+    def extend(self, mapping):
+        if mapping.start < self.start:
+            print("WARN (extending): region=", self, "; mapping=", mapping)
+            self.start = mapping.start
+        else:
+            self.end = mapping.start + 1
 
     def __repr__(self):
         return "{}\t{}\t{}".format(

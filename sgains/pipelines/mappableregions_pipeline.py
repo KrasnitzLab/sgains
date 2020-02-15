@@ -65,21 +65,31 @@ class AlignerOutputProcessingThread(Thread):
             else:
                 if mapping.acceptable():
                     if mapping.chrom == prev.chrom:
-                        prev.extend(mapping.start)
+                        if mapping.start < prev.end:
+                            print(
+                                "WARN (skipping): prev=", prev,
+                                "; mapping=", mapping,
+                                "; line=", line)
+                        else:
+                            prev.extend(mapping)
                     else:
-                        if prev.start < prev.end:
+
+                        if prev.start >= prev.end:
                             print("ERROR: prev=", prev, "; line=", line)
+                        # assert prev.start < prev.end
                         self.output_process_function(prev)
                         prev = MappableRegion(mapping)
                 else:
-                    if prev.start < prev.end:
+                    if prev.start >= prev.end:
                         print("ERROR: prev=", prev, "; line=", line)
+                    # assert prev.start < prev.end
                     self.output_process_function(prev)
                     state = MappableState.OUT
 
         if state == MappableState.IN:
-            if prev.start < prev.end:
+            if prev.start >= prev.end:
                 print("ERROR: prev=", prev, "; line=", line)
+            # assert prev.start < prev.end
             self.output_process_function(prev)
 
         self.aligner_output.close()
