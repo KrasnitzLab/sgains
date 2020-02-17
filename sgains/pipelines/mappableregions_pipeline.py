@@ -1,4 +1,3 @@
-import traceback
 import distributed
 import queue
 
@@ -191,6 +190,7 @@ class MappableRegionsPipeline(object):
             self.generate_mappable_regions(
                 [chrom], read_length=50,
                 outfile=outfile)
+        return outfilename
 
     def concatenate_all_chroms(self):
         dst = self.config.mappable_regions_filename()
@@ -254,9 +254,11 @@ class MappableRegionsPipeline(object):
             print("fut done:", fut.done())
             print("fut exception:", fut.exception())
             print("fut traceback:", fut.traceback())
-            if fut.traceback() is not None:
-                traceback.print_tb(fut.traceback())
-            if fut.exception() is None:
-                print(fut.result())
+            print("fut result:", fut.result())
+
+            # if fut.traceback() is not None:
+            #     traceback.print_tb(fut.traceback())
+            # if fut.exception() is None:
+            #     print(fut.result())
 
         self.concatenate_all_chroms()
