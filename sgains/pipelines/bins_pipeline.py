@@ -35,7 +35,11 @@ class BinsPipeline(object):
                 end = row['bin.end']
                 seq = chrom_seq.seq[start:end]
                 counts = [seq.count(x) for x in ['G', 'C', 'A', 'T']]
-                gc = float(sum(counts[0:2])) / sum(counts)
+                total_counts = sum(counts)
+                if total_counts == 0:
+                    gc = 0.0
+                else:
+                    gc = float(sum(counts[0:2])) / sum(counts)
                 gc_series.iloc[index] = gc
 
             gc_df['gc.content'] = gc_series
@@ -185,8 +189,8 @@ class BinsPipeline(object):
         if self.config.dry_run:
             return
 
-        # pool = multiprocessing.Pool(processes=self.config.parallel)
-        # pool.map(self.run_once, self.hg.version.CHROMS)
+        assert self.hg.chrom_sizes() is not None
+
         delayed_tasks = dask_client.map(
                 self.run_once, self.hg.version.CHROMS)
         print(len(delayed_tasks), delayed_tasks)
