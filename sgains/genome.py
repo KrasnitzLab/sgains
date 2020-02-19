@@ -75,9 +75,12 @@ class Genome(object):
                 result = self.calc_chrom_sizes()
                 result.to_yaml(filename)
 
+            assert os.path.exists(filename), filename
+
             with open(filename, 'r') as infile:
                 result = Box.from_yaml(infile)
                 self._chrom_sizes = result
+
         return self._chrom_sizes
 
     def load_mappable_regions(self):
