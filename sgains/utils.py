@@ -17,31 +17,38 @@ LOG = logging.getLogger('')
 
 class Mapping(object):
     def __init__(
-            self, name=None, flag=None, chrom=None, start=None, mapq=None):
+            self, name=None, flag=None, chrom=None, start=None,
+            mapq=None, cigar=None, length=None):
         self.flag = flag
         self.chrom = chrom
         self.start = start
         self.name = name
         self.mapq = mapq
+        self.cigar = cigar
+        self.length = length
 
     @staticmethod
     def parse_sam(line):
         row = line.rstrip().split("\t")
+
         name = row[0]
         flag = int(row[1])
         chrom = row[2]
         start = int(row[3])
         mapq = int(row[4])
+        cigar = row[5]
 
         return Mapping(
-            name=name, flag=flag, chrom=chrom, start=start, mapq=mapq)
+            name=name, flag=flag, chrom=chrom, start=start,
+            mapq=mapq, cigar=cigar, length=len(row[9]))
 
     def __repr__(self):
         return f"ID:{self.name}: "\
             f"F{self.flag}:Q{self.mapq}, POS: {self.chrom}:{self.start}"
 
     def acceptable(self):
-        return self.flag == 0 and self.mapq > 30
+        return self.flag == 0 and self.mapq > 30 and \
+            self.cigar == f'{self.length}M'
 
 
 class MappableRegion(object):

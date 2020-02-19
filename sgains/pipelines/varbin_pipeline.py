@@ -71,6 +71,8 @@ class VarbinPipeline(object):
                 chrom = seg.reference_name
                 if chrom not in chroms:
                     continue
+                if seg.cigarstring != f'{seg.reference_length}M':
+                    continue
 
                 abspos = chrom_sizes[chrom].abspos + seg.reference_start
                 if prev_pos == abspos:
