@@ -128,9 +128,9 @@ class MappableRegionsPipeline(object):
                         id="{}.{}".format(chrom, i + 1),
                         description="generated_read"
                     )
-                    if 'N' in seq:
-                        print('skipping: ', out_record)
-                        continue
+                    # if 'N' in seq:
+                    #     print('skipping: ', out_record)
+                    #     continue
                     yield out_record
         finally:
             pass

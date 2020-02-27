@@ -47,8 +47,10 @@ class Mapping(object):
             f"F{self.flag}:Q{self.mapq}, POS: {self.chrom}:{self.start}"
 
     def acceptable(self):
-        return self.flag == 0 and self.mapq > 30 and \
-            self.cigar == f'{self.length}M'
+        if self.cigar != f'{self.length}M':
+            print("mapping: not exact match:", self, self.cigar)
+
+        return self.flag == 0 and self.mapq > 30
 
 
 class MappableRegion(object):
@@ -151,7 +153,7 @@ class MappableBin(object):
         self.bin_size = 0
 
     def check_extend(self, region):
-        assert region['start_pos'] >= self.end_pos, (self, region)
+        assert region['start_pos'] + 1 >= self.end_pos, (self, region)
         assert region['end_pos'] > region['start_pos'], (self, region)
 
         region_size = region['end_pos'] - region['start_pos']

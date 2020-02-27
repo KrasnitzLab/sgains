@@ -3,7 +3,6 @@ Created on Jul 13, 2017
 
 @author: lubo
 '''
-import os
 import subprocess
 
 from dask import distributed
@@ -29,7 +28,6 @@ class MappingPipeline(object):
 
     @staticmethod
     def execute_once(dry_run, pipeline):
-        print(os.environ)
         mapping_command, index_command = pipeline
         print(colored(mapping_command, "green"))
         if not dry_run:
@@ -39,10 +37,6 @@ class MappingPipeline(object):
                 # stderr=subprocess.DEVNULL,
                 shell=True)
             assert res == 0
-            # print(res)
-            # print(res.cmd)
-            # print(res.stdout)
-            # print(res.stderr)
         print(colored(index_command, "green"))
         if not dry_run:
             res = subprocess.check_call(
@@ -51,7 +45,6 @@ class MappingPipeline(object):
                 # stderr=subprocess.DEVNULL,
                 shell=True)
             assert res == 0
-            # print(res)
 
     def run(self, dask_client):
         fastq_filenames = self.config.mapping_reads_filenames()
