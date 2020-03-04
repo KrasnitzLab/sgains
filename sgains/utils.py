@@ -47,10 +47,12 @@ class Mapping(object):
             f"F{self.flag}:Q{self.mapq}, POS: {self.chrom}:{self.start}"
 
     def acceptable(self):
-        if self.cigar != f'{self.length}M':
-            print("mapping: not exact match:", self, self.cigar)
-
-        return self.flag == 0 and self.mapq > 30
+        result =  self.flag == 0 and self.mapq > 30
+        if result:
+            if self.cigar != f'{self.length}M':
+                print("mapping: not exact match:", self, self.cigar)
+            return True        
+        return False
 
 
 class MappableRegion(object):
