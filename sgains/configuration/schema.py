@@ -32,59 +32,111 @@ sge_schema = {
 
 
 aligner_schema = {
-    "aligner_name": {"type": "string", "allowed": ["bowtie", "hisat2"]},
+    "aligner_name": {
+        "type": "string",
+        "allowed": ["bowtie", "hisat2"],
+        "default": "bowtie",
+        "meta": {
+            "help": "aligner to use in sGAINS subcommands"
+        },
+
+    },
 }
 
 
 genome_schema = {
-    "genome_version": {"type": "string", "allowed": ["hg19", "hg38"]},
+    "genome_version": {
+        "type": "string",
+        "allowed": ["hg19", "hg38"],
+        "default": "hg19",
+        "meta": {
+            "help": "version of reference genome to use"
+        },
+    },
     "genome_pristine_dir": {
         "type": "string", 
         "coerce": "abspath",
-        "check_with": validate_existing_path
+        "check_with": validate_existing_path,
+        "meta": {
+            "help": "directory where clean copy of reference genome "
+            "is located"
+        },
     },
     "genome_dir": {
         "type": "string", 
         "coerce": "abspath",
-        "check_with": validate_path
+        "check_with": validate_path,
+        "meta": {
+            "help": "genome index working directory"
+        },
     },
     "genomeindex_prefix": {
         "type": "string",
         "default": "genomeindex",
+        "meta": {
+            "help": "genome index prefix"
+        },
     },
 }
 
 
 mappable_regions_schema = {
-    "mappable_read_length": {"type": "integer", "default": 100},
+    "mappable_read_length": {
+        "type": "integer",
+        "default": 100,
+        "meta": {
+            "help": "read length to use for generation of mappable regions"
+        },
+    },
     "mappable_dir": {
         "type": "string",
         "coerce": "abspath",
         "check_with": validate_path,
+        "meta": {
+            "help": "directory where mappable regions working files are "
+            "stored"
+        },
     },
     "mappable_file": {
         "type": "string",
         "default": "mappable_regions.txt",
+        "meta": {
+            "help": "filename for mappable regions results"
+        },
     },
     "mappable_aligner_options": {
         "type": "string",
         "default": "",
+        "meta": {
+            "help": "additional aligner options for use when computing "
+            "uniquely mappable regions"
+        },
     },
 }
 
 
 bins_schema = {
     "bins_count": {
-        "type": "integer", "default": 10000,
+        "type": "integer",
+        "default": 10000,
+        "meta": {
+            "help": "number of bins"
+        },
     },
     "bins_dir": {
         "type": "string",
         "coerce": "abspath",
         "check_with": validate_path,
+        "meta": {
+            "help": "bins working directory"
+        },
     },
     "bins_file": {
         "type": "string",
         "default": "bins_boundaries.txt",
+        "meta": {
+            "help": "bins boundaries filename"
+        },
     },
 }
 
@@ -93,10 +145,16 @@ reads_schema = {
         "type": "string",
         "coerce": "abspath",
         "check_with": validate_existing_path,
+        "meta": {
+            "help": "data directory where sequencing reads are located"
+        },
     },
     "reads_suffix": {
         "type": "string",
         "default": ".fastq.gz",
+        "meta": {
+            "help": "reads files suffix pattern"
+        },
     },
 }
 
@@ -105,14 +163,23 @@ mapping_schema = {
         "type": "string",
         "coerce": "abspath",
         "check_with": validate_path,
+        "meta": {
+            "help": "data directory where mapping files are located"
+        },
     },
     "mapping_suffix": {
         "type": "string",
         "default": ".rmdup.bam",
+        "meta": {
+            "help": "mapping files suffix pattern"
+        },
     },
     "mapping_aligner_options": {
         "type": "string",
         "default": "",
+        "meta": {
+            "help": "additional aligner mapping options"
+        },
     },
 }
 
@@ -122,40 +189,72 @@ varbin_schema = {
         "type": "string",
         "coerce": "abspath",
         "check_with": validate_path,
+        "meta": {
+            "help": "varbin working directory"
+        },
     },
     "varbin_suffix": {
         "type": "string",
         "default": ".varbin.txt",
+        "meta": {
+            "help": "varbin files suffix pattern"
+        },
     },
 }
 
 
 scclust_schema = {
-    "scclust_case": {"type": "string"},
+    "scclust_case": {
+        "type": "string",
+        "meta": {
+            "help": "SCclust case name"
+        },
+    },
 
     "scclust_dir": {
         "type": "string",
         "coerce": "abspath",
         "check_with": validate_path,
+        "meta": {
+            "help": "SCclust working directory"
+        },
     },
     "scclust_cytoband_file": {
         "coerce": "abspath",
         "check_with": validate_existing_path,
+        "meta": {
+            "help": "location of cyto band description file"
+        },
     },
     "scclust_nsim": {
         "type": "integer", "default": 150,
+        "meta": {
+            "help": "SCclust number of simulations"
+        },
     },
     "scclust_sharemin": {
         "type": "float", "default": 0.85,
+        "meta": {
+            "help": "SCclust sharemin parameter"
+        },
     },
     "scclust_fdrthres": {
         "type": "integer", "default": -3,
+        "meta": {
+            "help": "SCclust fdrthres parameter"
+        },
     },
     "scclust_nshare": {
         "type": "integer", "default": 4,
+        "meta": {
+            "help": "SCclust nshare parameter"
+        },
     },
     "scclust_climbtoshare": {
         "type": "integer", "default": 5,
+        "meta": {
+            "help": "SCclust climbtoshare parameter"
+        },
     },
 }
 

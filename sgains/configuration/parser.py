@@ -27,7 +27,7 @@ def _dict_to_namedtuple(input_dict, dict_name="root"):
 
 class SgainsValidator(Validator):
     def _normalize_coerce_abspath(self, value: str) -> str:
-        directory = self._config["conf_dirname"]
+        directory = self._config["work_dirname"]
         if not os.path.isabs(value):
             value = os.path.join(directory, value)
         return os.path.normpath(value)
@@ -35,8 +35,25 @@ class SgainsValidator(Validator):
 
 class Config:
 
-    def __init__(self):
-        pass
+    def __init__(self, config_tuple):
+        self.config = config_tuple
+
+    @staticmethod
+    def parse_argv(argv):
+        if '-c' in argv:
+            index = argv.index('-c')
+        elif '--config' in argv:
+            index = argv.index('--config')
+        else:
+            return None
+
+        index += 1
+        if index < 0 or index >= len(argv):
+            raise ValueError('config filename not found')
+
+        filename = argv[index]
+        config = Config.parse(filename)
+        return config
 
     @staticmethod
     def parse(filename):
@@ -48,7 +65,7 @@ class Config:
         conf_dirname = os.path.dirname(filename)
 
         validator = SgainsValidator(
-            sgains_schema, conf_dirname=conf_dirname)
+            sgains_schema, work_dirname=conf_dirname)
         assert validator.validate(result), validator.errors
 
-        return _dict_to_namedtuple(validator.document, "sgains")
+        return Config(_dict_to_namedtuple(validator.document, "sgains"))

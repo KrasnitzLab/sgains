@@ -32,6 +32,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'sgains-tools=sgains.cli:main',
+            "sg=sgains.tool:main"
         ]
     },
     classifiers=(
