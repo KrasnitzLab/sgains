@@ -14,12 +14,12 @@ class Aligner:
     @classmethod
     def from_config(cls, config, genome_version) -> Optional['Aligner']:
         assert config is not None
-        if config.genome.aligner == 'bowtie':
+        if config.aligner.aligner_name == 'bowtie':
             return Bowtie(config, genome_version)
-        elif config.genome.aligner == 'hisat2':
+        elif config.aligner.aligner_name == 'hisat2':
             return Hisat2(config, genome_version)
 
-        assert False, f'Unsupported aligner {config.genome.aligner}'
+        assert False, f'Unsupported aligner {config.aligner.aligner_name}'
 
     @property
     def name(self):

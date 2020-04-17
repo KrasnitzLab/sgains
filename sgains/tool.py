@@ -4,12 +4,20 @@ from copy import deepcopy
 
 import traceback
 import functools
+from collections import defaultdict
+
+import yaml
 
 from argparse import ArgumentParser,\
     RawDescriptionHelpFormatter, ArgumentDefaultsHelpFormatter
 
 from sgains.configuration.parser import SgainsValidator, Config
 from sgains.configuration.schema import sgains_schema
+
+from sgains.commands.common import Command
+
+from sgains.pipelines.mappableregions_pipeline import MappableRegionsPipeline
+from sgains.pipelines.genomeindex_pipeline import GenomeIndexPipeline
 
 
 SGAINS_COMMANDS = {
@@ -81,6 +89,14 @@ def build_common_options(parser):
         default=1
     )
 
+    parser.add_argument(
+        "--sge",
+        dest="sge",
+        action="store_true",
+        help="parallelilizes commands using SGE cluster manager",
+        default=False
+    )
+
 
 def _get_config_value(config, group_name, name):
 
@@ -94,8 +110,11 @@ def _get_config_value(config, group_name, name):
     return result
 
 
-def build_cli_options(parser, command=None, config=None):
+def build_cli_options(argparser, command=None, config=None):
     work_dirname = os.getcwd()
+    if config is not None:
+        work_dirname = config.validator._config["work_dirname"]
+
     validator = SgainsValidator(
         deepcopy(sgains_schema), work_dirname=work_dirname)
 
@@ -110,7 +129,7 @@ def build_cli_options(parser, command=None, config=None):
     for group_name in config_groups:
 
         group = validator.schema.get(group_name)
-        group_parser = parser.add_argument_group(f"{group_name} group:")
+        group_parser = argparser.add_argument_group(f"{group_name} group:")
         assert group["type"] == "dict", (group_name, group)
 
         group_schema = group["schema"]
@@ -139,7 +158,6 @@ def build_cli_options(parser, command=None, config=None):
             if arg_default is None:
                 arg_default = arg_spec.get("default")
 
-            print("arg_default:", group_name, arg_name, "->", arg_default)
             group_parser.add_argument(
                 name,
                 help=help_data,
@@ -147,7 +165,55 @@ def build_cli_options(parser, command=None, config=None):
                 type=arg_type,
                 default=arg_default)
 
-    return parser
+    return argparser
+
+
+def parse_cli_options(args):
+    config_dict = defaultdict(dict)
+    work_dirname = os.getcwd()
+
+    if args.config is not None:
+        assert os.path.exists(args.config), args.config
+
+        with open(args.config, "r") as infile:
+            config_dict = yaml.safe_load(infile)
+        work_dirname = os.path.dirname(args.config)
+
+    validator = SgainsValidator(
+        deepcopy(sgains_schema), work_dirname=work_dirname)
+
+    result = defaultdict(dict)
+
+    config_groups = list(validator.schema.keys())
+    for group_name in config_groups:
+
+        group = validator.schema.get(group_name)
+        group_schema = group["schema"]
+
+        group_result = {}
+        for arg_name in group_schema.keys():
+            arg_value = getattr(args, arg_name, None)
+            if arg_value is not None:
+                group_result[arg_name] = arg_value
+            else:
+                config_value = config_dict.get(group_name, None)
+                if config_value is not None:
+                    config_value = config_value.get(arg_name, None)
+                if config_value is not None:
+                    group_result[arg_name] = config_value
+        if group_result:
+            result[group_name] = group_result
+
+    config = Config.from_dict(result, work_dirname)
+    config.verbose = args.verbose
+    config.config_file = args.config
+    config.dry_run = args.dry_run
+    config.force = args.force
+    config.parse = args.parallel
+    config.sge = args.sge
+
+    return config
+
 
 def main(argv=sys.argv[1:]):
     program_name = os.path.basename(sys.argv[0])
@@ -199,9 +265,25 @@ USAGE
         sys.stderr.write('\n')
         return 2
 
+def create_pipeline(command, config):
+    if command == "genome":
+        return GenomeIndexPipeline(config)
+    elif command == "mappable-regions":
+        return MappableRegionsPipeline(config)
+    
+    raise ValueError(f"Unexpected command: {command}")
+
 def execute(command, args):
     print("EXECUTE!!!!")
     print(command, args)
+    config = parse_cli_options(args)
+    print(config.config)
+
+    pipeline = create_pipeline(command, config)
+    assert pipeline is not None, command
+
+    executor = Command(config)
+    executor.run_pipeline(pipeline)
 
 
 if __name__ == "__main__":
