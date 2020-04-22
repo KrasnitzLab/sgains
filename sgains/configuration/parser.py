@@ -1,6 +1,7 @@
 import os
 from collections import namedtuple
 
+from box import Box
 import yaml
 from termcolor import colored
 
@@ -26,6 +27,10 @@ def _dict_to_namedtuple(input_dict, dict_name="root"):
     return CONFIG_TUPLE(*input_dict.values())  # type: ignore
 
 
+def _dict_to_box(input_dict):
+    return Box(input_dict, frozen_box=True)
+
+
 class SgainsValidator(Validator):
     def _normalize_coerce_abspath(self, value: str) -> str:
         directory = self._config["work_dirname"]
@@ -36,9 +41,8 @@ class SgainsValidator(Validator):
 
 class Config:
 
-    def __init__(self, config_tuple, validator):
-        self.config = config_tuple
-        self.validator = validator
+    def __init__(self, config):
+        self.config = config
         self.verbose = 0
         self.config_file = None
         self.dry_run = False
@@ -74,17 +78,21 @@ class Config:
 
     @staticmethod
     def from_dict(config_dict, work_dirname):
+        config_dict["work_dir"] = os.path.abspath(work_dirname)
+
         validator = SgainsValidator(
             sgains_schema, work_dirname=work_dirname)
         assert validator.validate(config_dict), validator.errors
 
-        return Config(
-            _dict_to_namedtuple(validator.document, "sgains"),
-            validator)
+        return Config(_dict_to_box(validator.document))
+
+        # return Config(
+        #     _dict_to_namedtuple(validator.document, "sgains"),
+        #     validator)
 
     @property
     def schema(self):
-        return self.validator.schema
+        return sgains_schema
 
     def check_nonempty_workdir(self, dirname):
         if not os.path.exists(dirname):
@@ -96,7 +104,34 @@ class Config:
                 "red"))
             raise ValueError(f"Non empyt directory {dirname}")
 
+    def mappable_regions_filename(self, chrom=None):
+        mname = self.config.mappable_regions.mappable_file
+        if chrom:
+            mname = "{}_{}".format(
+                chrom, self.config.mappable_regions.mappable_file)
+        filename = os.path.join(
+            self.mappable_regions.mappable_dir,
+            mname
+        )
+        return filename
+
+    def bins_boundaries_filename(self, chrom=None):
+        bname = self.config.bins.bins_file
+        if chrom:
+            bname = "{}_{}".format(
+                chrom, self.config.bins.bins_file)
+        filename = os.path.join(
+            self.config.bins.bins_dir,
+            bname
+        )
+        return filename
+
     def __getattr__(self, attr_name):
+        # FIXME Temporary hack to enable default values
+        # only for public attributes
+        if attr_name[0:2] == "__":
+            raise AttributeError()
+
         if attr_name not in self.schema.keys():
             raise ValueError(f"Unexpected attribute {attr_name}")
         return getattr(self.config, attr_name)

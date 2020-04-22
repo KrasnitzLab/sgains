@@ -18,6 +18,7 @@ from sgains.commands.common import Command
 
 from sgains.pipelines.mappableregions_pipeline import MappableRegionsPipeline
 from sgains.pipelines.genomeindex_pipeline import GenomeIndexPipeline
+from sgains.pipelines.bins_pipeline import BinsPipeline
 
 
 SGAINS_COMMANDS = {
@@ -113,7 +114,7 @@ def _get_config_value(config, group_name, name):
 def build_cli_options(argparser, command=None, config=None):
     work_dirname = os.getcwd()
     if config is not None:
-        work_dirname = config.validator._config["work_dirname"]
+        work_dirname = config.work_dir
 
     validator = SgainsValidator(
         deepcopy(sgains_schema), work_dirname=work_dirname)
@@ -185,10 +186,13 @@ def parse_cli_options(args):
     result = defaultdict(dict)
 
     config_groups = list(validator.schema.keys())
+
     for group_name in config_groups:
 
         group = validator.schema.get(group_name)
-        group_schema = group["schema"]
+        group_schema = group.get("schema")
+        if group_schema is None:
+            continue
 
         group_result = {}
         for arg_name in group_schema.keys():
@@ -209,7 +213,7 @@ def parse_cli_options(args):
     config.config_file = args.config
     config.dry_run = args.dry_run
     config.force = args.force
-    config.parse = args.parallel
+    config.parallel = args.parallel
     config.sge = args.sge
 
     return config
@@ -268,9 +272,11 @@ USAGE
 def create_pipeline(command, config):
     if command == "genome":
         return GenomeIndexPipeline(config)
-    elif command == "mappable-regions":
+    elif command == "mappable_regions":
         return MappableRegionsPipeline(config)
-    
+    elif command == "bins":
+        return BinsPipeline(config)
+
     raise ValueError(f"Unexpected command: {command}")
 
 def execute(command, args):

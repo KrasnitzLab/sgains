@@ -318,6 +318,10 @@ mapping_10x_schema = {
 
 
 sgains_schema = {
+    "work_dir": {
+        "type": "string",
+        "check_with": validate_path,
+    },
     "sge": {
         "type": "dict", "schema": sge_schema,
     },

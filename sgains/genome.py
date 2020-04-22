@@ -89,7 +89,7 @@ class Genome(object):
 
     def chrom_sizes(self):
         if self._chrom_sizes is None:
-            filename = self.config.chrom_sizes_filename()
+            filename = self.chrom_sizes_filename()
             if not os.path.exists(filename):
                 result = self.calc_chrom_sizes()
                 result.to_yaml(filename)
@@ -138,6 +138,13 @@ class Genome(object):
         rec = SeqRecord(masked, id=chr_y.id, description=chr_y.description)
         return rec
 
+    def mappable_positions_count_filename(self):
+        filename = os.path.join(
+            self.config.bins.bins_dir,
+            "B{}_mappable_positions_count.yaml".format(
+                self.config.bins.bins_count))
+        return filename
+
     def calc_chrom_mappable_positions_count(self):
         filename = self.config.mappable_regions_filename()
         assert os.path.exists(filename)
@@ -151,7 +158,7 @@ class Genome(object):
 
     def chrom_mappable_positions_count(self):
         if self._chrom_mappable_positions_count is None:
-            filename = self.config.mappable_positions_count_filename()
+            filename = self.mappable_positions_count_filename()
             if not os.path.exists(filename):
                 result = self.calc_chrom_mappable_positions_count()
                 directory = os.path.dirname(filename)
