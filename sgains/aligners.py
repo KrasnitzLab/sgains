@@ -2,7 +2,7 @@ import os
 
 from typing import List, Optional
 
-from sgains.config import Config
+from sgains.configuration.parser import Config
 
 
 class Aligner:
@@ -76,19 +76,18 @@ class Aligner:
 
     def build_report_filename(self, fastq_filename: str) -> str:
         cellname = Config.cellname(fastq_filename)
-        reportfile = self.config.abspath(os.path.join(
-            self.config.mapping_dirname(),
+        reportfile = os.path.join(
+            self.config.mapping.mapping_dir,
             f"{cellname}.aligner_report.log"
-        ))
+        )
         return reportfile
 
     def build_output_samfile(self, fastq_filename: str) -> str:
         cellname = Config.cellname((fastq_filename))
         outfile = os.path.join(
-            self.config.mapping_dirname(),
+            self.config.mapping.mapping_dir,
             "{}.rmdup.bam".format(cellname)
         )
-        outfile = self.config.abspath(outfile)
         return outfile
 
     def build_samtools_store_command(self, fastq_filename: str) -> List[str]:

@@ -135,3 +135,7 @@ class Config:
         if attr_name not in self.schema.keys():
             raise ValueError(f"Unexpected attribute {attr_name}")
         return getattr(self.config, attr_name)
+
+    @staticmethod
+    def cellname(filename):
+        return os.path.basename(filename).split(os.extsep, 1)[0]
