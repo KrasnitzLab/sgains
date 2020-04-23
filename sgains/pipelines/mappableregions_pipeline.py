@@ -219,7 +219,7 @@ class MappableRegionsPipeline(object):
         if not self.config.dry_run:
             with open(dst, 'wb') as output:
                 for chrom in self.genome.version.CHROMS:
-                    src = self.config.mappable_regions_filename(chrom)
+                    src = self.mappable_regions_chrom_filename(chrom)
                     print(colored(
                         "appending {} to {}".format(src, dst),
                         "green"))
