@@ -99,12 +99,3 @@ class Rpipeline(object):
                     stdout=sys.stdout, stderr=sys.stdout,
                     # stdout=shutup, stderr=shutup,
                 )
-
-
-if __name__ == "__main__":
-    config = Config.load("sgains.yml")
-    print(config)
-
-    pipeline = Rpipeline(config)
-
-    pipeline.run()

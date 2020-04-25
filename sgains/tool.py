@@ -20,6 +20,8 @@ from sgains.pipelines.mappableregions_pipeline import MappableRegionsPipeline
 from sgains.pipelines.genomeindex_pipeline import GenomeIndexPipeline
 from sgains.pipelines.bins_pipeline import BinsPipeline
 from sgains.pipelines.mapping_pipeline import MappingPipeline
+from sgains.pipelines.extract_10x_pipeline import Extract10xPipeline
+
 from sgains.pipelines.varbin_pipeline import VarbinPipeline
 from sgains.pipelines.r_pipeline import Rpipeline
 
@@ -41,6 +43,11 @@ SGAINS_COMMANDS = {
     "mapping": {
         "config_groups": ["aligner", "genome", "reads", "mapping", "sge"],
         "help": "performs mapping of cells reads to the reference genome",
+    },
+    "extract_10x": {
+        "config_groups": [
+            "data_10x", "reads", "sge"],
+        "help": "extracts cells reads from 10x Genomics datasets",
     },
     "varbin": {
         "config_groups": ["bins", "mapping", "varbin", "sge"],
@@ -106,7 +113,7 @@ def _get_config_value(config, group_name, name):
 
     if config is None:
         return None
-    group = getattr(config.config, group_name)
+    group = config.config.get(group_name)
     if group is None:
         return None
     result = getattr(group, name)
@@ -285,6 +292,8 @@ def create_pipeline(command, config):
         return VarbinPipeline(config)
     elif command == "scclust":
         return Rpipeline(config)
+    elif command == "extract_10x":
+        return Extract10xPipeline(config)
 
     raise ValueError(f"Unexpected command: {command}")
 
