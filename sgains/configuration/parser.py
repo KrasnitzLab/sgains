@@ -139,3 +139,10 @@ class Config:
     @staticmethod
     def cellname(filename):
         return os.path.basename(filename).split(os.extsep, 1)[0]
+
+    def varbin_filename(self, cellname):
+        outfile = os.path.join(
+            self.config.varbin.varbin_dir,
+            "{}{}".format(cellname, self.config.varbin.varbin_suffix)
+        )
+        return outfile

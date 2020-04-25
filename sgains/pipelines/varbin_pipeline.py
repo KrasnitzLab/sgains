@@ -7,6 +7,7 @@ from collections import defaultdict
 from sgains.genome import Genome
 from termcolor import colored
 import os
+import glob
 import pandas as pd
 import numpy as np
 import pysam
@@ -26,6 +27,15 @@ class VarbinPipeline(object):
 
         index = index - 1
         return index
+
+    def mapping_all_filenames(self):
+        pattern = os.path.join(
+            self.config.mapping.mapping_dir,
+            "*{}".format(self.config.mapping.mapping_suffix)
+        )
+        filenames = glob.glob(pattern)
+
+        return filenames
 
     def find_bin_index_binsearch(self, bins, abspos):
         index_up = len(bins)
@@ -138,7 +148,7 @@ class VarbinPipeline(object):
                 df.to_csv(outfile, index=False, sep='\t')
 
     def run(self, dask_client):
-        mapping_filenames = self.config.mapping_all_filenames()
+        mapping_filenames = self.mapping_all_filenames()
         print(colored(
             "processing files: {}".format(mapping_filenames),
             "green"))
@@ -147,6 +157,7 @@ class VarbinPipeline(object):
             return
 
         assert dask_client
+        os.makedirs(self.config.varbin.varbin_dir, exist_ok=True)
 
         delayed_tasks = dask_client.map(self.run_once, mapping_filenames)
         distributed.wait(delayed_tasks)

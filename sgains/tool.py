@@ -20,6 +20,7 @@ from sgains.pipelines.mappableregions_pipeline import MappableRegionsPipeline
 from sgains.pipelines.genomeindex_pipeline import GenomeIndexPipeline
 from sgains.pipelines.bins_pipeline import BinsPipeline
 from sgains.pipelines.mapping_pipeline import MappingPipeline
+from sgains.pipelines.varbin_pipeline import VarbinPipeline
 
 
 SGAINS_COMMANDS = {
@@ -279,6 +280,8 @@ def create_pipeline(command, config):
         return BinsPipeline(config)
     elif command == "mapping":
         return MappingPipeline(config)
+    elif command == "varbin":
+        return VarbinPipeline(config)
 
     raise ValueError(f"Unexpected command: {command}")
 
