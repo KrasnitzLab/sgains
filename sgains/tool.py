@@ -21,6 +21,7 @@ from sgains.pipelines.genomeindex_pipeline import GenomeIndexPipeline
 from sgains.pipelines.bins_pipeline import BinsPipeline
 from sgains.pipelines.mapping_pipeline import MappingPipeline
 from sgains.pipelines.varbin_pipeline import VarbinPipeline
+from sgains.pipelines.r_pipeline import Rpipeline
 
 
 SGAINS_COMMANDS = {
@@ -282,6 +283,8 @@ def create_pipeline(command, config):
         return MappingPipeline(config)
     elif command == "varbin":
         return VarbinPipeline(config)
+    elif command == "scclust":
+        return Rpipeline(config)
 
     raise ValueError(f"Unexpected command: {command}")
 
