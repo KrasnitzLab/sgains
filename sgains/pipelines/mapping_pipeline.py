@@ -3,11 +3,13 @@ Created on Jul 13, 2017
 
 @author: lubo
 '''
+import os
+import glob
 import subprocess
 
 from dask import distributed
 
-from sgains.config import Config
+from sgains.configuration.parser import Config
 from sgains.genome import Genome
 
 from termcolor import colored
@@ -25,6 +27,15 @@ class MappingPipeline(object):
         return [
             Config.cellname(filename) for filename in filenames
         ]
+
+    def reads_filenames(self):
+        pattern = os.path.join(
+            self.config.reads.reads_dir,
+            "*{}".format(self.config.reads.reads_suffix)
+        )
+        filenames = glob.glob(pattern)
+        return filenames
+
 
     @staticmethod
     def execute_once(dry_run, pipeline):
@@ -47,16 +58,18 @@ class MappingPipeline(object):
             assert res == 0
 
     def run(self, dask_client):
-        fastq_filenames = self.config.mapping_reads_filenames()
+        fastq_filenames = self.reads_filenames()
         assert fastq_filenames
 
-        work_dirname = self.config.abspath(self.config.mapping.mapping_dir)
+        work_dirname = self.config.mapping.mapping_dir
+        os.makedirs(work_dirname, exist_ok=True)
+
         self.config.check_nonempty_workdir(
             work_dirname
         )
 
         commands = []
-        mapping_opts = self.config.mapping.mapping_opts.split(' ')
+        mapping_opts = self.config.mapping.mapping_aligner_options.split(' ')
 
         for fastq_filename in fastq_filenames:
             mapping_pipeline = self.genome.aligner\

@@ -1,0 +1,38 @@
+
+aligner:
+    aligner_name: hisat2
+
+genome:
+    genome_version: hg19
+    genome_pristine_dir: /mnt/data/safe/single_cell_demo/demo_data/hisat2_hg19/hg19_pristine
+    genome_dir: /mnt/data/safe/single_cell_demo/demo_data/hisat2_hg19/hg19
+    genomeindex_prefix: genomeindex
+    
+mappable_regions:
+    mappable_read_length: 50
+    mappable_dir: /mnt/data/safe/single_cell_demo/demo_data/hisat2_hg19/hg19_R50
+    mappable_file: hisat2_hg19_R50_mappable_regions.txt
+    mappable_aligner_options: ""
+
+bins:
+    bins_count: 20000
+    bins_dir: /mnt/data/safe/single_cell_demo/demo_data/hisat2_hg19/hg19_R50_B20k
+    bins_file: hg19_R50_B20k_bins_boundaries.txt
+
+data_10x:
+    data_10x_dir: /mnt/data/safe/single-cell/data-single-cell/10xGenomics/datasets/bj_mkn45_10pct
+    data_10x_prefix: "bj_mkn45_10pct"
+    data_10x_cell_summary: /mnt/data/safe/single-cell/data-single-cell/10xGenomics/datasets/bj_mkn45_10pct/bj_mkn45_10pct_summary.csv
+    data_10x_bam: /mnt/data/safe/single-cell/data-single-cell/10xGenomics/datasets/bj_mkn45_10pct/bj_mkn45_10pct_possorted_bam.bam
+    data_10x_bai: /mnt/data/safe/single-cell/data-single-cell/10xGenomics/datasets/bj_mkn45_10pct/bj_mkn45_10pct_possorted_bam.bam.bai
+
+    
+scclust:
+    scclust_case: "hg19_navin_T10"
+    scclust_dir: /mnt/data/safe/single_cell_demo/demo_data/hisat2_hg19/hg19_scclust
+    scclust_cytoband_file: /mnt/data/safe/single_cell_demo/demo_data/hisat2_hg19/cytoBand-hg19.txt
+    scclust_nsim: 150
+    scclust_sharemin: 0.80
+    scclust_fdrthres: -3
+    scclust_nshare: 4
+    scclust_climbtoshare: 5

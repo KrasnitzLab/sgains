@@ -7,6 +7,7 @@ from collections import defaultdict
 from sgains.genome import Genome
 from termcolor import colored
 import os
+import glob
 import pandas as pd
 import numpy as np
 import pysam
@@ -18,7 +19,7 @@ class VarbinPipeline(object):
 
     def __init__(self, config):
         self.config = config
-        self.hg = Genome(config)
+        self.genome = Genome(config)
 
     def find_bin_index(self, abspos, bins):
         index = np.searchsorted(
@@ -26,6 +27,15 @@ class VarbinPipeline(object):
 
         index = index - 1
         return index
+
+    def mapping_all_filenames(self):
+        pattern = os.path.join(
+            self.config.mapping.mapping_dir,
+            "*{}".format(self.config.mapping.mapping_suffix)
+        )
+        filenames = glob.glob(pattern)
+
+        return filenames
 
     def find_bin_index_binsearch(self, bins, abspos):
         index_up = len(bins)
@@ -50,10 +60,10 @@ class VarbinPipeline(object):
             assert os.path.exists(filename), os.path.abspath(filename)
 
             infile = pysam.AlignmentFile(filename, 'rb')
-            bins_df = self.hg.bins_boundaries()
+            bins_df = self.genome.bins_boundaries()
             assert bins_df is not None
-            chrom_sizes = self.hg.chrom_sizes()
-            chroms = set(self.hg.version.CHROMS)
+            chrom_sizes = self.genome.chrom_sizes()
+            chroms = set(self.genome.version.CHROMS)
 
             count = 0
             dups = 0
@@ -138,7 +148,7 @@ class VarbinPipeline(object):
                 df.to_csv(outfile, index=False, sep='\t')
 
     def run(self, dask_client):
-        mapping_filenames = self.config.mapping_all_filenames()
+        mapping_filenames = self.mapping_all_filenames()
         print(colored(
             "processing files: {}".format(mapping_filenames),
             "green"))
@@ -147,6 +157,7 @@ class VarbinPipeline(object):
             return
 
         assert dask_client
+        os.makedirs(self.config.varbin.varbin_dir, exist_ok=True)
 
         delayed_tasks = dask_client.map(self.run_once, mapping_filenames)
         distributed.wait(delayed_tasks)

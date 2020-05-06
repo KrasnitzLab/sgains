@@ -21,7 +21,7 @@ setuptools.setup(
     #         'pipeline.tests',
     #     ]
     # ),
-    packages=['sgains', 'sgains.commands', 'sgains.pipelines'],
+    packages=['sgains', 'sgains.configuration', 'sgains.pipelines'],
     package_dir={
         'sgains': 'sgains',
     },
@@ -31,15 +31,16 @@ setuptools.setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'sgains-tools=sgains.cli:main',
+            'sgains-tools=sgains.tool:main',
+            "sg=sgains.tool:main"
         ]
     },
-    classifiers=(
+    classifiers=[
         "Development Status :: 4 - Beta",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-    ),
-    python_requires='>=3.6',
+    ],
+    python_requires='>=3.7',
     
 )

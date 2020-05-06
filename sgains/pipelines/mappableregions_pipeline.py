@@ -183,9 +183,25 @@ class MappableRegionsPipeline(object):
             input_thread.join()
             output_thread.join()
 
-    def run_once(self, chrom):
+    def mappable_regions_chrom_filename(self, chrom):
+        mname = "{}_{}".format(
+            chrom, self.config.mappable_regions.mappable_file)
+        filename = os.path.join(
+            self.config.mappable_regions.mappable_dir,
+            mname
+        )
+        return filename
 
-        outfilename = self.config.mappable_regions_filename(chrom)
+    def mappable_regions_filename(self):
+        mname = self.config.mappable_regions.mappable_file
+        filename = os.path.join(
+            self.config.mappable_regions.mappable_dir,
+            mname
+        )
+        return filename
+
+    def run_once(self, chrom):
+        outfilename = self.mappable_regions_chrom_filename(chrom)
         with open(outfilename, "w") as outfile:
             self.generate_mappable_regions(
                 [chrom], read_length=50,
@@ -193,7 +209,7 @@ class MappableRegionsPipeline(object):
         return outfilename
 
     def concatenate_all_chroms(self):
-        dst = self.config.mappable_regions_filename()
+        dst = self.mappable_regions_filename()
         if os.path.exists(dst) and not self.config.force:
             print(colored(
                 "destination mappable regions file already exists"
@@ -203,7 +219,7 @@ class MappableRegionsPipeline(object):
         if not self.config.dry_run:
             with open(dst, 'wb') as output:
                 for chrom in self.genome.version.CHROMS:
-                    src = self.config.mappable_regions_filename(chrom)
+                    src = self.mappable_regions_chrom_filename(chrom)
                     print(colored(
                         "appending {} to {}".format(src, dst),
                         "green"))
@@ -212,12 +228,12 @@ class MappableRegionsPipeline(object):
                             shutil.copyfileobj(src, output, 1024 * 1024 * 10)
 
     def run(self, dask_client):
-        outfilename = self.config.mappable_regions_filename()
+        outfilename = self.mappable_regions_filename()
         print(colored(
             "going to generate mappable regions with length {} "
             "from genome {} into {}".format(
-                self.config.mappable_regions.length,
-                self.config.genome.work_dir,
+                self.config.mappable_regions.mappable_read_length,
+                self.config.genome.genome_dir,
                 outfilename
             ),
             "green"))
@@ -240,8 +256,7 @@ class MappableRegionsPipeline(object):
         if self.config.dry_run:
             return
 
-        if not os.path.exists(self.config.mappable_regions.work_dir):
-            os.makedirs(self.config.mappable_regions.work_dir)
+        os.makedirs(self.config.mappable_regions.mappable_dir, exist_ok=True)
 
         assert dask_client
 

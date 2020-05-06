@@ -17,7 +17,7 @@ class BinsPipeline(object):
 
     def __init__(self, config):
         self.config = config
-        self.hg = Genome(self.config)
+        self.genome = Genome(self.config)
 
     def calc_bins_gc_content(self, chroms, bins_df):
 
@@ -28,7 +28,7 @@ class BinsPipeline(object):
             gc_df.reset_index(inplace=True, drop=True)
 
             gc_series = pd.Series(index=gc_df.index)
-            chrom_seq = self.hg.load_chrom(chrom)
+            chrom_seq = self.genome.load_chrom(chrom)
 
             for index, row in gc_df.iterrows():
                 start = row['bin.start']
@@ -51,8 +51,8 @@ class BinsPipeline(object):
         return df
 
     def bins_boundaries_generator(self, chroms, mappable_regions_df):
-        chrom_sizes = self.hg.chrom_sizes()
-        chrom_bins = self.hg.calc_chrom_bins()
+        chrom_sizes = self.genome.chrom_sizes()
+        chrom_bins = self.genome.calc_chrom_bins()
 
         # if mappable_regions_df is None:
         #     mappable_regions_df = self.load_mappable_regions()
@@ -99,7 +99,7 @@ class BinsPipeline(object):
 
     def calc_bins_boundaries(self, chroms=None, regions_df=None):
         if chroms is None:
-            chroms = self.hg.version.CHROMS
+            chroms = self.genome.version.CHROMS
         bin_rows = []
         for mbin in self.bins_boundaries_generator(chroms, regions_df):
             bin_rows.append(
@@ -131,7 +131,7 @@ class BinsPipeline(object):
             f"started calculating bins for chromosome {chrom}",
             "green"
         ))
-        regions_df = self.hg.load_mappable_regions()
+        regions_df = self.genome.load_mappable_regions()
         bins_df = self.calc_bins_boundaries(
             [chrom],
             regions_df
@@ -157,7 +157,7 @@ class BinsPipeline(object):
             return
 
         dataframes = []
-        for chrom in self.hg.version.CHROMS:
+        for chrom in self.genome.version.CHROMS:
             srcfilename = self.config.bins_boundaries_filename(chrom)
             df = pd.read_csv(srcfilename, sep='\t')
             dataframes.append(df)
@@ -189,10 +189,10 @@ class BinsPipeline(object):
         if self.config.dry_run:
             return
 
-        assert self.hg.chrom_sizes() is not None
+        assert self.genome.chrom_sizes() is not None
 
         delayed_tasks = dask_client.map(
-                self.run_once, self.hg.version.CHROMS)
+                self.run_once, self.genome.version.CHROMS)
         print(len(delayed_tasks), delayed_tasks)
         print(dask_client.scheduler_info())
 

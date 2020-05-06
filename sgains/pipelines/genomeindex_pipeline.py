@@ -15,22 +15,21 @@ class GenomeIndexPipeline(object):
     def __init__(self, config):
         self.config = config
         # assert self.config.genome.version == 'hg19'
-        self.hg = Genome(self.config)
-        assert self.hg.aligner is not None
+        self.genome = Genome(self.config)
+        assert self.genome.aligner is not None
 
     def copy_chromes_files(self):
-        self.config.check_nonempty_workdir(
-            self.config.abspath(self.config.genome.work_dir))
+        self.config.check_nonempty_workdir(self.config.genome.genome_dir)
 
-        for chrom in self.hg.version.CHROMS_ALL:
+        for chrom in self.genome.version.CHROMS_ALL:
             if chrom == 'chrY':
                 continue
             src = os.path.join(
-                self.config.genome.data_dir,
+                self.config.genome.genome_pristine_dir,
                 "{}.fa".format(chrom)
             )
             dst = os.path.join(
-                self.config.genome.work_dir,
+                self.config.genome.genome_dir,
                 "{}.fa".format(chrom)
             )
             print(colored(
@@ -42,7 +41,7 @@ class GenomeIndexPipeline(object):
                 shutil.copy(src, dst)
 
     def mask_pars(self):
-        dst = self.config.chrom_filename('chrY')
+        dst = self.genome.chrom_filename('chrY')
         print(colored(
             "masking pseudoautosomal regions in chrY",
             "green")
@@ -54,11 +53,11 @@ class GenomeIndexPipeline(object):
             ))
             raise ValueError("dst file already exists")
         if not self.config.dry_run:
-            masked = self.hg.mask_chrY_pars()
-            self.hg.save_chrom(masked, 'chrY')
+            masked = self.genome.mask_chrY_pars()
+            self.genome.save_chrom(masked, 'chrY')
 
     def concatenate_all_chroms(self):
-        dirname = self.config.genome.work_dir
+        dirname = self.config.genome.genome_dir
         dst = os.path.join(
             dirname,
             'genome.fa'
@@ -71,8 +70,8 @@ class GenomeIndexPipeline(object):
 
         if not self.config.dry_run:
             with open(dst, 'wb') as output:
-                for chrom in self.hg.version.CHROMS_ALL:
-                    src = self.config.chrom_filename(chrom, pristine=False)
+                for chrom in self.genome.version.CHROMS_ALL:
+                    src = self.genome.chrom_filename(chrom, pristine=False)
                     print(colored(
                         "appending {} to {}".format(src, dst),
                         "green"))
@@ -82,18 +81,18 @@ class GenomeIndexPipeline(object):
 
     def build_aligner_index(self):
         print(colored(
-            f"building genome index of {self.hg.sequence_filename} "
-            f"into {self.hg.index_prefix}",
+            f"building genome index of {self.genome.sequence_filename} "
+            f"into {self.genome.index_prefix}",
             "green"))
-        command = " ".join(self.hg.aligner.build_index_command(
-            self.hg.sequence_filename,
-            self.hg.index_prefix
+        command = " ".join(self.genome.aligner.build_index_command(
+            self.genome.sequence_filename,
+            self.genome.index_prefix
         ))
         print(colored(
             f"going to execute aligner genome index build: {command}",
             "green"))
 
-        test_filename = self.hg.aligner.genome_index_filenames[0]
+        test_filename = self.genome.aligner.genome_index_filenames[0]
         if os.path.exists(test_filename) and not self.config.force:
             print(colored(
                 "output genome index {} already exists".format(test_filename),
@@ -103,7 +102,7 @@ class GenomeIndexPipeline(object):
         if not self.config.dry_run:
             subprocess.check_call(command, shell=True)
 
-    def run(self, **args):
+    def run(self, **kwargs):
         self.copy_chromes_files()
         self.mask_pars()
         self.concatenate_all_chroms()

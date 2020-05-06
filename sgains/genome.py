@@ -25,17 +25,35 @@ class Genome(object):
         self.config = config
 
         self.version = GenomeVersion.from_config(config)
-        assert config.genome.version == self.version.VERSION
+        assert config.genome.genome_version == self.version.VERSION
         self.aligner = Aligner.from_config(config, self.version)
 
         # assert os.path.exists(config.genome.data_dir)
-        if not os.path.exists(config.genome.work_dir):
-            os.makedirs(config.genome.work_dir)
+        if not os.path.exists(config.genome.genome_dir):
+            os.makedirs(config.genome.genome_dir)
 
-        assert os.path.exists(config.genome.work_dir)
+        assert os.path.exists(config.genome.genome_dir)
         self._chrom_sizes = None
         self._chrom_bins = None
         self._chrom_mappable_positions_count = None
+
+    def chrom_filename(self, chrom, pristine=False):
+        if pristine:
+            cache_dir = self.config.genome.genome_pristine_dir
+        else:
+            cache_dir = self.config.genome.genome_dir
+        filename = os.path.join(
+            cache_dir,
+            "{}.fa".format(chrom)
+        )
+        return filename
+
+    def chrom_sizes_filename(self):
+        filename = os.path.join(
+            self.config.genome.genome_dir,
+            "chrom_sizes.yml"
+        )
+        return filename
 
     @property
     def sequence_filename(self):
@@ -46,15 +64,16 @@ class Genome(object):
         return self.version.index_prefix
 
     def load_chrom(self, chrom, pristine=False):
-        infile = self.config.chrom_filename(chrom, pristine)
-        assert os.path.exists(infile), os.path.abspath(infile)
+        infile = self.chrom_filename(chrom, pristine)
         print(f"loading chrom {chrom} from {infile}")
+
+        assert os.path.exists(infile), infile
         seq_record = SeqIO.read(infile, 'fasta')
         seq_record.seq = seq_record.seq.upper()
         return seq_record
 
     def save_chrom(self, record, chrom):
-        outfile = self.config.chrom_filename(chrom)
+        outfile = self.chrom_filename(chrom)
         SeqIO.write([record], outfile, 'fasta')
 
     def calc_chrom_sizes(self):
@@ -70,7 +89,7 @@ class Genome(object):
 
     def chrom_sizes(self):
         if self._chrom_sizes is None:
-            filename = self.config.chrom_sizes_filename()
+            filename = self.chrom_sizes_filename()
             if not os.path.exists(filename):
                 result = self.calc_chrom_sizes()
                 result.to_yaml(filename)
@@ -119,6 +138,13 @@ class Genome(object):
         rec = SeqRecord(masked, id=chr_y.id, description=chr_y.description)
         return rec
 
+    def mappable_positions_count_filename(self):
+        filename = os.path.join(
+            self.config.bins.bins_dir,
+            "B{}_mappable_positions_count.yaml".format(
+                self.config.bins.bins_count))
+        return filename
+
     def calc_chrom_mappable_positions_count(self):
         filename = self.config.mappable_regions_filename()
         assert os.path.exists(filename)
@@ -132,7 +158,7 @@ class Genome(object):
 
     def chrom_mappable_positions_count(self):
         if self._chrom_mappable_positions_count is None:
-            filename = self.config.mappable_positions_count_filename()
+            filename = self.mappable_positions_count_filename()
             if not os.path.exists(filename):
                 result = self.calc_chrom_mappable_positions_count()
                 directory = os.path.dirname(filename)

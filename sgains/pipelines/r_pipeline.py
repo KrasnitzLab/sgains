@@ -11,33 +11,30 @@ import subprocess
 
 from termcolor import colored
 
-from sgains.config import Config, NonEmptyWorkDirectory
-
 
 class Rpipeline(object):
 
     def __init__(self, config):
         self.config = config
 
-    def run(self):
+    def run(self, dask_client):
         print(self.config)
 
-        bin_boundaries_filename = os.path.abspath(
-            self.config.bins_boundaries_filename())
-        varbin_dir = self.config.varbin_dirname()
+        bin_boundaries_filename = self.config.bins_boundaries_filename()
+        varbin_dir = self.config.varbin.varbin_dir
         varbin_suffix = self.config.varbin.varbin_suffix
 
-        scclust_dirname = self.config.scclust_dirname()
-        case_name = self.config.scclust.case_name
+        scclust_dirname = self.config.scclust.scclust_dir
+        case_name = self.config.scclust.scclust_case
 
-        cytoband = os.path.abspath(self.config.scclust.cytoband)
+        cytoband = self.config.scclust.scclust_cytoband_file
         assert os.path.exists(cytoband), cytoband
 
-        nsim = self.config.scclust.nsim
-        sharemin = self.config.scclust.sharemin
-        fdrthres = self.config.scclust.fdrthres
-        nshare = self.config.scclust.nshare
-        climbtoshare = self.config.scclust.climbtoshare
+        nsim = self.config.scclust.scclust_nsim
+        sharemin = self.config.scclust.scclust_sharemin
+        fdrthres = self.config.scclust.scclust_fdrthres
+        nshare = self.config.scclust.scclust_nshare
+        climbtoshare = self.config.scclust.scclust_climbtoshare
 
         print(colored(
             "processing study {}; files from {} with suffix {} to {}".format(
@@ -67,7 +64,7 @@ class Rpipeline(object):
                     "results directory {} is not empty; "
                     "use --force to overwrite".format(scclust_dirname),
                     "red"))
-                raise NonEmptyWorkDirectory(scclust_dirname)
+                raise ValueError(f"non empty directory {scclust_dirname}")
 
         basedir = os.path.dirname(__file__)
         rscript = os.path.abspath(
@@ -100,12 +97,3 @@ class Rpipeline(object):
                     stdout=sys.stdout, stderr=sys.stdout,
                     # stdout=shutup, stderr=shutup,
                 )
-
-
-if __name__ == "__main__":
-    config = Config.load("sgains.yml")
-    print(config)
-
-    pipeline = Rpipeline(config)
-
-    pipeline.run()

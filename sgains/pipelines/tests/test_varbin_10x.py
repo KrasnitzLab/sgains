@@ -1,11 +1,13 @@
 import os
+import tempfile
+
 from contextlib import closing
 
 import pandas as pd
 
 from dask.distributed import Client, LocalCluster, Queue, worker_client
 
-from sgains.config import Config
+from sgains.configuration.parser import Config
 
 from sgains.pipelines.varbin_10x_pipeline import Varbin10xPipeline
 import pytest
@@ -18,25 +20,57 @@ def relative_to_this_test_folder(path):
     )
 
 
-def dataset_builder(dataset):
-    dataset_dir = os.path.join(
-        relative_to_this_test_folder('data'),
-        dataset
-    )
-    bins_dir = relative_to_this_test_folder('data/R100_B10k')
-    config = Config.default()
-    config.mapping_10x.data_10x_dir = dataset_dir
-    config.bins.bins_dir = bins_dir
-    config.bins.bins_boundaries = "hg19_R100_B10k_bins_boundaries.txt"
-    config.mappable_regions.chrom_sizes = \
-        relative_to_this_test_folder('data/chrom_sizes.yml')
-    print(config)
+# def dataset_builder(dataset):
+#     dataset_dir = os.path.join(
+#         relative_to_this_test_folder('data'),
+#         dataset
+#     )
+#     bins_dir = relative_to_this_test_folder('data/R100_B10k')
+#     config = Config.default()
+#     config.mapping_10x.data_10x_dir = dataset_dir
+#     config.bins.bins_dir = bins_dir
+#     config.bins.bins_boundaries = "hg19_R100_B10k_bins_boundaries.txt"
+#     config.mappable_regions.chrom_sizes = \
+#         relative_to_this_test_folder('data/chrom_sizes.yml')
+#     print(config)
 
-    return config
+#     return config
 
 
 @pytest.fixture(scope='session')
-def dataset10x():
+def dataset10x(tests_config):
+
+    def dataset_builder(dataset):
+        dataset_dir = os.path.join(
+            relative_to_this_test_folder('data'),
+            dataset
+        )
+        bins_dir = relative_to_this_test_folder('data/R100_B10k')
+        data = tests_config.to_box()
+
+        data.data_10x.data_10x_dir = dataset_dir
+        data.data_10x.data_10x_cell_summary = os.path.join(
+            dataset_dir,
+            f"selected_test_cells_chr1_1_{dataset}_per_"
+            f"cell_summary_metrics.csv"
+        )
+        data.data_10x.data_10x_bam = os.path.join(
+            dataset_dir,
+            f"selected_test_cells_chr1_1_{dataset}_possorted_bam.bam"
+        )
+        data.data_10x.data_10x_bai = os.path.join(
+            dataset_dir,
+            f"selected_test_cells_chr1_1_{dataset}_possorted_bam.bam.bai"
+        )
+        data.bins.bins_dir = bins_dir
+        data.bins.bins_file = "hg19_R100_B10k_bins_boundaries.txt"
+
+        data.varbin.varbin_dir = tempfile.mkdtemp("varbin_dir", "sgains")
+        # data.mappable_regions.chrom_sizes = \
+        #     relative_to_this_test_folder('data/chrom_sizes.yml')
+
+        return Config.from_dict(
+            data.to_dict(), relative_to_this_test_folder("."))
 
     return dataset_builder
 

@@ -9,7 +9,7 @@ class GenomeVersion(object):
     @property
     def sequence_filename(self):
         result = os.path.abspath(os.path.join(
-            self.config.genome.work_dir,
+            self.config.genome.genome_dir,
             'genome.fa'
         ))
         assert os.path.exists(result), result
@@ -18,16 +18,16 @@ class GenomeVersion(object):
     @property
     def index_prefix(self):
         result = os.path.abspath(os.path.join(
-            self.config.genome.work_dir,
-            self.config.genome.index
+            self.config.genome.genome_dir,
+            self.config.genome.genomeindex_prefix
         ))
         return result
 
     @staticmethod
     def from_config(config):
-        if config.genome.version == 'hg19':
+        if config.genome.genome_version == 'hg19':
             return HumanGenome19(config)
-        elif config.genome.version == 'hg38':
+        elif config.genome.genome_version == 'hg38':
             return HumanGenome38(config)
 
         raise NotImplementedError()

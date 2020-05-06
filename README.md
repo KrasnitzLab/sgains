@@ -15,7 +15,7 @@ Short tutorial on how to use this tool could be found in
     [https://www.anaconda.com/distribution/](https://www.anaconda.com/distribution/)
     and download the latest anaconda installer for your operating system.
 
-* *s-GAINS* supports *Python 3.6* or greater so you need to choose an
+* *s-GAINS* supports *Python 3.7* or greater so you need to choose an
     appropriate installer. Note also that since *s-GAINS* uses *bioconda*
     channel the supported operating systems are only those supported for
     *bioconda* (at the time of this writing these are Linux and Mac OS X).
@@ -40,7 +40,7 @@ Short tutorial on how to use this tool could be found in
     Annaconda channel. So to install *sGAINS* tools use:
 
     ```bash
-    conda install -c krasnitzlab -c bioconda -c conda-forge sgains
+    conda install -c defaults -c conda-forge -c krasnitzlab -c bioconda sgains
     ```
 
     This command should install all the packages and tools need for
