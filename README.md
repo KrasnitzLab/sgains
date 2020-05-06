@@ -113,39 +113,47 @@ parameters and subcommands. You can list available options of `sgains-tools` usi
 ```bash
 sgains-tools -h
 usage: sgains-tools [-h] [-v] [-c path] [-n] [--force] [--parallel PARALLEL]
-                 {process,prepare,genomeindex,mappable-regions,bins,mapping,varbin,scclust}
-                 ...
+                    [--sge]
+                    {genome,mappable-regions,bins,prepare,mapping,extract-10x,varbin,varbin-10x,scclust,process}
+                    ...
 
 sgains - sparse genomic analysis of individual nuclei by sequencing pipeline
-
 USAGE
 
 optional arguments:
   -h, --help            show this help message and exit
   -v, --verbose         set verbosity level [default: 0]
   -c path, --config path
-                        configuration file
-  -n, --dry-run         perform a trial run with no changes made
+                        configuration file (default: None)
+  -n, --dry-run         perform a trial run with no changes made (default:
+                        False)
   --force, -F           allows overwriting nonempty results directory
+                        (default: False)
   --parallel PARALLEL, -p PARALLEL
-                        number of task to run in parallel
+                        number of task to run in parallel (default: 1)
+  --sge                 parallelilizes commands using SGE cluster manager
+                        (default: False)
 
-subcommands:
-  {process,prepare,genomeindex,mappable-regions,bins,mapping,varbin,scclust}
-    process             combines mapping, varbin and scclust subcommands into
-                        single command
-    prepare             combines all preparation steps (genomeindex,
-                        mappable_regions, bins) into single command
-    genomeindex         builds appropriate bowtie index for the reference
-                        genome
+sGAINS subcommands:
+  {genome,mappable-regions,bins,prepare,mapping,extract-10x,varbin,varbin-10x,scclust,process}
+    genomeindex         builds appropriate hisat2 or bowtie index for the
+                        reference genome
     mappable-regions    finds all mappable regions in specified genome
     bins                calculates all bins boundaries for specified bins
                         count and read length
-    mapping             performs mapping of cell reads to reference genome
+    prepare             combines all preparation steps ('genome', 'mappable-
+                        regions' and 'bins') into single command
+    mapping             performs mapping of cells reads to the reference
+                        genome
+    extract-10x         extracts cells reads from 10x Genomics datasets
     varbin              applies varbin algorithm to count read mappings in
                         each bin
+    varbin-10x          applies varbin algorithm to count read mappings in
+                        each bin to 10x Genomics datasets without realigning
     scclust             segmentation and clustering based bin counts and
-                        preparation of the SCGV input data```
+                        preparation of the SCGV input data
+    process             combines all process steps ('mapping', 'varbin' and
+                        'scclust') into single command
 ```
 
 The `sgains-tools` tool supports a list of common options:
@@ -163,6 +171,9 @@ The `sgains-tools` tool supports a list of common options:
 * `--parallel`, `-p` - instructs `sgains-tools` to parallelize work on subcommands
     called.
 
+* `--sge` - parallellilize execution using SGE.
+
+
 ## Pipeline preparation
 
 ### Usage of `genomeindex` subcommand
@@ -172,25 +183,29 @@ list the available options use:
 
 ```bash
 sgains-tools genomeindex -h
-usage: sgains-tools genomeindex [-h] [--genome-index GENOME_INDEX]
-                             [--genome-dir GENOME_DIR]
-                             [--genome-version GENOME_VERSION]
-                             [--genome-pristine GENOME_PRISTINE]
+usage: sgains-tools genomeindex [-h] [--aligner-name ALIGNER_NAME]
+                                [--genome-version GENOME_VERSION]
+                                [--genome-pristine-dir GENOME_PRISTINE_DIR]
+                                [--genome-dir GENOME_DIR]
+                                [--genomeindex-prefix GENOMEINDEX_PREFIX]
 
 optional arguments:
   -h, --help            show this help message and exit
 
-genome index options:
-  --genome-index GENOME_INDEX, -G GENOME_INDEX
-                        genome index name (default: genomeindex)
-  --genome-dir GENOME_DIR
-                        genome index directory (default: hg19)
+aligner group::
+  --aligner-name ALIGNER_NAME
+                        aligner to use in sGAINS subcommands (default: bowtie)
+
+genome group::
   --genome-version GENOME_VERSION
-                        version of reference genome in use (supports only
-                        hg19) (default: hg19)
-  --genome-pristine GENOME_PRISTINE
+                        version of reference genome to use (default: hg19)
+  --genome-pristine-dir GENOME_PRISTINE_DIR
                         directory where clean copy of reference genome is
-                        located (default: hg19_pristine)
+                        located (default: None)
+  --genome-dir GENOME_DIR
+                        genome index working directory (default: None)
+  --genomeindex-prefix GENOMEINDEX_PREFIX
+                        genome index prefix (default: genomeindex)
 ```
 
 ### Usage of `mappable-regions` subcommand
@@ -217,38 +232,47 @@ To list the options available for this subcommand use:
 
 ```bash
 sgains-tools mappable-regions -h
-usage: sgains-tools mappable-regions [-h] [--mappable-dir MAPPABLE_DIR]
-                                  [--mappable-regions MAPPABLE_REGIONS]
-                                  [--read-length LENGTH]
-                                  [--bowtie-opts BOWTIE_OPTS]
-                                  [--genome-index GENOME_INDEX]
-                                  [--genome-dir GENOME_DIR]
-                                  [--genome-version GENOME_VERSION]
+usage: sgains-tools mappable-regions [-h] [--aligner-name ALIGNER_NAME]
+                                     [--genome-version GENOME_VERSION]
+                                     [--genome-pristine-dir GENOME_PRISTINE_DIR]
+                                     [--genome-dir GENOME_DIR]
+                                     [--genomeindex-prefix GENOMEINDEX_PREFIX]
+                                     [--mappable-read-length MAPPABLE_READ_LENGTH]
+                                     [--mappable-dir MAPPABLE_DIR]
+                                     [--mappable-file MAPPABLE_FILE]
+                                     [--mappable-aligner-options MAPPABLE_ALIGNER_OPTIONS]
 
 optional arguments:
   -h, --help            show this help message and exit
 
-mappable regions options:
-  --mappable-dir MAPPABLE_DIR, -m MAPPABLE_DIR
-                        directory where mappable regions file is stroed
-                        (default: R50)
-  --mappable-regions MAPPABLE_REGIONS, -M MAPPABLE_REGIONS
-                        filename where mappable regions are stored (default:
-                        hg19_R100_mappable_regions.txt)
-  --read-length LENGTH, -l LENGTH
-                        read length to use for generation of mappable regions
-                        (default: 50)
-  --bowtie-opts BOWTIE_OPTS
-                        additional bowtie options (default: )
+aligner group::
+  --aligner-name ALIGNER_NAME
+                        aligner to use in sGAINS subcommands (default: bowtie)
 
-genome index options:
-  --genome-index GENOME_INDEX, -G GENOME_INDEX
-                        genome index name (default: genomeindex)
-  --genome-dir GENOME_DIR
-                        genome index directory (default: hg19)
+genome group::
   --genome-version GENOME_VERSION
-                        version of reference genome in use (supports only
-                        hg19) (default: hg19)
+                        version of reference genome to use (default: hg19)
+  --genome-pristine-dir GENOME_PRISTINE_DIR
+                        directory where clean copy of reference genome is
+                        located (default: None)
+  --genome-dir GENOME_DIR
+                        genome index working directory (default: None)
+  --genomeindex-prefix GENOMEINDEX_PREFIX
+                        genome index prefix (default: genomeindex)
+
+mappable_regions group::
+  --mappable-read-length MAPPABLE_READ_LENGTH
+                        read length to use for generation of mappable regions
+                        (default: 100)
+  --mappable-dir MAPPABLE_DIR
+                        directory where mappable regions working files are
+                        stored (default: None)
+  --mappable-file MAPPABLE_FILE
+                        filename for mappable regions results (default:
+                        mappable_regions.txt)
+  --mappable-aligner-options MAPPABLE_ALIGNER_OPTIONS
+                        additional aligner options for use when computing
+                        uniquely mappable regions (default: )
 ```
 
 ### Usage of `bins` subcommand
@@ -259,40 +283,52 @@ To list options available for `bins` subcommand use:
 
 ```bash
 sgains-tools bins -h
-usage: sgains-tools bins [-h] [--mappable-dir MAPPABLE_DIR]
-                      [--mappable-regions MAPPABLE_REGIONS]
-                      [--bins-boundaries BINS_BOUNDARIES]
-                      [--bins-dir BINS_DIR] [--bins-count BINS_COUNT]
-                      [--genome-index GENOME_INDEX] [--genome-dir GENOME_DIR]
-                      [--genome-version GENOME_VERSION]
+usage: sgains-tools bins [-h] [--genome-version GENOME_VERSION]
+                         [--genome-pristine-dir GENOME_PRISTINE_DIR]
+                         [--genome-dir GENOME_DIR]
+                         [--genomeindex-prefix GENOMEINDEX_PREFIX]
+                         [--mappable-read-length MAPPABLE_READ_LENGTH]
+                         [--mappable-dir MAPPABLE_DIR]
+                         [--mappable-file MAPPABLE_FILE]
+                         [--mappable-aligner-options MAPPABLE_ALIGNER_OPTIONS]
+                         [--bins-count BINS_COUNT] [--bins-dir BINS_DIR]
+                         [--bins-file BINS_FILE]
 
 optional arguments:
   -h, --help            show this help message and exit
 
-mappable regions options:
-  --mappable-dir MAPPABLE_DIR, -m MAPPABLE_DIR
-                        directory where mappable regions file is stroed
-                        (default: data/R100)
-  --mappable-regions MAPPABLE_REGIONS, -M MAPPABLE_REGIONS
-                        filename where mappable regions are stored (default:
-                        hg19_R100_mappable_regions.txt)
-
-bins boundaries:
-  --bins-boundaries BINS_BOUNDARIES, -B BINS_BOUNDARIES
-                        bins boundaries filename (default:
-                        bins_boundaries.tst)
-  --bins-dir BINS_DIR   bins working directory (default: data/R100_B10k)
-  --bins-count BINS_COUNT, -C BINS_COUNT
-                        number of bins (default: 10000)
-
-genome index options:
-  --genome-index GENOME_INDEX, -G GENOME_INDEX
-                        genome index name (default: genomeindex)
-  --genome-dir GENOME_DIR
-                        genome index directory (default: data/hg19)
+genome group::
   --genome-version GENOME_VERSION
-                        version of reference genome in use (supports only
-                        hg19) (default: hg19)
+                        version of reference genome to use (default: hg19)
+  --genome-pristine-dir GENOME_PRISTINE_DIR
+                        directory where clean copy of reference genome is
+                        located (default: None)
+  --genome-dir GENOME_DIR
+                        genome index working directory (default: None)
+  --genomeindex-prefix GENOMEINDEX_PREFIX
+                        genome index prefix (default: genomeindex)
+
+mappable_regions group::
+  --mappable-read-length MAPPABLE_READ_LENGTH
+                        read length to use for generation of mappable regions
+                        (default: 100)
+  --mappable-dir MAPPABLE_DIR
+                        directory where mappable regions working files are
+                        stored (default: None)
+  --mappable-file MAPPABLE_FILE
+                        filename for mappable regions results (default:
+                        mappable_regions.txt)
+  --mappable-aligner-options MAPPABLE_ALIGNER_OPTIONS
+                        additional aligner options for use when computing
+                        uniquely mappable regions (default: )
+
+bins group::
+  --bins-count BINS_COUNT
+                        number of bins (default: 10000)
+  --bins-dir BINS_DIR   bins working directory (default: None)
+  --bins-file BINS_FILE
+                        bins boundaries filename (default:
+                        bins_boundaries.txt)
 ```
 
 ## Processing sequence data
@@ -303,7 +339,7 @@ genome index options:
 
 **Please note, that to use `process` subcommands
 (`mapping`, `varbin`, `scclust` and `process`)
-you need go through preparation steps.**
+you need go through all the preparation steps.**
 
 ---
 
@@ -311,49 +347,93 @@ To list the options available for `process` subcommand use:
 
 ```bash
 sgains-tools process -h
-usage: sgains-tools process [-h] [--reads-dir READS_DIR]
-                         [--reads-suffix READS_SUFFIX]
-                         [--mapping-opts MAPPING_OPTS]
-                         [--output-dir OUTPUT_DIR] [--case-name CASE_NAME]
-                         [--genome-index GENOME_INDEX]
-                         [--genome-dir GENOME_DIR]
-                         [--genome-version GENOME_VERSION]
-                         [--bins-boundaries BINS_BOUNDARIES]
-                         [--bins-dir BINS_DIR]
+usage: sgains-tools process [-h] [--aligner-name ALIGNER_NAME]
+                            [--genome-version GENOME_VERSION]
+                            [--genome-pristine-dir GENOME_PRISTINE_DIR]
+                            [--genome-dir GENOME_DIR]
+                            [--genomeindex-prefix GENOMEINDEX_PREFIX]
+                            [--reads-dir READS_DIR]
+                            [--reads-suffix READS_SUFFIX]
+                            [--mapping-dir MAPPING_DIR]
+                            [--mapping-suffix MAPPING_SUFFIX]
+                            [--mapping-aligner-options MAPPING_ALIGNER_OPTIONS]
+                            [--bins-count BINS_COUNT] [--bins-dir BINS_DIR]
+                            [--bins-file BINS_FILE] [--varbin-dir VARBIN_DIR]
+                            [--varbin-suffix VARBIN_SUFFIX]
+                            [--scclust-case SCCLUST_CASE]
+                            [--scclust-dir SCCLUST_DIR]
+                            [--scclust-cytoband-file SCCLUST_CYTOBAND_FILE]
+                            [--scclust-nsim SCCLUST_NSIM]
+                            [--scclust-sharemin SCCLUST_SHAREMIN]
+                            [--scclust-fdrthres SCCLUST_FDRTHRES]
+                            [--scclust-nshare SCCLUST_NSHARE]
+                            [--scclust-climbtoshare SCCLUST_CLIMBTOSHARE]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --mapping-opts MAPPING_OPTS
-                        bowtie mapping options (default: -S -t -m 1 --best
-                        --strata --chunkmbs 256)
 
-sequencing reads options:
-  --reads-dir READS_DIR, -R READS_DIR
+aligner group::
+  --aligner-name ALIGNER_NAME
+                        aligner to use in sGAINS subcommands (default: bowtie)
+
+genome group::
+  --genome-version GENOME_VERSION
+                        version of reference genome to use (default: hg19)
+  --genome-pristine-dir GENOME_PRISTINE_DIR
+                        directory where clean copy of reference genome is
+                        located (default: None)
+  --genome-dir GENOME_DIR
+                        genome index working directory (default: None)
+  --genomeindex-prefix GENOMEINDEX_PREFIX
+                        genome index prefix (default: genomeindex)
+
+reads group::
+  --reads-dir READS_DIR
                         data directory where sequencing reads are located
-                        (default: SRA)
+                        (default: None)
   --reads-suffix READS_SUFFIX
                         reads files suffix pattern (default: .fastq.gz)
 
-process output options:
-  --output-dir OUTPUT_DIR, -o OUTPUT_DIR
-                        output directory (default: scgv)
-  --case-name CASE_NAME
-                        case name (default: navin_T10)
+mapping group::
+  --mapping-dir MAPPING_DIR
+                        data directory where mapping files are located
+                        (default: None)
+  --mapping-suffix MAPPING_SUFFIX
+                        mapping files suffix pattern (default: .rmdup.bam)
+  --mapping-aligner-options MAPPING_ALIGNER_OPTIONS
+                        additional aligner mapping options (default: )
 
-genome index options:
-  --genome-index GENOME_INDEX, -G GENOME_INDEX
-                        genome index name (default: genomeindex)
-  --genome-dir GENOME_DIR
-                        genome index directory (default: hg19)
-  --genome-version GENOME_VERSION
-                        version of reference genome in use (supports only
-                        hg19) (default: hg19)
-
-bins boundaries:
-  --bins-boundaries BINS_BOUNDARIES, -B BINS_BOUNDARIES
+bins group::
+  --bins-count BINS_COUNT
+                        number of bins (default: 10000)
+  --bins-dir BINS_DIR   bins working directory (default: None)
+  --bins-file BINS_FILE
                         bins boundaries filename (default:
-                        hg19_R50_B20k_bins_boundaries.txt)
-  --bins-dir BINS_DIR   bins working directory (default: R50_B20k)
+                        bins_boundaries.txt)
+
+varbin group::
+  --varbin-dir VARBIN_DIR
+                        varbin working directory (default: None)
+  --varbin-suffix VARBIN_SUFFIX
+                        varbin files suffix pattern (default: .varbin.txt)
+
+scclust group::
+  --scclust-case SCCLUST_CASE
+                        SCclust case name (default: None)
+  --scclust-dir SCCLUST_DIR
+                        SCclust working directory (default: None)
+  --scclust-cytoband-file SCCLUST_CYTOBAND_FILE
+                        location of cyto band description file (default: None)
+  --scclust-nsim SCCLUST_NSIM
+                        SCclust number of simulations (default: 150)
+  --scclust-sharemin SCCLUST_SHAREMIN
+                        SCclust sharemin parameter (default: 0.85)
+  --scclust-fdrthres SCCLUST_FDRTHRES
+                        SCclust fdrthres parameter (default: -3)
+  --scclust-nshare SCCLUST_NSHARE
+                        SCclust nshare parameter (default: 4)
+  --scclust-climbtoshare SCCLUST_CLIMBTOSHARE
+                        SCclust climbtoshare parameter (default: 5)
 ```
 
 * The data created by the `process` subcommand are placed in a subdirectory,
@@ -390,43 +470,50 @@ To list the options available for `mapping` subcommand use:
 
 ```bash
 sgains-tools mapping -h
-usage: sgains-tools mapping [-h] [--reads-dir READS_DIR]
-                         [--reads-suffix READS_SUFFIX]
-                         [--mapping-dir MAPPING_DIR]
-                         [--mapping-suffix MAPPING_SUFFIX]
-                         [--mapping-bowtie-opts MAPPING_OPTS]
-                         [--genome-index GENOME_INDEX]
-                         [--genome-dir GENOME_DIR]
-                         [--genome-version GENOME_VERSION]
+usage: sgains-tools mapping [-h] [--aligner-name ALIGNER_NAME]
+                            [--genome-version GENOME_VERSION]
+                            [--genome-pristine-dir GENOME_PRISTINE_DIR]
+                            [--genome-dir GENOME_DIR]
+                            [--genomeindex-prefix GENOMEINDEX_PREFIX]
+                            [--reads-dir READS_DIR]
+                            [--reads-suffix READS_SUFFIX]
+                            [--mapping-dir MAPPING_DIR]
+                            [--mapping-suffix MAPPING_SUFFIX]
+                            [--mapping-aligner-options MAPPING_ALIGNER_OPTIONS]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --mapping-bowtie-opts MAPPING_OPTS
-                        bowtie mapping options (default: -S -t -m 1 --best
-                        --strata)
 
-sequencing reads options:
-  --reads-dir READS_DIR, -R READS_DIR
+aligner group::
+  --aligner-name ALIGNER_NAME
+                        aligner to use in sGAINS subcommands (default: bowtie)
+
+genome group::
+  --genome-version GENOME_VERSION
+                        version of reference genome to use (default: hg19)
+  --genome-pristine-dir GENOME_PRISTINE_DIR
+                        directory where clean copy of reference genome is
+                        located (default: None)
+  --genome-dir GENOME_DIR
+                        genome index working directory (default: None)
+  --genomeindex-prefix GENOMEINDEX_PREFIX
+                        genome index prefix (default: genomeindex)
+
+reads group::
+  --reads-dir READS_DIR
                         data directory where sequencing reads are located
-                        (default: reads)
+                        (default: None)
   --reads-suffix READS_SUFFIX
                         reads files suffix pattern (default: .fastq.gz)
 
-mapping files options:
-  --mapping-dir MAPPING_DIR, -M MAPPING_DIR
+mapping group::
+  --mapping-dir MAPPING_DIR
                         data directory where mapping files are located
-                        (default: mappings)
+                        (default: None)
   --mapping-suffix MAPPING_SUFFIX
                         mapping files suffix pattern (default: .rmdup.bam)
-
-genome index options:
-  --genome-index GENOME_INDEX, -G GENOME_INDEX
-                        genome index name (default: genomeindex)
-  --genome-dir GENOME_DIR
-                        genome index directory (default: ../../hg19)
-  --genome-version GENOME_VERSION
-                        version of reference genome in use (supports only
-                        hg19) (default: hg19)
+  --mapping-aligner-options MAPPING_ALIGNER_OPTIONS
+                        additional aligner mapping options (default: )
 ```
 
 ### Use of `varbin` subcommand
@@ -435,34 +522,39 @@ To list the options available for `varbin` subcommand use:
 
 ```bash
 sgains-tools varbin -h
-usage: sgains-tools varbin [-h] [--mapping-dir MAPPING_DIR]
-                        [--mapping-suffix MAPPING_SUFFIX]
-                        [--varbin-dir VARBIN_DIR]
-                        [--varbin-suffix VARBIN_SUFFIX]
-                        [--bins-boundaries BINS_BOUNDARIES]
-                        [--bins-dir BINS_DIR]
+usage: sgains-tools varbin [-h] [--bins-count BINS_COUNT]
+                           [--bins-dir BINS_DIR] [--bins-file BINS_FILE]
+                           [--mapping-dir MAPPING_DIR]
+                           [--mapping-suffix MAPPING_SUFFIX]
+                           [--mapping-aligner-options MAPPING_ALIGNER_OPTIONS]
+                           [--varbin-dir VARBIN_DIR]
+                           [--varbin-suffix VARBIN_SUFFIX]
 
 optional arguments:
   -h, --help            show this help message and exit
 
-mapping files options:
-  --mapping-dir MAPPING_DIR, -M MAPPING_DIR
+bins group::
+  --bins-count BINS_COUNT
+                        number of bins (default: 10000)
+  --bins-dir BINS_DIR   bins working directory (default: None)
+  --bins-file BINS_FILE
+                        bins boundaries filename (default:
+                        bins_boundaries.txt)
+
+mapping group::
+  --mapping-dir MAPPING_DIR
                         data directory where mapping files are located
-                        (default: mappings)
+                        (default: None)
   --mapping-suffix MAPPING_SUFFIX
                         mapping files suffix pattern (default: .rmdup.bam)
+  --mapping-aligner-options MAPPING_ALIGNER_OPTIONS
+                        additional aligner mapping options (default: )
 
-varbin options:
-  --varbin-dir VARBIN_DIR, -V VARBIN_DIR
-                        varbin directory (default: varbin)
+varbin group::
+  --varbin-dir VARBIN_DIR
+                        varbin working directory (default: None)
   --varbin-suffix VARBIN_SUFFIX
-                        varbin files suffix pattern (default: .varbin.10k.txt)
-
-bins boundaries:
-  --bins-boundaries BINS_BOUNDARIES, -B BINS_BOUNDARIES
-                        bins boundaries filename (default:
-                        hg19_R50_B50k_bins_boundaries.txt)
-  --bins-dir BINS_DIR   bins working directory (default: ../../R50_B50k)
+                        varbin files suffix pattern (default: .varbin.txt)
 ```
 
 ### Use of `scclust` subcommand
@@ -471,32 +563,53 @@ To list options available for `scclust` subcommand use:
 
 ```bash
 sgains-tools scclust -h
-usage: sgains-tools scclust [-h] [--varbin-dir VARBIN_DIR]
-                         [--varbin-suffix VARBIN_SUFFIX]
-                         [--scclust-dir SCCLUST_DIR] [--case-name CASE_NAME]
-                         [--bins-boundaries BINS_BOUNDARIES]
-                         [--bins-dir BINS_DIR]
+usage: sgains-tools scclust [-h] [--bins-count BINS_COUNT]
+                            [--bins-dir BINS_DIR] [--bins-file BINS_FILE]
+                            [--varbin-dir VARBIN_DIR]
+                            [--varbin-suffix VARBIN_SUFFIX]
+                            [--scclust-case SCCLUST_CASE]
+                            [--scclust-dir SCCLUST_DIR]
+                            [--scclust-cytoband-file SCCLUST_CYTOBAND_FILE]
+                            [--scclust-nsim SCCLUST_NSIM]
+                            [--scclust-sharemin SCCLUST_SHAREMIN]
+                            [--scclust-fdrthres SCCLUST_FDRTHRES]
+                            [--scclust-nshare SCCLUST_NSHARE]
+                            [--scclust-climbtoshare SCCLUST_CLIMBTOSHARE]
 
 optional arguments:
   -h, --help            show this help message and exit
 
-varbin options:
-  --varbin-dir VARBIN_DIR, -V VARBIN_DIR
-                        varbin directory (default: varbin)
-  --varbin-suffix VARBIN_SUFFIX
-                        varbin files suffix pattern (default: .varbin.20k.txt)
-
-SCclust options:
-  --scclust-dir SCCLUST_DIR, -S SCCLUST_DIR
-                        SCGV directory (default: scclust)
-  --case-name CASE_NAME
-                        case name (default: navin_T10)
-
-bins boundaries:
-  --bins-boundaries BINS_BOUNDARIES, -B BINS_BOUNDARIES
+bins group::
+  --bins-count BINS_COUNT
+                        number of bins (default: 10000)
+  --bins-dir BINS_DIR   bins working directory (default: None)
+  --bins-file BINS_FILE
                         bins boundaries filename (default:
-                        hg19_R50_B20k_bins_boundaries.txt)
-  --bins-dir BINS_DIR   bins working directory (default: R50_B20k)
+                        bins_boundaries.txt)
+
+varbin group::
+  --varbin-dir VARBIN_DIR
+                        varbin working directory (default: None)
+  --varbin-suffix VARBIN_SUFFIX
+                        varbin files suffix pattern (default: .varbin.txt)
+
+scclust group::
+  --scclust-case SCCLUST_CASE
+                        SCclust case name (default: None)
+  --scclust-dir SCCLUST_DIR
+                        SCclust working directory (default: None)
+  --scclust-cytoband-file SCCLUST_CYTOBAND_FILE
+                        location of cyto band description file (default: None)
+  --scclust-nsim SCCLUST_NSIM
+                        SCclust number of simulations (default: 150)
+  --scclust-sharemin SCCLUST_SHAREMIN
+                        SCclust sharemin parameter (default: 0.85)
+  --scclust-fdrthres SCCLUST_FDRTHRES
+                        SCclust fdrthres parameter (default: -3)
+  --scclust-nshare SCCLUST_NSHARE
+                        SCclust nshare parameter (default: 4)
+  --scclust-climbtoshare SCCLUST_CLIMBTOSHARE
+                        SCclust climbtoshare parameter (default: 5)
 ```
 
 ## Configure the *s-GAINS* pipeline
@@ -504,39 +617,50 @@ bins boundaries:
 An example *s-GAINS* pipeline configuration:
 
 ```bash
+aligner:
+    aligner_name: hisat2
+
 genome:
-    version: hg19
-    data_dir: hg19_pristine
-    work_dir: hg19
-    genome_index: genomeindex
+    genome_version: hg38
+    genome_pristine_dir: hg38_pristine
+    genome_dir: hg38
+    genomeindex_prefix: genomeindex
 
 mappable_regions:
-    length: 50
-    work_dir: R50
-    bowtie_opts: ""
+    mappable_read_length: 50
+    mappable_dir: hg38_R50
+    mappable_file: hisat2_hg38_R50_mappable_regions.txt
+    mappable_aligner_options: ""
   
 bins:
     bins_count: 20000
-    bins_dir: R50_B20k
-    bins_boundaries: hg19_R50_B20k_bins_boundaries.txt
+    bins_dir: hg38_R50_B20k
+    bins_file: hg38_R50_B20k_bins_boundaries.txt
+
+reads:
+    reads_dir: navin_T10
+    reads_suffix: ".fastq.gz"
+    
 
 mapping:
-    reads_dir: SRA
-    reads_suffix: ".fastq.gz"
-    mapping_dir: mapping
+    mapping_dir: navin_T10_hisat2/mapping
     mapping_suffix: ".rmdup.bam"
-    mapping_opts: "-S -t -m 1 --best --strata --chunkmbs 256"
+    mapping_aligner_options: "-3 0 -5 38"
 
 varbin:
-    varbin_dir: varbin
-    varbin_suffix: ".varbin.20k.txt"
+    varbin_dir: navin_T10_hisat2/varbin
+    varbin_suffix: ".varbin.r50_20k.txt"
+
 
 scclust:
-    case_name: "navin_T10"
-    scgv_dir: scgv
-    cytoband: hg19/cytoBand.txt
-    nsim: 150
-    sharemin: 0.85
+    scclust_case: "nyu007_hisat2"
+    scclust_dir: "navin_T10_hisat2/scclust"
+    scclust_cytoband_file: cytoBand-hg38.txt
+    scclust_nsim: 150
+    scclust_sharemin: 0.85
+    scclust_fdrthres: -3
+    scclust_nshare: 4
+    scclust_climbtoshare: 5
 ```
 
 Each section of this configuration file corresponds to the relevant `s-GAINS` tool
@@ -544,3 +668,66 @@ subcommand and sets values for the options of the subcommand.
 
 The options passed from the command line override the options specified in the
 configuration file.
+
+To pass configuration file to `sgains-tools` you should use `-c` or `--config` 
+option. For example, if you want to use the config file for `mapping` subcommand
+you should use:
+
+```bash
+sgains-tools -c sgains-hisat2-navin-T10.yml mapping -h
+```
+
+Note that the default values for various parameters of `mapping` subcommand would
+be filled from the corresponding values specified into the configuration file:
+
+```bash
+usage: sgains-tools mapping [-h] [--aligner-name ALIGNER_NAME]
+                            [--genome-version GENOME_VERSION]
+                            [--genome-pristine-dir GENOME_PRISTINE_DIR]
+                            [--genome-dir GENOME_DIR]
+                            [--genomeindex-prefix GENOMEINDEX_PREFIX]
+                            [--reads-dir READS_DIR]
+                            [--reads-suffix READS_SUFFIX]
+                            [--mapping-dir MAPPING_DIR]
+                            [--mapping-suffix MAPPING_SUFFIX]
+                            [--mapping-aligner-options MAPPING_ALIGNER_OPTIONS]
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+aligner group::
+  --aligner-name ALIGNER_NAME
+                        aligner to use in sGAINS subcommands (default: hisat2)
+
+genome group::
+  --genome-version GENOME_VERSION
+                        version of reference genome to use (default: hg38)
+  --genome-pristine-dir GENOME_PRISTINE_DIR
+                        directory where clean copy of reference genome is
+                        located (default: /data/lubo/single-
+                        cell/test_data/hg38_pristine)
+  --genome-dir GENOME_DIR
+                        genome index working directory (default:
+                        /data/lubo/single-cell/test_data/hg38)
+  --genomeindex-prefix GENOMEINDEX_PREFIX
+                        genome index prefix (default: genomeindex)
+
+reads group::
+  --reads-dir READS_DIR
+                        data directory where sequencing reads are located
+                        (default: /data/lubo/single-cell/test_data/navin_T10)
+  --reads-suffix READS_SUFFIX
+                        reads files suffix pattern (default: .fastq.gz)
+
+mapping group::
+  --mapping-dir MAPPING_DIR
+                        data directory where mapping files are located
+                        (default: /data/lubo/single-
+                        cell/test_data/navin_T10_hisat2/mapping)
+  --mapping-suffix MAPPING_SUFFIX
+                        mapping files suffix pattern (default: .rmdup.bam)
+  --mapping-aligner-options MAPPING_ALIGNER_OPTIONS
+                        additional aligner mapping options (default: -3 0 -5
+                        38)
+
+```

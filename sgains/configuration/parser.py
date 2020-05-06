@@ -37,7 +37,6 @@ class SgainsValidator(Validator):
         work_directory = self._config["work_dirname"]
         if not os.path.isabs(value):
             value = os.path.join(work_directory, value)
-        print(work_directory, value)
         return os.path.normpath(value)
 
 

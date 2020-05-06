@@ -29,9 +29,10 @@ from sgains.pipelines.composite_pipeline import CompositePipeline
 
 
 SGAINS_COMMANDS = {
-    "genome": {
+    "genomeindex": {
         "config_groups": ["aligner", "genome"],
-        "help": "builds appropriate bowtie index for the reference genome",
+        "help": "builds appropriate hisat2 or bowtie index for the "
+        "reference genome",
     },
     "mappable_regions": {
         "config_groups": ["aligner", "genome", "mappable_regions", "sge"],
@@ -138,7 +139,6 @@ def _get_config_value(config, group_name, name):
     if group is None:
         return None
     result = getattr(group, name)
-    print("getting config for:", group_name, name, "->", result)
     return result
 
 
@@ -221,7 +221,6 @@ def parse_cli_options(args):
     config_groups = list(validator.schema.keys())
 
     for group_name in config_groups:
-        print(group_name)
         if group_name == "sge" and not args.sge:
             continue
 
@@ -307,7 +306,7 @@ USAGE
         return 2
 
 def create_pipeline(command, config):
-    if command == "genome":
+    if command == "genomeindex":
         return GenomeIndexPipeline(config)
     elif command == "mappable_regions":
         return MappableRegionsPipeline(config)
@@ -341,10 +340,7 @@ def create_pipeline(command, config):
     raise ValueError(f"Unexpected command: {command}")
 
 def execute(command, args):
-    print("EXECUTE!!!!")
-    print(command, args)
     config = parse_cli_options(args)
-    print(config.config)
 
     pipeline = create_pipeline(command, config)
     assert pipeline is not None, command
