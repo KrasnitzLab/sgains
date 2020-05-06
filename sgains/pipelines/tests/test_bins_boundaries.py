@@ -17,7 +17,7 @@ def test_bins_boundaries_generator(tests_config, bin_boundaries, chromosome):
 
     pipeline = BinsPipeline(tests_config)
 
-    mappable_regions_df = pipeline.hg.load_mappable_regions()
+    mappable_regions_df = pipeline.genome.load_mappable_regions()
 
     chrom_df = bin_boundaries[bin_boundaries['bin.chrom'] == chromosome]
 
@@ -46,7 +46,7 @@ def test_bins_boundaries(tests_config, bin_boundaries, chromosome):
         'bin.end', 'bin.length', 'mappable.positions']]
     fixture_df = fixture_df.reset_index()
 
-    regions_df = pipeline.hg.load_mappable_regions()
+    regions_df = pipeline.genome.load_mappable_regions()
     bins_df = pipeline.calc_bins_boundaries([chromosome], regions_df)
 
     df = bins_df[bins_df['bin.chrom'] == chromosome]

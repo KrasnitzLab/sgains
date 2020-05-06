@@ -14,7 +14,7 @@ from argparse import ArgumentParser,\
 from sgains.configuration.parser import SgainsValidator, Config
 from sgains.configuration.schema import sgains_schema
 
-from sgains.commands.common import Command
+from sgains.executor import Executor
 
 from sgains.pipelines.mappableregions_pipeline import MappableRegionsPipeline
 from sgains.pipelines.genomeindex_pipeline import GenomeIndexPipeline
@@ -142,10 +142,10 @@ def _get_config_value(config, group_name, name):
     return result
 
 
-def build_cli_options(argparser, command=None, config=None):
+def build_cli_options(argparser, command=None, config=None, sge_flag=False):
     work_dirname = os.getcwd()
     if config is not None:
-        work_dirname = config.work_dir
+        work_dirname = config.work_dirname
 
     validator = SgainsValidator(
         deepcopy(sgains_schema), work_dirname=work_dirname)
@@ -159,6 +159,8 @@ def build_cli_options(argparser, command=None, config=None):
         config_groups = command["config_groups"]
 
     for group_name in config_groups:
+        if group_name == "sge" and not sge_flag:
+            continue
 
         group = validator.schema.get(group_name)
         group_parser = argparser.add_argument_group(f"{group_name} group:")
@@ -219,6 +221,9 @@ def parse_cli_options(args):
     config_groups = list(validator.schema.keys())
 
     for group_name in config_groups:
+        print(group_name)
+        if group_name == "sge" and not args.sge:
+            continue
 
         group = validator.schema.get(group_name)
         group_schema = group.get("schema")
@@ -263,6 +268,7 @@ USAGE
     try:
 
         config = Config.parse_argv(argv)
+        sge_flag = Config.check_sge_argv(argv)
 
         argparser = ArgumentParser(
             description=program_description,
@@ -282,7 +288,7 @@ USAGE
                 formatter_class=ArgumentDefaultsHelpFormatter
             )
 
-            build_cli_options(subparser, command, config)
+            build_cli_options(subparser, command, config, sge_flag=sge_flag)
             subparser.set_defaults(func=functools.partial(execute, command))
 
         args = argparser.parse_args(argv)
@@ -343,7 +349,7 @@ def execute(command, args):
     pipeline = create_pipeline(command, config)
     assert pipeline is not None, command
 
-    executor = Command(config)
+    executor = Executor(config)
     executor.run_pipeline(pipeline)
 
 

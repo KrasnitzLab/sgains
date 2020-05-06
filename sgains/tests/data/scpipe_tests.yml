@@ -1,33 +1,43 @@
+
+aligner:
+    aligner_name: hisat2
+
 genome:
-    version: hg19
-    data_dir: test_data/hg19_pristine
-    work_dir: test_data/hg19
-    genome_index: genomeindex
+    genome_version: hg19
+    genome_pristine_dir: test_data/hg19_pristine
+    genome_dir: test_data/hg19
+    genomeindex_prefix: genomeindex
 
 mappable_regions:
-    length: 100
-    work_dir: test_data/R100
-    bowtie_opts: ""
+    mappable_read_length: 100
+    mappable_dir: test_data/R100
+    mappable_file: hg19_R100_mappable_regions.txt
+    mappable_aligner_options: ""
   
 bins:
     bins_count: 10000
     bins_dir: test_data/R100_B10k
-    bins_boundaries: hg19_R100_B10k_bins_boundaries.txt
+    bins_file: hg19_R100_B10k_bins_boundaries.txt
 
-mapping:
+reads:
     reads_dir: SRA
     reads_suffix: ".fastq.gz"
+
+mapping:
     mapping_dir: mapping
     mapping_suffix: ".rmdup.bam"
-    mapping_opts: "-S -t -m 1 --best --strata --chunkmbs 256"
+    mapping_aligner_options: "-S -t -m 1 --best --strata --chunkmbs 256"
 
 varbin:
     varbin_dir: varbin
     varbin_suffix: ".varbin.20k.txt"
 
 scclust:
-    case_name: "navin_T10"
+    scclust_case: "navin_T10"
     scclust_dir: scclust
-    cytoband: tests/data/cytoBand.txt
-    nsim: 150
-    sharemin: 0.85
+    scclust_cytoband_file: cytoBand.txt
+    scclust_nsim: 150
+    scclust_sharemin: 0.85
+    scclust_fdrthres: -3
+    scclust_nshare: 4
+    scclust_climbtoshare: 5

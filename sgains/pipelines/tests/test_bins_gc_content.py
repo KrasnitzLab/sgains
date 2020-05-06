@@ -45,7 +45,7 @@ def test_bin_boundaries_full(tests_config, bin_boundaries, chromosome):
 
     pipeline = BinsPipeline(tests_config)
 
-    regions_df = pipeline.hg.load_mappable_regions()
+    regions_df = pipeline.genome.load_mappable_regions()
 
     bins_df = pipeline.calc_bins_boundaries([chromosome], regions_df)
     df = pipeline.calc_bins_gc_content([chromosome], bins_df)

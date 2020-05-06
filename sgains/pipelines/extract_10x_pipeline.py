@@ -15,7 +15,6 @@ import pandas as pd
 from dask import distributed
 from termcolor import colored
 
-from sgains.config import NonEmptyWorkDirectory
 from sgains.pipelines.mapping_pipeline import MappingPipeline
 from sgains.genome import Genome
 
@@ -203,7 +202,7 @@ class Extract10xPipeline(Base10xPipeline):
     def run(self, dask_client):
         try:
             self.config.check_nonempty_workdir(self.reads_dirname)
-        except NonEmptyWorkDirectory:
+        except ValueError:
             return
 
         command = "rm -rf {}/*".format(self.reads_dirname)

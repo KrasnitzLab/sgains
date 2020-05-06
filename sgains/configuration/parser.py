@@ -33,9 +33,11 @@ def _dict_to_box(input_dict):
 
 class SgainsValidator(Validator):
     def _normalize_coerce_abspath(self, value: str) -> str:
-        directory = self._config["work_dirname"]
+
+        work_directory = self._config["work_dirname"]
         if not os.path.isabs(value):
-            value = os.path.join(directory, value)
+            value = os.path.join(work_directory, value)
+        print(work_directory, value)
         return os.path.normpath(value)
 
 
@@ -67,6 +69,13 @@ class Config:
         return config
 
     @staticmethod
+    def check_sge_argv(argv):
+        if '--sge' in argv:
+            return True
+        else:
+            return False
+
+    @staticmethod
     def parse(filename):
         assert os.path.exists(filename)
 
@@ -78,7 +87,9 @@ class Config:
 
     @staticmethod
     def from_dict(config_dict, work_dirname):
-        config_dict["work_dir"] = os.path.abspath(work_dirname)
+        work_dirname = os.path.abspath(work_dirname)
+
+        config_dict["work_dirname"] = work_dirname
 
         validator = SgainsValidator(
             sgains_schema, work_dirname=work_dirname)
@@ -94,6 +105,12 @@ class Config:
     def schema(self):
         return sgains_schema
 
+    def to_dict(self):
+        return self.config.to_dict()
+
+    def to_box(self):
+        return Box(self.to_dict(), default_box=True)
+
     def check_nonempty_workdir(self, dirname):
         if not os.path.exists(dirname):
             return
@@ -102,7 +119,7 @@ class Config:
             print(colored(
                 "ERROR: non-empty output directory and no --force option",
                 "red"))
-            raise ValueError(f"Non empyt directory {dirname}")
+            raise ValueError(f"Non empty directory {dirname}")
 
     def mappable_regions_filename(self, chrom=None):
         mname = self.config.mappable_regions.mappable_file
@@ -141,6 +158,8 @@ class Config:
         return os.path.basename(filename).split(os.extsep, 1)[0]
 
     def varbin_filename(self, cellname):
+        os.makedirs(self.config.varbin.varbin_dir, exist_ok=True)
+
         outfile = os.path.join(
             self.config.varbin.varbin_dir,
             "{}{}".format(cellname, self.config.varbin.varbin_suffix)

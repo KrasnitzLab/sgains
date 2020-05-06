@@ -8,14 +8,14 @@ from sgains.pipelines.mappableregions_pipeline import MappableRegionsPipeline
 
 
 def test_test_config(tests_config):
-    print(tests_config.genome.work_dir)
+    print(tests_config.genome.genome_dir)
 
 
 def test_bowtie_command(tests_config):
     pipeline = MappableRegionsPipeline(tests_config)
     command = pipeline.genome.aligner.build_mappable_regions_command()
     print(command)
-    assert command[0] == 'bowtie'
+    assert command[0] == 'hisat2'
 
 
 def test_reads_generator(tests_config):

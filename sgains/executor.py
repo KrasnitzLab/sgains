@@ -8,7 +8,7 @@ from contextlib import closing
 from dask_jobqueue import SGECluster
 
 
-class Command(object):
+class Executor(object):
 
     def __init__(self, config):
         self.config = config

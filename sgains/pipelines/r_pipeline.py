@@ -11,8 +11,6 @@ import subprocess
 
 from termcolor import colored
 
-from sgains.config import Config, NonEmptyWorkDirectory
-
 
 class Rpipeline(object):
 
@@ -66,7 +64,7 @@ class Rpipeline(object):
                     "results directory {} is not empty; "
                     "use --force to overwrite".format(scclust_dirname),
                     "red"))
-                raise NonEmptyWorkDirectory(scclust_dirname)
+                raise ValueError(f"non empty directory {scclust_dirname}")
 
         basedir = os.path.dirname(__file__)
         rscript = os.path.abspath(

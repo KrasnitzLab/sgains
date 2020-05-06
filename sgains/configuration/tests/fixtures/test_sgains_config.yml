@@ -26,7 +26,7 @@ reads:
 data_10x:
     data_10x_dir: /mnt/data/single-cell/10xGenomics/datasets/bj_mkn45_10pct
     data_10x_prefix: "bj_mkn45_10pct"
-    data_10x_summary: /mnt/data/single-cell/10xGenomics/datasets/bj_mkn45_10pct/bj_mkn45_10pct_summary.csv
+    data_10x_cell_summary: /mnt/data/single-cell/10xGenomics/datasets/bj_mkn45_10pct/bj_mkn45_10pct_summary.csv
     data_10x_bam: /mnt/data/single-cell/10xGenomics/datasets/bj_mkn45_10pct/bj_mkn45_10pct_possorted_bam.bam
     data_10x_bai: /mnt/data/single-cell/10xGenomics/datasets/bj_mkn45_10pct/bj_mkn45_10pct_possorted_bam.bam.bai
 
@@ -34,19 +34,10 @@ mapping:
     mapping_dir: /mnt/data/safe/single_cell_demo/demo_data/hisat2_hg19/navin_T10/mapping
     mapping_suffix: ".rmdup.bam"
     mapping_aligner_options: ""
-
-mapping_10x:
-    mapping_10x_dir: /mnt/data/safe/single_cell_demo/demo_data/hisat2_hg19/navin_T10/mapping
-    mapping_10x_suffix: ".rmdup.bam"
-    mapping_10x_aligner_options: ""
     
 varbin:
     varbin_dir: /mnt/data/safe/single_cell_demo/demo_data/demo_hg19/navin_T10/varbin
     varbin_suffix: ".varbin.r50_20k.txt"
-
-varbin_10x:
-    varbin_10x_dir: /mnt/data/single-cell/10xGenomics/datasets/bj_mkn45_10pct/varbin
-    varbin_10x_suffix: ".varbin.r50_20k.txt"
     
 scclust:
     scclust_case: "hg19_navin_T10"

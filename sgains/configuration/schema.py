@@ -287,58 +287,59 @@ data_10x_schema = {
 }
 
 
-varbin_10x_schema = {
-    "varbin_10x_dir": {
-        "type": "string",
-        "coerce": "abspath",
-        "check_with": validate_path,
-    },
-    "varbin_10x_suffix": {
-        "type": "string",
-        "default": ".varbin.txt",
-    },
-}
+# varbin_10x_schema = {
+#     "varbin_10x_dir": {
+#         "type": "string",
+#         "coerce": "abspath",
+#         "check_with": validate_path,
+#     },
+#     "varbin_10x_suffix": {
+#         "type": "string",
+#         "default": ".varbin.txt",
+#     },
+# }
 
-reads_10x_schema = {
-    "reads_10x_dir": {
-        "type": "string",
-        "coerce": "abspath",
-        "check_with": validate_path,
-        "meta": {
-            "help": "data directory where sequencing reads are located"
-        },
-    },
-    "reads_10x_suffix": {
-        "type": "string",
-        "default": ".fastq.gz",
-        "meta": {
-            "help": "reads files suffix pattern"
-        },
-    },
+# reads_10x_schema = {
+#     "reads_10x_dir": {
+#         "type": "string",
+#         "coerce": "abspath",
+#         "check_with": validate_path,
+#         "meta": {
+#             "help": "data directory where sequencing reads are located"
+#         },
+#     },
+#     "reads_10x_suffix": {
+#         "type": "string",
+#         "default": ".fastq.gz",
+#         "meta": {
+#             "help": "reads files suffix pattern"
+#         },
+#     },
 
-}
+# }
 
-mapping_10x_schema = {
-    "mapping_10x_dir": {
-        "type": "string",
-        "coerce": "abspath",
-        "check_with": validate_path,
-    },
-    "mapping_10x_suffix": {
-        "type": "string",
-        "default": ".rmdup.bam",
-    },
-    "mapping_10x_aligner_options": {
-        "type": "string",
-        "default": "",
-    },
-}
+# mapping_10x_schema = {
+#     "mapping_10x_dir": {
+#         "type": "string",
+#         "coerce": "abspath",
+#         "check_with": validate_path,
+#     },
+#     "mapping_10x_suffix": {
+#         "type": "string",
+#         "default": ".rmdup.bam",
+#     },
+#     "mapping_10x_aligner_options": {
+#         "type": "string",
+#         "default": "",
+#     },
+# }
 
 
 sgains_schema = {
-    "work_dir": {
+    "work_dirname": {
         "type": "string",
-        "check_with": validate_path,
+        "coerce": "abspath",
+        "check_with": validate_existing_path,
     },
     "sge": {
         "type": "dict", "schema": sge_schema,
@@ -370,13 +371,13 @@ sgains_schema = {
     "data_10x": {
         "type": "dict", "schema": data_10x_schema,
     },
-    "reads_10x": {
-        "type": "dict", "schema": reads_10x_schema,
-    },
-    "mapping_10x": {
-        "type": "dict", "schema": mapping_10x_schema,
-    },
-    "varbin_10x": {
-        "type": "dict", "schema": varbin_10x_schema,
-    },
+    # "reads_10x": {
+    #     "type": "dict", "schema": reads_10x_schema,
+    # },
+    # "mapping_10x": {
+    #     "type": "dict", "schema": mapping_10x_schema,
+    # },
+    # "varbin_10x": {
+    #     "type": "dict", "schema": varbin_10x_schema,
+    # },
 }
