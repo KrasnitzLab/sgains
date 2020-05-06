@@ -1,39 +1,27 @@
-from collections import defaultdict, namedtuple
-from sgains.genome import Genome
 import os
 import time
+from io import BytesIO
+from collections import defaultdict, namedtuple
+
 import pandas as pd
 import numpy as np
-import pysam
+
 from dask.distributed import Queue, worker_client, wait
-from io import BytesIO
+
+import pysam
+
+from sgains.genome import Genome
+from sgains.pipelines.extract_10x_pipeline import Base10xPipeline
 
 
-class Varbin10xPipeline(object):
+class Varbin10xPipeline(Base10xPipeline):
 
     def __init__(self, config):
-        self.config = config
-        self.hg = Genome(config)
+        super(Varbin10xPipeline, self).__init__(config)
 
-        self.summary_filename = config.build_data_10x_summary()
-        self.bam_filename = config.build_data_10x_bam()
-        self.bai_filename = config.build_data_10x_bai()
-
-        assert os.path.exists(self.summary_filename), self.summary_filename
-        assert os.path.exists(self.bam_filename), self.bam_filename
-        assert os.path.exists(self.bai_filename), self.bai_filename
-
-        self.summary_df = pd.read_csv(self.summary_filename, sep=',')
-        self.barcodes = {
-            k: v for (k, v) in
-            self.summary_df[['barcode', 'cell_id']].to_records(index=False)
-        }
-        self.bins_filename = self.config.bins_boundaries_filename()
-        assert os.path.exists(self.bins_filename), self.bins_filename
-
-        self.bins_df = pd.read_csv(self.bins_filename, sep='\t')
+        self.bins_df = self.genome.bins_boundaries()
         self.chrom2contig, self.contig2chrom = self._chrom2contig_mapping()
-        self.chrom_sizes = self.hg.chrom_sizes()
+        self.chrom_sizes = self.genome.chrom_sizes()
 
     def _chrom2contig_mapping(self):
         with pysam.AlignmentFile(self.bam_filename, 'rb') as samfile:

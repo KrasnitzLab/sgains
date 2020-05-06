@@ -19,7 +19,7 @@ class VarbinPipeline(object):
 
     def __init__(self, config):
         self.config = config
-        self.hg = Genome(config)
+        self.genome = Genome(config)
 
     def find_bin_index(self, abspos, bins):
         index = np.searchsorted(
@@ -60,10 +60,10 @@ class VarbinPipeline(object):
             assert os.path.exists(filename), os.path.abspath(filename)
 
             infile = pysam.AlignmentFile(filename, 'rb')
-            bins_df = self.hg.bins_boundaries()
+            bins_df = self.genome.bins_boundaries()
             assert bins_df is not None
-            chrom_sizes = self.hg.chrom_sizes()
-            chroms = set(self.hg.version.CHROMS)
+            chrom_sizes = self.genome.chrom_sizes()
+            chroms = set(self.genome.version.CHROMS)
 
             count = 0
             dups = 0

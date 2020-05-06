@@ -21,6 +21,7 @@ from sgains.pipelines.genomeindex_pipeline import GenomeIndexPipeline
 from sgains.pipelines.bins_pipeline import BinsPipeline
 from sgains.pipelines.mapping_pipeline import MappingPipeline
 from sgains.pipelines.extract_10x_pipeline import Extract10xPipeline
+from sgains.pipelines.varbin_10x_pipeline import Varbin10xPipeline
 
 from sgains.pipelines.varbin_pipeline import VarbinPipeline
 from sgains.pipelines.r_pipeline import Rpipeline
@@ -59,6 +60,12 @@ SGAINS_COMMANDS = {
     "varbin": {
         "config_groups": ["bins", "mapping", "varbin", "sge"],
         "help": "applies varbin algorithm to count read mappings in each bin",
+    },
+    "varbin_10x": {
+        "config_groups": [
+            "data_10x", "bins", "varbin", "sge"],
+        "help": "applies varbin algorithm to count read mappings in each bin "
+        "to 10x Genomics datasets without realigning",
     },
     "scclust": {
         "config_groups": ["bins", "varbin", "scclust"],
@@ -308,6 +315,8 @@ def create_pipeline(command, config):
         return Rpipeline(config)
     elif command == "extract_10x":
         return Extract10xPipeline(config)
+    elif command == "varbin_10x":
+        return Varbin10xPipeline(config)
     elif command == "prepare":
         pipelines = [
             GenomeIndexPipeline(config),

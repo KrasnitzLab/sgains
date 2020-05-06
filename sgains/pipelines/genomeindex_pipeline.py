@@ -102,7 +102,7 @@ class GenomeIndexPipeline(object):
         if not self.config.dry_run:
             subprocess.check_call(command, shell=True)
 
-    def run(self, **args):
+    def run(self, **kwargs):
         self.copy_chromes_files()
         self.mask_pars()
         self.concatenate_all_chroms()

@@ -20,7 +20,7 @@ from sgains.pipelines.mapping_pipeline import MappingPipeline
 from sgains.genome import Genome
 
 
-class Extract10xPipeline(object):
+class Base10xPipeline(object):
 
     def __init__(self, config):
         self.config = config
@@ -42,6 +42,12 @@ class Extract10xPipeline(object):
         }
         self.genome = Genome(self.config)
         assert self.genome is not None
+
+
+class Extract10xPipeline(Base10xPipeline):
+
+    def __init__(self, config):
+        super(Extract10xPipeline, self).__init__(config)
 
     def _build_segment_regions(self, segment_len=50_000_000):
         
