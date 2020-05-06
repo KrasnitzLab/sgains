@@ -24,6 +24,7 @@ from sgains.pipelines.extract_10x_pipeline import Extract10xPipeline
 
 from sgains.pipelines.varbin_pipeline import VarbinPipeline
 from sgains.pipelines.r_pipeline import Rpipeline
+from sgains.pipelines.composite_pipeline import CompositePipeline
 
 
 SGAINS_COMMANDS = {
@@ -39,6 +40,12 @@ SGAINS_COMMANDS = {
         "config_groups": ["genome", "mappable_regions", "bins", "sge"],
         "help": "calculates all bins boundaries for specified bins count "
         "and read length",
+    },
+    "prepare": {
+        "config_groups": [
+            "aligner", "genome", "mappable_regions", "bins", "sge"],
+        "help": "combines all preparation steps ('genome', 'mappable-regions' "
+        "and 'bins') into single command",
     },
     "mapping": {
         "config_groups": ["aligner", "genome", "reads", "mapping", "sge"],
@@ -57,6 +64,13 @@ SGAINS_COMMANDS = {
         "config_groups": ["bins", "varbin", "scclust"],
         "help": "segmentation and clustering based bin counts and "
         "preparation of the SCGV input data"
+    },
+    "process": {
+        "config_groups": [
+            "aligner", "genome", "reads", "mapping", "bins", "varbin",
+            "scclust", "sge"],
+        "help": "combines all process steps ('mapping', 'varbin' "
+        "and 'scclust') into single command"
     },
 }
 
@@ -294,6 +308,20 @@ def create_pipeline(command, config):
         return Rpipeline(config)
     elif command == "extract_10x":
         return Extract10xPipeline(config)
+    elif command == "prepare":
+        pipelines = [
+            GenomeIndexPipeline(config),
+            MappableRegionsPipeline(config),
+            BinsPipeline(config),
+        ]
+        return CompositePipeline(config, pipelines)
+    elif command == "process":
+        pipelines = [
+            MappingPipeline(config),
+            VarbinPipeline(config),
+            Rpipeline(config),
+        ]
+        return CompositePipeline(config, pipelines)
 
     raise ValueError(f"Unexpected command: {command}")
 
