@@ -1,5 +1,8 @@
 import os
 import time
+import glob
+import shutil
+
 from io import BytesIO
 from collections import defaultdict, namedtuple
 
@@ -7,6 +10,8 @@ import pandas as pd
 import numpy as np
 
 from dask.distributed import Queue, worker_client, wait
+
+from termcolor import colored
 
 import pysam
 
@@ -78,27 +83,94 @@ class Varbin10xPipeline(Base10xPipeline):
             for chrom, start, end in regions
         ]
 
+    # @staticmethod
+    # def compress_reads(reads):
+    #     if not reads:
+    #         return None
+    #     df = pd.DataFrame(reads, columns=['cell_id', 'chrom', 'pos'])
+    #     buff = BytesIO()
+    #     df.to_feather(buff)
+
+    #     return str(buff.getbuffer(), encoding='latin1')
+
     @staticmethod
-    def compress_reads(reads):
+    def _cell_name(cell_id):
+        cell_name = f"C{cell_id:0>8}"
+        return cell_name
+
+    def _cell_reads_dirname(self, cell_id):
+        cell_name = self._cell_name(cell_id)
+        dirname = os.path.join(
+            self.config.varbin.varbin_dir,
+            cell_name)
+        os.makedirs(dirname, exist_ok=True)
+        return dirname
+
+    def _cell_region_filename(self, cell_id, region_index):
+        cell_name = self._cell_name(cell_id)
+        region_name = f"{region_index:0>8}"
+        filename = os.path.join(
+            self.config.varbin.varbin_dir,
+            cell_name,
+            f"{cell_name}_{region_name}{self.config.varbin.varbin_suffix}"
+        )
+        return filename
+
+    def store_reads(self, reads, region_index):
         if not reads:
             return None
         df = pd.DataFrame(reads, columns=['cell_id', 'chrom', 'pos'])
-        buff = BytesIO()
-        df.to_feather(buff)
 
-        return str(buff.getbuffer(), encoding='latin1')
+        for cell_id, group_df in df.groupby(by="cell_id"):
+            cell_region_filename = self._cell_region_filename(
+                cell_id, region_index)
 
-    @staticmethod
-    def decompress_reads(data):
-        if data is None:
+            cell_dirname = os.path.dirname(cell_region_filename)
+            os.makedirs(cell_dirname, exist_ok=True)
+            group_df.to_csv(cell_region_filename, index=False, sep="\t")
+        return "done"
+
+    def load_reads(self, cell_id):
+        cell_name = self._cell_name(cell_id)
+
+        pattern = f"{cell_name}_*{self.config.varbin.varbin_suffix}"
+        pattern = os.path.join(
+            self.config.varbin.varbin_dir,
+            cell_name,
+            pattern
+        )
+        print(colored(
+            "merging reads cell files {} ".format(
+                pattern
+            ),
+            "green"))
+        filenames = glob.glob(pattern)
+        filenames = sorted(filenames)
+
+        dataframes = []
+        for filename in filenames:
+            df = pd.read_csv(filename, sep="\t")
+            dataframes.append(df)
+        if len(dataframes) == 0:
             return None
-        buff = BytesIO(bytes(data, encoding='latin1'))
-        df = pd.read_feather(buff)
-        return df
+        elif len(dataframes) == 1:
+            return dataframes[0]
+        else:
+            result_df = pd.concat(dataframes, ignore_index=True)
+            result_df = result_df.sort_values(by=["cell_id", "chrom", "pos"])
+            return result_df
+
+    # @staticmethod
+    # def decompress_reads(data):
+    #     if data is None:
+    #         return None
+    #     buff = BytesIO(bytes(data, encoding='latin1'))
+    #     df = pd.read_feather(buff)
+    #     return df
 
     Read = namedtuple('Read', ['cell_id', 'chrom', 'pos'])
 
-    def process_region_reads(self, region):
+    def process_region_reads(self, region, region_index):
         print(f"started region {region}")
         with pysam.AlignmentFile(self.bam_filename, 'rb') as samfile:
             assert samfile.check_index(), \
@@ -120,7 +192,7 @@ class Varbin10xPipeline(Base10xPipeline):
                     cell_id, self.contig2chrom[contig], rec.reference_start)
                 cells_reads.append(read)
             print(f"done region {region}; reads processed {len(cells_reads)}")
-            return self.compress_reads(cells_reads)
+            return self.store_reads(cells_reads, region_index)
 
     def find_bin_index(self, abspos, bins):
         index = np.searchsorted(
@@ -147,9 +219,8 @@ class Varbin10xPipeline(Base10xPipeline):
 
         return index_down
 
-    def varbin_cell_reads(self, cell_reads):
+    def varbin_cell_reads(self, reads_df):
         assert self.bins_df is not None
-        cell_reads = sorted(cell_reads, key=lambda r: f"{r.chrom}:{r.pos:15}")
         count = 0
         dups = 0
         total_reads = 0
@@ -159,7 +230,7 @@ class Varbin10xPipeline(Base10xPipeline):
 
         bins = self.bins_df['bin.start.abspos'].values
 
-        for read in cell_reads:
+        for _, read in reads_df.iterrows():
             total_reads += 1
 
             abspos = self.chrom_sizes[read.chrom].abspos + read.pos
@@ -198,118 +269,34 @@ class Varbin10xPipeline(Base10xPipeline):
         df.sort_values(by=['abspos'], inplace=True)
         return df
 
-    def varbin_cell_reads_save(self, cell_id, data, outdir):
-        reads_df = self.decompress_reads(data)
-        cell_reads = []
-        for read in reads_df.to_dict(orient='records'):
-            cell_reads.append(
-                self.Read(
-                    cell_id=read['cell_id'],
-                    chrom=read['chrom'],
-                    pos=read['pos']
-                )
-            )
-        reads_df = None
+    def process_cell_reads(self, cell_id):
+        reads_df = self.load_reads(cell_id)
+        if reads_df is None:
+            print(f"data for cell {cell_id} not found... skipping...")
+            return
 
-        df = self.varbin_cell_reads(cell_reads)
+        df = self.varbin_cell_reads(reads_df)
         outfile = self.config.varbin_filename(f"C{cell_id:0>5}")
-
-        # outfile = os.path.join(outdir, filename)
-
         df.to_csv(outfile, sep='\t', index=False)
+
+        cell_dirname = self._cell_reads_dirname(cell_id)
+        shutil.rmtree(cell_dirname)
+
         return cell_id
 
-    def _process_reads_producer(
-            self, task_queue, regions):
-
-        with worker_client() as client:
-            for index, region in enumerate(regions):
-                print(
-                    f"submitting task {index} out of {len(regions)} "
-                    f"for region {region}")
-
-                task = client.submit(
-                    self.process_region_reads, region
-                )
-                task_queue.put(task)
-
-    def _varbins_cleaner(self, task_queue, total):
-        with worker_client() as client:
-            processed_tasks = 0
-            while task_queue.qsize() > 0 or processed_tasks < total:
-                print(f"processed tasks {processed_tasks} out of {total}")
-                task = task_queue.get()
-                processed_tasks += 1
-                cell_id = task.result()
-                print(f"processing {cell_id} done")
-                client.cancel(task)
-
     def run(self, dask_client, bins_step=20, bins_region=None, outdir='.'):
-        parallel = int(self.config.parallel)
-        maxsize = int(2 * parallel)
-        task_queue = Queue(maxsize=maxsize)
 
         regions = self.split_bins(bins_step=bins_step, bins_region=bins_region)
 
-        producer = dask_client.submit(
-            self._process_reads_producer, task_queue,
-            regions
+        delayed_tasks = dask_client.map(
+            lambda region_tuple: 
+            self.process_region_reads(region_tuple[1], region_tuple[0]),
+            list(enumerate(regions))
         )
+        wait(delayed_tasks)
 
-        print("producer started...")
-        while task_queue.qsize() == 0:
-            print("task queue empty. sleeping...")
-            time.sleep(10)
-
-        reads_data = []
-        processed_tasks = 0
-        while task_queue.qsize() > 0 or processed_tasks < len(regions):
-
-            task = task_queue.get()
-            result = dask_client.gather(task)
-            start = time.time()
-            print(f"task finished...")
-            result = task.result()
-            # result = dask_client.gather(task)
-            elapsed = time.time() - start
-            print(f"results collected in {elapsed}...")
-
-            reads_data.append(result)
-            processed_tasks += 1
-            print(f'processed {processed_tasks} merge reads')
-            dask_client.cancel(task)
-
-        print("about to wait for producer")
-        wait(producer)
-        print("[done]")
-
-        cells_reads = defaultdict(list)
-        while len(reads_data) > 0:
-            print(f"reads data processing {len(reads_data)}")
-            data = reads_data.pop()
-            df = self.decompress_reads(data)
-            if df is None:
-                continue
-            for rec in df.to_dict(orient='records'):
-                read = self.Read(rec['cell_id'], rec['chrom'], rec['pos'])
-                cells_reads[read.cell_id].append(read)
-            df = None
-            data = None
-
-        cleaner = dask_client.submit(
-            self._varbins_cleaner, task_queue,
-            len(cells_reads)
+        delayed_tasks = dask_client.map(
+            lambda cell_id: self.process_cell_reads(cell_id),
+            list(self.barcodes.values())
         )
-
-        for cell_id, cell_reads in cells_reads.items():
-            print(f"about to start varbins for cell {cell_id}")
-            data = self.compress_reads(cell_reads)
-            task = dask_client.submit(
-                self.varbin_cell_reads_save, cell_id, data, outdir
-            )
-            print(f"starting processing varbins for cell {cell_id}")
-            task_queue.put(task)
-
-        print("about to wait for cleaner")
-        wait(cleaner)
-        print("[done]")
+        wait(delayed_tasks)

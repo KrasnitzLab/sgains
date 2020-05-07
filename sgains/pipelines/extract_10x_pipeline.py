@@ -33,7 +33,6 @@ class Base10xPipeline(object):
         assert os.path.exists(self.bai_filename), self.bai_filename
 
         self.summary_df = pd.read_csv(self.summary_filename, sep=',')
-        print(self.summary_df.head())
 
         self.barcodes = {
             k: v for (k, v) in
