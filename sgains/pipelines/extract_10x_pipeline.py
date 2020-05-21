@@ -24,7 +24,6 @@ class Base10xPipeline(object):
     def __init__(self, config):
         self.config = config
         self.summary_filename = self.config.data_10x.data_10x_cell_summary
-        self.reads_dirname = self.config.reads.reads_dir
         self.bam_filename = self.config.data_10x.data_10x_bam
         self.bai_filename = self.config.data_10x.data_10x_bai
 
@@ -46,6 +45,7 @@ class Extract10xPipeline(Base10xPipeline):
 
     def __init__(self, config):
         super(Extract10xPipeline, self).__init__(config)
+        self.reads_dirname = self.config.reads.reads_dir
 
     def _build_segment_regions(self, segment_len=50_000_000):
         
@@ -196,6 +196,15 @@ class Extract10xPipeline(Base10xPipeline):
         command = "rm -f {}".format(" ".join(filenames))
         print(colored(command, "yellow"))
         os.system(command)
+
+        cell_segments_dirname = os.path.join(
+            self.reads_dirname,
+            cell_name
+        )
+        command = "rm -f {}".format(cell_segments_dirname)
+        print(colored(command, "yellow"))
+        os.system(command)
+
         return filenames
 
     def run(self, dask_client):
