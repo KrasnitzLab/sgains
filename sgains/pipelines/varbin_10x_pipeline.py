@@ -83,21 +83,6 @@ class Varbin10xPipeline(Base10xPipeline):
             for chrom, start, end in regions
         ]
 
-    # @staticmethod
-    # def compress_reads(reads):
-    #     if not reads:
-    #         return None
-    #     df = pd.DataFrame(reads, columns=['cell_id', 'chrom', 'pos'])
-    #     buff = BytesIO()
-    #     df.to_feather(buff)
-
-    #     return str(buff.getbuffer(), encoding='latin1')
-
-    @staticmethod
-    def _cell_name(cell_id):
-        cell_name = f"C{cell_id:0>8}"
-        return cell_name
-
     def _cell_reads_dirname(self, cell_id):
         cell_name = self._cell_name(cell_id)
         dirname = os.path.join(
@@ -159,14 +144,6 @@ class Varbin10xPipeline(Base10xPipeline):
             result_df = pd.concat(dataframes, ignore_index=True)
             result_df = result_df.sort_values(by=["cell_id", "chrom", "pos"])
             return result_df
-
-    # @staticmethod
-    # def decompress_reads(data):
-    #     if data is None:
-    #         return None
-    #     buff = BytesIO(bytes(data, encoding='latin1'))
-    #     df = pd.read_feather(buff)
-    #     return df
 
     Read = namedtuple('Read', ['cell_id', 'chrom', 'pos'])
 

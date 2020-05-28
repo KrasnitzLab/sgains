@@ -40,6 +40,11 @@ class Base10xPipeline(object):
         self.genome = Genome(self.config)
         assert self.genome is not None
 
+    @staticmethod
+    def _cell_name(cell_id):
+        cell_name = f"C{cell_id:0>8}"
+        return cell_name
+
 
 class Extract10xPipeline(Base10xPipeline):
 
@@ -107,11 +112,6 @@ class Extract10xPipeline(Base10xPipeline):
                 if barcode in self.barcodes:
                     self._write_to_fastq(barcode, segment, records)
                 cell_records[barcode] = []
-
-    @staticmethod
-    def _cell_name(cell_id):
-        cell_name = f"C{cell_id:0>8}"
-        return cell_name
 
     def _cell_segment_filename(self, cell_id, segment):
         cell_name = self._cell_name(cell_id)
