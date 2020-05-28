@@ -276,7 +276,8 @@ class Varbin10xPipeline(Base10xPipeline):
             return
 
         df = self.varbin_cell_reads(reads_df)
-        outfile = self.config.varbin_filename(f"C{cell_id:0>5}")
+        cell_name = self._cell_name(cell_id)
+        outfile = self.config.varbin_filename(cell_name)
         df.to_csv(outfile, sep='\t', index=False)
 
         cell_dirname = self._cell_reads_dirname(cell_id)
