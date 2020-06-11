@@ -264,25 +264,40 @@ data_10x_schema = {
         "type": "string",
         "coerce": "abspath",
         "check_with": validate_existing_path,
+        "meta": {
+            "help": "10x Genomics dataset directory"
+        },
     },
     "data_10x_prefix": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "meta": {
+            "help": "10x Genomics common prefix"
+        },
     },
     "data_10x_cell_summary": {
         "type": "string",
         "coerce": "abspath",
         "check_with": validate_existing_path,
+        "meta": {
+            "help": "10x Genomics per cell summary filename"
+        },
     },
     "data_10x_bam": {
         "type": "string",
         "coerce": "abspath",
         "check_with": validate_existing_path,
+        "meta": {
+            "help": "10x Genomics dataset aligned reads data"
+        },
     },
     "data_10x_bai": {
         "type": "string",
         "coerce": "abspath",
         "check_with": validate_existing_path,
+        "meta": {
+            "help": "10x Genomics dataset aligned reads index file"
+        },
     },
 }
 
