@@ -258,6 +258,7 @@ class Varbin10xPipeline(Base10xPipeline):
         df.to_csv(outfile, sep='\t', index=False)
 
         cell_dirname = self._cell_reads_dirname(cell_id)
+        print(f"going to remove {cell_dirname}...")
         shutil.rmtree(cell_dirname)
 
         return cell_id

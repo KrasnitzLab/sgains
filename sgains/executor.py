@@ -19,7 +19,7 @@ class Executor(object):
         print("workers=", workers, " threads_per_worker=", threads_per_worker)
         cluster = LocalCluster(
             n_workers=workers, threads_per_worker=threads_per_worker,
-            dashboard_address=':28787')
+            dashboard_address='0.0.0.0:28787')
         return cluster
 
     def create_sge_cluster(self):
@@ -45,7 +45,7 @@ class Executor(object):
             name="sgains-tools",
             job_extra=job_extra,
             walltime='08:00:00',
-            dashboard_address=':28787',
+            dashboard_address='0.0.0.0:28787',
         )
         cluster.adapt(minimum=workers, maximum=workers)
         print("SGE cluster dashboard link:", cluster.dashboard_link)
