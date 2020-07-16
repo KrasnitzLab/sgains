@@ -34,7 +34,7 @@ sge_schema = {
 aligner_schema = {
     "aligner_name": {
         "type": "string",
-        "allowed": ["bowtie", "hisat2"],
+        "allowed": ["bowtie", "hisat2", "bwa"],
         "default": "bowtie",
         "meta": {
             "help": "aligner to use in sGAINS subcommands"

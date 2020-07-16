@@ -18,6 +18,8 @@ class Aligner:
             return Bowtie(config, genome_version)
         elif config.aligner.aligner_name == 'hisat2':
             return Hisat2(config, genome_version)
+        elif config.aligner.aligner_name == 'bwa':
+            return BWA(config, genome_version)
 
         assert False, f'Unsupported aligner {config.aligner.aligner_name}'
 
@@ -277,6 +279,94 @@ class Hisat2(Aligner):
             *options,
             '-x', self.default_genome_index_prefix,
             '-f', '-',
+        ]
+
+    def build_postmapping_filter(self) -> List[str]:
+        return [
+            'samtools',
+            'view',
+            '-bu',
+            '-q', '30',
+            '-F', '0xff00',
+        ]
+
+
+class BWA(Aligner):
+
+    def __init__(self, config, genome_version):
+        super(BWA, self).__init__(config, genome_version)
+
+    @property
+    def name(self):
+        return 'bwa'
+
+    def build_index_command(
+            self, sequence_filename: str,
+            index_prefix: str) -> List[str]:
+
+        if sequence_filename is None:
+            sequence_filename = self.genome_version.sequence_filename
+        if index_prefix is None:
+            index_prefix = self.genome_version.index_prefix
+
+        result = [
+            "bwa",
+            "index",
+            "-a", "bwtsw",
+            # "-p",  self.genome_version.index_prefix,
+            self.genome_version.sequence_filename,
+        ]
+        return result
+
+
+    @property
+    def genome_index_filenames(
+            self,
+            genome_index_prefix: Optional[str] = None) -> List[str]:
+
+        genome = self.genome_version.sequence_filename
+        suffixes = [
+            "amb", "ann", "bwt", "pac", "sa",
+        ]
+        index_files = [
+            f"{genome}.{suffix}"
+            for suffix in suffixes
+        ]
+        return index_files
+
+    def build_mapping_command(
+            self, fastq_filename: str, options: List[str] = []) -> List[str]:
+        reportfile = self.build_report_filename(fastq_filename)
+        return [
+            'bwa', 'mem',
+            '-S',
+            '-k', '30',
+            '-w', '0',
+            '-c', '1',
+            '-B', '10000',
+            '-O', '10000,10000',
+            '-E', '10000,10000',
+            '-L', '10000,10000',
+            *options,
+            self.genome_version.sequence_filename,
+            '2>', reportfile,
+        ]
+
+    def build_mappable_regions_command(
+            self, options: List[str] = []) -> List[str]:
+        return [
+            'bwa', 'mem',
+            '-S',
+            '-k', '30',
+            '-w', '0',
+            '-c', '1',
+            '-B', '10000',
+            '-O', '10000,10000',
+            '-E', '10000,10000',
+            '-L', '10000,10000',
+            *options,
+            self.genome_version.sequence_filename,
+            '-',
         ]
 
     def build_postmapping_filter(self) -> List[str]:
