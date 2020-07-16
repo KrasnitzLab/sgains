@@ -350,6 +350,7 @@ class BWA(Aligner):
             *options,
             self.genome_version.sequence_filename,
             '2>', reportfile,
+            '-',
         ]
 
     def build_mappable_regions_command(
