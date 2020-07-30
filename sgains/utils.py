@@ -156,6 +156,11 @@ class MappableBin(object):
         self.bin_size = 0
 
     def check_extend(self, region):
+        assert region['start_pos'] >= self.start_pos
+        if region['start_pos'] < self.end_pos and \
+                region["end_pos"] < self.end_pos:
+            return True
+
         assert region['start_pos'] + 1 >= self.end_pos, (self, region)
         assert region['end_pos'] > region['start_pos'], (self, region)
 

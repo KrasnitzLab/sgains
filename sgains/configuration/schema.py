@@ -181,6 +181,14 @@ mapping_schema = {
             "help": "additional aligner mapping options"
         },
     },
+    "mapping_fastx_trimmer_options": {
+        "type": "string",
+        "default": "",
+        "meta": {
+            "help": "options to pass to fastx_trimmer tool"
+        },
+    },
+
 }
 
 

@@ -69,7 +69,7 @@ class BinsPipeline(object):
             current_excess = 0
             bins_count = params.bins_count
 
-            for _index, row in chrom_df.iterrows():
+            for row in chrom_df.to_dict(orient="records"):
                 if mappable_bin is None:
                     mappable_bin = MappableBin.from_start(params, start_pos=0)
                     current_excess = mappable_bin.adapt_excess(current_excess)
@@ -94,7 +94,7 @@ class BinsPipeline(object):
                         mappable_bin = next_bin
                         current_excess = \
                             mappable_bin.adapt_excess(current_excess)
-
+                # print("mappable_bin:", row, mappable_bin)
             mappable_bin = None
 
     def calc_bins_boundaries(self, chroms=None, regions_df=None):
@@ -102,6 +102,7 @@ class BinsPipeline(object):
             chroms = self.genome.version.CHROMS
         bin_rows = []
         for mbin in self.bins_boundaries_generator(chroms, regions_df):
+            # print("mbin:", mbin)
             bin_rows.append(
                 (
                     mbin.chrom,
@@ -126,12 +127,24 @@ class BinsPipeline(object):
         df.sort_values(by=['bin.start.abspos'], inplace=True)
         return df
 
+    def load_mappable_regions(self, chrom=None):
+        filename = self.config.mappable_regions_filename(chrom=chrom)
+
+        df = pd.read_csv(
+            self.config.mappable_regions_filename(),
+            names=['chrom', 'start_pos', 'end_pos'],
+            sep='\t')
+        df = df.sort_values(by=['chrom', 'start_pos', 'end_pos'])
+        assert len(df) > 0
+
+        return df
+
     def run_once(self, chrom):
         print(colored(
             f"started calculating bins for chromosome {chrom}",
             "green"
         ))
-        regions_df = self.genome.load_mappable_regions()
+        regions_df = self.load_mappable_regions(chrom=chrom)
         bins_df = self.calc_bins_boundaries(
             [chrom],
             regions_df

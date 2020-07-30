@@ -51,6 +51,10 @@ class Aligner:
             self, fastq_filename: str, options: List[str] = []) -> List[str]:
         raise NotImplementedError()
 
+    def build_trimmer_command(
+            self, options: List[str] = []) -> List[str]:
+        return []
+
     def build_mappable_regions_command(
             self, options: List[str] = []) -> List[str]:
         raise NotImplementedError()
@@ -113,12 +117,16 @@ class Aligner:
     def build_mapping_pipeline(
             self, fastq_filename: str,
             num_lines: int = 0,
-            options: List[str] = []) -> List[str]:
+            mapping_options: List[str] = [],
+            trimmer_options: List[str] = []) -> List[str]:
 
         pipeline = [
             self.build_fastq_stream_command(
                 fastq_filename, num_lines=num_lines),
-            self.build_mapping_command(fastq_filename, options=options),
+            self.build_trimmer_command(
+                trimmer_options),
+            self.build_mapping_command(
+                fastq_filename, options=mapping_options),
             # post mapping filter
             self.build_postmapping_filter(),
             # sort
@@ -128,7 +136,7 @@ class Aligner:
             self.build_samtools_store_command(fastq_filename),
         ]
         pipeline = [
-            ' '.join(command) for command in pipeline
+            ' '.join(command) for command in pipeline if command
         ]
         return pipeline
 
@@ -340,7 +348,6 @@ class BWA(Aligner):
         return [
             'bwa', 'mem',
             '-S',
-            '-k', '30',
             '-w', '0',
             '-c', '1',
             '-B', '10000',
@@ -353,12 +360,21 @@ class BWA(Aligner):
             '-',
         ]
 
+    def build_trimmer_command(
+            self, options: List[str] = []) -> List[str]:
+        if not options:
+            return []
+
+        return [
+            "fastx_trimmer",
+            *options,
+        ]
+
     def build_mappable_regions_command(
             self, options: List[str] = []) -> List[str]:
         return [
             'bwa', 'mem',
             '-S',
-            '-k', '30',
             '-w', '0',
             '-c', '1',
             '-B', '10000',
