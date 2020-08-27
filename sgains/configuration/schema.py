@@ -34,7 +34,7 @@ sge_schema = {
 aligner_schema = {
     "aligner_name": {
         "type": "string",
-        "allowed": ["bowtie", "hisat2"],
+        "allowed": ["bowtie", "hisat2", "bwa"],
         "default": "bowtie",
         "meta": {
             "help": "aligner to use in sGAINS subcommands"
@@ -181,6 +181,14 @@ mapping_schema = {
             "help": "additional aligner mapping options"
         },
     },
+    "mapping_fastx_trimmer_options": {
+        "type": "string",
+        "default": "",
+        "meta": {
+            "help": "options to pass to fastx_trimmer tool"
+        },
+    },
+
 }
 
 

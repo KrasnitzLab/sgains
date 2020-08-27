@@ -151,7 +151,7 @@ class MappableRegionsPipeline(object):
         aligner_command = self.aligner.build_mappable_regions_command(
             options=aligner_options
         )
-        print('aligner command', ' '.join(aligner_command))
+        print('aligner command:', ' '.join(aligner_command))
 
         with Popen(aligner_command, stdout=PIPE, stdin=PIPE) as proc:
 

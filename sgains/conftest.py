@@ -4,7 +4,7 @@ import pytest
 import pandas as pd
 
 from sgains.configuration.parser import Config
-from sgains.aligners import Hisat2
+from sgains.aligners import Hisat2, BWA
 from sgains.genome import Genome
 
 
@@ -25,6 +25,7 @@ def tests_config():
     return config
 
 
+
 @pytest.fixture(scope='session')
 def tests_genome(tests_config):
     genome = Genome(tests_config)
@@ -37,6 +38,12 @@ def tests_genome(tests_config):
 def hisat2(tests_config, tests_genome):
     assert tests_config.genome.genome_version == 'hg19'
     return Hisat2(tests_config, tests_genome.version)
+
+
+@pytest.fixture(scope='session')
+def bwa(tests_config, tests_genome):
+    assert tests_config.genome.genome_version == 'hg19'
+    return BWA(tests_config, tests_genome.version)
 
 
 @pytest.fixture(scope='session')

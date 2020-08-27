@@ -102,19 +102,6 @@ class Genome(object):
 
         return self._chrom_sizes
 
-    def load_mappable_regions(self):
-        filename = self.config.mappable_regions_filename()
-        print(filename)
-
-        df = pd.read_csv(
-            self.config.mappable_regions_filename(),
-            names=['chrom', 'start_pos', 'end_pos'],
-            sep='\t')
-        df.sort_values(by=['chrom', 'start_pos', 'end_pos'], inplace=True)
-        assert len(df) > 0
-
-        return df
-
     def bins_boundaries(self):
         bins_boundaries_filename = self.config.bins_boundaries_filename()
         print("bins boundaries:", bins_boundaries_filename)

@@ -69,13 +69,19 @@ class MappingPipeline(object):
         )
 
         commands = []
-        mapping_opts = self.config.mapping.mapping_aligner_options.split(' ')
+        mapping_opts = \
+            self.config.mapping.mapping_aligner_options.split(' ')
+        trimmer_opts = \
+            self.config.mapping.mapping_fastx_trimmer_options.split(' ')
 
         for fastq_filename in fastq_filenames:
             mapping_pipeline = self.genome.aligner\
                 .build_mapping_pipeline(
                     fastq_filename,
-                    num_lines=0, options=mapping_opts)
+                    num_lines=0,
+                    mapping_options=mapping_opts,
+                    trimmer_options=trimmer_opts)
+
             mapping_command = ' | '.join(mapping_pipeline)
             index_command = self.genome.aligner\
                 .build_samtools_index_command(fastq_filename)
