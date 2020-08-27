@@ -52,7 +52,8 @@ class Mapping(object):
             print(
                 "mapping: acceptable with non exact match:",
                 self, self.cigar, file=sys.stderr)
-
+            # assert False, (self, self.cigar)
+            return False
         return result
 
 

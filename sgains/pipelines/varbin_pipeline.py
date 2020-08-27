@@ -81,6 +81,9 @@ class VarbinPipeline(object):
                 chrom = seg.reference_name
                 if chrom not in chroms:
                     continue
+                if seg.cigarstring != f'{seg.reference_length}M':
+                    print("non exact mapping:", seg, seg.cigarstring)
+                    continue
                 assert seg.cigarstring == f'{seg.reference_length}M', \
                     (seg, seg.cigarstring)
 

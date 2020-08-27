@@ -5,7 +5,8 @@ aligner:
 genome:
     genome_version: hg19
     genome_pristine_dir: test_data/hg19_pristine
-    genome_dir: test_data/hg19
+    # genome_dir: test_data/hg19
+    genome_dir: /home/lubo/Work/single-cell/data/demo_data/bwa_hg19/hg19
     genomeindex_prefix: genomeindex
 
 mappable_regions:

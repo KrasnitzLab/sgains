@@ -73,6 +73,13 @@ def test_generate_mappable_regions_hisat(tests_config, hisat2):
     pipeline.generate_mappable_regions(['chrM'], 100)
 
 
+def test_generate_mappable_regions_bwa(tests_config, bwa):
+
+    assert bwa is not None
+    pipeline = MappableRegionsPipeline(tests_config, bwa)
+
+    pipeline.generate_mappable_regions(['chrM'], 100)
+
 @pytest.mark.parametrize("chrom", ['chrM'])
 def test_async_mappable_regions_50_hisat(tests_config, chrom, hisat2):
 
