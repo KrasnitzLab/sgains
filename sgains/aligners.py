@@ -186,7 +186,7 @@ class Bowtie(Aligner):
             f"{genome_index_prefix}.rev.{index}.ebwt"
             for index in range(1, 3)
         ]
-        return [index_files, *rev_index_files]
+        return [*index_files, *rev_index_files]
 
     def build_mapping_command(
             self, fastq_filename: str, options: List[str] = []) -> List[str]:

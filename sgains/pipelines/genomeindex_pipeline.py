@@ -93,6 +93,7 @@ class GenomeIndexPipeline(object):
             "green"))
 
         test_filename = self.genome.aligner.genome_index_filenames[0]
+        print(colored(f"checking for index file: {test_filename}", "green"))
         if os.path.exists(test_filename) and not self.config.force:
             print(colored(
                 "output genome index {} already exists".format(test_filename),
